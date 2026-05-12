@@ -1,0 +1,31 @@
+.order_summary {
+  background: #f9f9f9;
+  padding: 16px;
+  border-radius: 10px;
+  text-align: left;
+  font-size: 12px !important;
+}
+
+.summary_row {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px;
+  border-bottom: 1px dashed #ddd;
+}
+
+.summary_row:last-child {
+  border-bottom: none;
+}
+
+.cw_card {
+  background: #f6e6e4;
+  border: 1px solid #fee2e2;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.warning-icon {
+  width: 15px;
+  height: 15px;
+}

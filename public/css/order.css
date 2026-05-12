@@ -1,0 +1,20 @@
+.order_summary {
+  background: #f9f9f9;
+  padding: 16px;
+  border-radius: 10px;
+  text-align: left;
+  font-size: 12px !important;
+  word-break: break-all;
+}
+
+.summary_row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px dashed #ddd;
+  font-size: 12px;
+}
+
+.summary_row:last-child {
+  border-bottom: none;
+}

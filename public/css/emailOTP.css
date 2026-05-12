@@ -1,0 +1,36 @@
+.otp_input {
+  width: 48px;
+  height: 48px;
+  text-align: center;
+  font-size: 20px;
+  border: 1px solid #ccc !important;
+  border-radius: 8px !important;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.otp_input:focus {
+  border-color: #007bff;
+}
+
+.resend_text {
+  text-align: center;
+  color: #555;
+  font-size: 14px;
+}
+
+.otp_group {
+  display: flex;
+  justify-content: space-between;
+  margin-inline: 16px;
+  gap: 10px;
+  /* flex-wrap: wrap; allows wrapping on smaller screens */
+}
+
+/* Responsive styles */
+@media (max-width: 480px) {
+  .otp_group {
+    gap: 2px;
+    margin-inline: 5px;
+  }
+}

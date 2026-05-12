@@ -1,0 +1,83 @@
+
+
+.ivy-embedded-checkout-screen {
+  border: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+.ivy-modal-content {
+  position: fixed;
+  z-index: 999999;
+  inset: 0;
+  color: #922020;
+  background-color: rgba(10, 10, 10, 0.25);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  border: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+.ivy-modal-content {
+  position: fixed;
+  z-index: 999999;
+  inset: 0;
+  color: #000;
+  background-color: rgba(167, 13, 13, 0.25);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+.ivy-modal-content .ivy-modal-iframe-container {
+  border: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  transform: translateZ(0);
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+}
+.ivy-modal-content .ivy-modal-checkout-screen {
+  border: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100% !important;
+  height: 100% !important;
+}
+@media (min-width: 450px) {
+  .ivy-modal-content {
+    padding: 16px 32px 32px;
+  }
+}
+@media (max-width: 450px) {
+  .ivy-modal-content .ivy-modal-iframe-container {
+    border-radius: 0px;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+  }
+}

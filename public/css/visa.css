@@ -1,0 +1,49 @@
+.card_input_group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.card_input_group .cw_input {
+  padding: 10px !important;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.card_number_input {
+  flex: 2;
+}
+
+.small_input {
+  flex: 1;
+}
+
+@media (min-width: 480px) {
+  .card_input_group {
+    flex-direction: row;
+  }
+}
+
+.visa_card_icon {
+  background: #f4f4f4;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  width: fit-content;
+  margin: auto;
+}
+
+.small_input {
+  position: relative;
+}
+#expiry-error {
+  position: absolute;
+  top: 40px;
+  color: red;
+  font-size: 12px;
+  display: none;
+  margin-top: 4px;
+}
