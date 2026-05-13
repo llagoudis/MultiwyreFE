@@ -4,6 +4,14 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --primary-gradient: linear-gradient(90deg, #4775F2 27.54%, #DB33A1 100%);
+}
+
+.bg-primary-gradient {
+  background: var(--primary-gradient);
+}
+
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {

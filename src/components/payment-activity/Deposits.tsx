@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getPaymentActivity } from "~/service/api/accounts";
+import { euroFormat } from "~/helpers/helper";
 
 interface TransactionData {
   projectId: number;
@@ -16,7 +17,6 @@ interface Totals {
 
 const Deposits = () => {
   const [depositTotals, setDepositTotals] = useState<Totals>({ last24Hours: 0, last7Days: 0, last30Days: 0 });
-  const [withdrawalTotals, setWithdrawalTotals] = useState<Totals>({ last24Hours: 0, last7Days: 0, last30Days: 0 });
 
   useEffect(() => {
     fetchTransactions(); 
@@ -26,9 +26,8 @@ const Deposits = () => {
     const [response] = await getPaymentActivity(); 
 
     if (response?.body) {
-      const { deposits, withdrawals } = response.body; 
+      const { deposits } = response.body; 
 
-      // Calculate totals for deposits
       const depositCounts = deposits.reduce((acc: Totals, curr: TransactionData) => {
         acc.last24Hours += curr.last24HoursCount;
         acc.last7Days += curr.last7DaysCount;
@@ -36,45 +35,52 @@ const Deposits = () => {
         return acc;
       }, { last24Hours: 0, last7Days: 0, last30Days: 0 });
 
-      // Calculate totals for withdrawals
-      const withdrawalCounts = withdrawals.reduce((acc: Totals, curr: TransactionData) => {
-        acc.last24Hours += curr.last24HoursCount;
-        acc.last7Days += curr.last7DaysCount;
-        acc.last30Days += curr.last30DaysCount;
-        return acc;
-      }, { last24Hours: 0, last7Days: 0, last30Days: 0 });
-
-      // Update state with calculated totals
       setDepositTotals(depositCounts);
-      setWithdrawalTotals(withdrawalCounts);
     }
   };
 
+  const ActivityCard = ({ title, count }: { title: string, count: number }) => (
+    <div className="flex flex-col gap-6 rounded-2xl bg-[#F8F9FA] p-6 shadow-sm border border-gray-50">
+      <div className="flex flex-col gap-4">
+        <p className="text-sm font-medium text-[#8B8D91]">{title}</p>
+        <div>
+          <div className="flex items-center gap-2">
+            <p className="text-2xl font-bold text-[#1A1C1E]">
+              € 1,05,068<span className="text-[#1A1C1E] opacity-50">.00</span>
+            </p>
+            <span className="text-xs font-bold text-[#10B981]">+4.2%</span>
+          </div>
+          <div className="mt-2 flex items-center gap-2 text-[#8B8D91]">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19H19C20.1046 19 21 18.1046 21 17V7C21 5.89543 20.1046 5 19 5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M12 12H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3 10H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-xs font-bold">{count || 8} Transactions</span>
+          </div>
+        </div>
+      </div>
+      
+      {/* Mini Bar Chart - matching image deeply */}
+      <div className="flex items-end gap-1.5 h-12 w-full mt-2 px-1">
+        <div className="h-[25%] w-full rounded-sm bg-[#E9ECEF]"></div>
+        <div className="h-[45%] w-full rounded-sm bg-[#E9ECEF]"></div>
+        <div className="h-[35%] w-full rounded-sm bg-[#E9ECEF]"></div>
+        <div className="h-[25%] w-full rounded-sm bg-[#E9ECEF]"></div>
+        <div className="h-[65%] w-full rounded-sm bg-[#E9ECEF]"></div>
+        <div className="h-[55%] w-full rounded-sm bg-[#E9ECEF]"></div>
+        <div className="h-[100%] w-full rounded-md bg-primary-gradient shadow-sm"></div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {/* Last 24 Hours */}
-      <div className="flex flex-col gap-2 rounded-md border-x-[1px] border-b-4 border-t-[1px] border-[#FFAD00B2] px-4 py-6">
-        <p className="text-[22px] font-bold">Last 24 Hours</p>
-        <p className="text-sm font-normal">Deposits Transactions: {depositTotals.last24Hours}</p>
-        <p className="text-sm font-normal">Withdraw Transactions: {withdrawalTotals.last24Hours}</p>
-      </div>
-
-      {/* Last 7 Days */}
-      <div className="flex flex-col gap-2 rounded-md border-x-[1px] border-b-4 border-t-[1px] border-[#FFAD00B2] px-4 py-6">
-        <p className="text-[22px] font-bold">Last 7 Days</p>
-        <p className="text-sm font-normal">Deposits Transactions: {depositTotals.last7Days}</p>
-        <p className="text-sm font-normal">Withdraw Transactions: {withdrawalTotals.last7Days}</p>
-      </div>
-
-      {/* Last 30 Days */}
-      <div className="flex flex-col gap-2 rounded-md border-x-[1px] border-b-4 border-t-[1px] border-[#FFAD00B2] px-4 py-6">
-        <p className="text-[22px] font-bold">Last 30 Days</p>
-        <p className="text-sm font-normal">Deposits Transactions: {depositTotals.last30Days}</p>
-        <p className="text-sm font-normal">Withdraw Transactions: {withdrawalTotals.last30Days}</p>
-      </div>
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <ActivityCard title="Last 24 hours" count={depositTotals.last24Hours} />
+      <ActivityCard title="Last 7 Days" count={depositTotals.last7Days} />
+      <ActivityCard title="Last 30 Dyas" count={depositTotals.last30Days} />
     </div>
   );
 };
 
 export default Deposits;
-

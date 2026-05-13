@@ -1,281 +1,134 @@
+import { Fragment, useEffect, useState, useContext } from "react";
 import Image, { type StaticImageData } from "next/image";
-import { usePathname } from "next/navigation";
 import { useRouter } from "next/router";
-import React, { useContext, useEffect, useState } from "react";
-import { RiCloseCircleLine } from "react-icons/ri";
-import logout from "~/assets/general/logout.svg";
-import { logout as LogoutUser } from "~/helpers/helper";
-import { checkUserStatus } from "~/service/api/accounts";
-import localStorageService from "~/service/LocalstorageService";
-import useGlobalStore from "~/store/useGlobalStore";
-import bulkupload from "../../assets/navicons/bulkupload.svg";
-import exchange from "../../assets/navicons/exchange.svg";
-import home from "../../assets/navicons/home.svg";
-import invoices from "../../assets/navicons/invoice.svg";
-import profile from "../../assets/navicons/profile.svg";
-import reports from "../../assets/navicons/report.svg";
-import transfers from "../../assets/navicons/transfers.svg";
+import logo from "../../assets/images/new-log.png";
 import { SidebarContext } from "../context/SidebarProvider";
+import {
+  DashboardTabIcon,
+  ExcahngeTabIcon,
+  TransferTabIcon,
+  InvoiceTabIcon,
+  HistoryTabIcon,
+  ProfileTabIcon
+} from "~/assets/svgs";
 
-interface Route {
-  name: string;
-  path: string;
-  icon: string; // Assuming your icon is a string path to the image
-}
-
-interface State {
-  open: boolean;
-  handleSidebar: () => void;
-}
-
-const Sidebar: React.FC = () => {
-  const pathName = usePathname();
+const Sidebar = () => {
+  const { open } = useContext(SidebarContext);
   const router = useRouter();
-
-  const { open, handleSidebar }: State = useContext(SidebarContext);
-
-  const admin = useGlobalStore((state) => state.admin);
-
-  const profileImgLink = useGlobalStore((state) => state.user.profileImgLink);
-  const handleNavigate = async (path: any) => {
-    try {
-      if (path === "/app/exchange" || path === "/app/transfers") {
-        const [response, error] = await checkUserStatus();
-
-        if (response?.success) {
-          router.push(path);
-        }
-      } else {
-        router.push(path);
-      }
-    } catch (error) {}
-  };
-
-  const [routes, setRoutes] = useState<Route[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [pathName, setPathName] = useState("");
 
   useEffect(() => {
-    const authBody = localStorageService.decodeAuthBody();
+    setPathName(router.pathname);
+  }, [router.pathname]);
 
-    const userType = authBody?.userType;
-    const allStaffsCheck = authBody?.allStaffs || [];
-    const viewerRole = authBody?.roles;
+  const handleNavigate = (path: string) => {
+    void router.push(path);
+  };
 
-    let updatedRoutes: Route[] = [
-      { name: "dashboard", path: "/app/dashboard", icon: home },
-      { name: "exchange", path: "/app/exchange", icon: exchange },
-      { name: "transfers", path: "/app/transfers", icon: transfers },
-      { name: "History", path: "/app/history", icon: reports },
-      { name: "profile", path: "/app/profile", icon: profile },
-    ];
+  const routes = [
+    {
+      name: "Dashboard",
+      path: "/app/dashboard",
+      icon: DashboardTabIcon,
+    },
+    {
+      name: "Exchange",
+      path: "/app/exchange",
+      icon: ExcahngeTabIcon,
+    },
+    {
+      name: "Transfers",
+      path: "/app/transfers",
+      icon: TransferTabIcon,
+    },
+    {
+      name: "Invoice",
+      path: "/app/invoice",
+      icon: InvoiceTabIcon,
+    },
+    {
+      name: "History",
+      path: "/app/history",
+      icon: HistoryTabIcon,
+    },
+    {
+      name: "Bulk Payout",
+      path: "/app/bulk-payout",
+      icon: HistoryTabIcon,
+    },
+    {
+      name: "Profile",
+      path: "/app/profile",
+      icon: ProfileTabIcon,
+    },
+  ];
 
-    if (viewerRole === "ex_user_viewer") {
-      updatedRoutes = updatedRoutes.filter(
-        (route) => route.name === "Reports" || route.name === "dashboard",
-      );
+  const isActive = (path: string) => pathName === path;
 
-      if (userType === "PROJECT" || userType === "COMPANY") {
-        updatedRoutes.push({
-          name: "invoices",
-          path: "/app/invoices",
-          icon: invoices,
-        });
-      }
-    } else {
-      if (userType === "PROJECT") {
-        updatedRoutes = updatedRoutes.filter(
-          (route) => route.name !== "exchange",
-        );
-      }
-
-      if (
-        Array.isArray(allStaffsCheck) &&
-        allStaffsCheck.every(
-          (user) =>
-            Array.isArray(user.projectUsers) && user.projectUsers.length > 0,
-        )
-      ) {
-        if (userType === "PROJECT" || userType === "COMPANY") {
-          updatedRoutes.splice(2, 0, {
-            name: "invoices",
-            path: "/app/invoices",
-            icon: invoices,
-          });
-
-          if (userType === "PROJECT") {
-            updatedRoutes.push({
-              name: "Bulk Payout",
-              path: "/app/bulkPayout",
-              icon: bulkupload,
-            });
-          }
-        }
-      }
-    }
-
-    setRoutes(updatedRoutes);
-    setLoading(false);
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>; // Replace with a skeleton loader if needed
-  }
+  // open = true means collapsed in your original logic
+  const isCollapsed = open;
 
   return (
-    <>
+    <Fragment>
       {/* Desktop */}
-      <nav
-        className={`${
-          !open ? "w-full md:w-48 " : "w-[70px]"
-        }   hidden h-screen duration-500 md:block`}
-      >
-        <div className="logo relative flex h-20 items-center justify-center bg-gradient-to-r from-blue-500 to-blue-500 text-white">
-          {admin?.profileImgLink && (
-            <div className="logo relative flex items-center justify-center py-2  ">
-              <Image
-                alt={"Profile"}
-                className="h-auto w-[100px] object-cover"
-                src={admin?.profileImgLink || profileImgLink}
-                width={"150"}
-                height={"100"}
-                priority={true}
-              />
-            </div>
-          )}
+      <nav className={`${!isCollapsed ? "w-64" : "w-[80px]"} hidden h-screen bg-white transition-all duration-300 md:flex flex-col`}>
+        <div className="logo relative flex h-20 items-center justify-center bg-[#4775F2] text-white overflow-hidden">
+          <Image
+            alt="Logo"
+            className={`transition-all duration-300 ${!isCollapsed ? "w-36" : "w-10"} h-auto object-cover`}
+            src={logo}
+            width={150}
+            height={32}
+            priority
+          />
         </div>
 
-        <div className=" flex  flex-col gap-8 pl-6 pt-12 capitalize">
-          {routes.map((item: any, i: any) => {
+        <div className="flex flex-1 flex-col gap-2 p-4 pt-10 capitalize overflow-y-auto overflow-x-hidden">
+          {routes.map((item, i) => {
+            const Icon = item.icon;
+            const active = isActive(item.path);
             return (
               <div
                 key={i}
-                onClick={() => {
-                  handleNavigate(item.path);
-                }}
-                className="group flex cursor-pointer items-center gap-4 p-2 rounded-[10px] transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-700 hover:text-white"
-              >
-                <Image
-                  alt=""
-                  src={item.icon as StaticImageData}
-                  className={` brightness-[0]  ${
-                    pathName === item.path && "brightness-[1]"
+                onClick={() => handleNavigate(item.path)}
+                className={`group flex cursor-pointer items-center transition-all duration-300 ${isCollapsed ? "justify-center p-3" : "gap-4 p-3"} rounded-lg ${active
+                  ? "bg-primary-gradient text-white shadow-md"
+                  : "text-[#606060] hover:bg-gray-50 hover:text-[#1A1C1E]"
                   }`}
-                />
-
-                <h1
-                  style={
-                    {
-                      // transitionDelay: `${i + 3}00ms`,
-                    }
-                  }
-                  className={`font-semibold group-hover:text-white ${
-                    pathName === item.path && "text-[#C3922E]"
-                  }  ${open && "pointer-events-none opacity-0"}`}
-                >
-                  {item?.name}
-                </h1>
+              >
+                <div className="flex-shrink-0">
+                  <Icon className={`${active ? "text-white" : "text-[#606060] group-hover:text-[#1A1C1E]"} transition-colors`} />
+                </div>
+                {!isCollapsed && (
+                  <span className={` font-semibold whitespace-nowrap transition-opacity duration-300 ${active ? "text-white" : "text-[#606060] group-hover:text-[#1A1C1E]"}`}>
+                    {item.name}
+                  </span>
+                )}
               </div>
             );
           })}
         </div>
-        <div className="absolute bottom-6 mt-5 flex flex-col justify-center gap-9 pl-6 capitalize">
-          <button
-            className="group flex cursor-pointer items-center gap-3"
-            onClick={LogoutUser}
-          >
-            <Image
-              alt=""
-              src={logout as StaticImageData}
-              className={`brightness-0 group-hover:brightness-100`}
-            />
-            <h1
-              className={`font-semibold text-black group-hover:text-white ${
-                open && "opacity-0 "
-              }`}
-            >
-              Logout
-            </h1>
-          </button>
-        </div>
-      </nav>
-      {/* Mobile */}
-      <nav
-        className={`fixed h-full  w-1/2 bg-black lg:w-[35vw] ${
-          open ? "left-0" : "-left-full"
-        } top-0 z-50 block p-1 duration-500 md:hidden`}
-      >
-        <div className="logo relative flex h-[15vh] justify-end p-5 text-white">
-          <RiCloseCircleLine
-            onClick={handleSidebar}
-            className="h-5 w-5 cursor-pointer"
-          />
-        </div>
-        <div className="logo relative flex h-[10vh] items-center justify-center text-white">
-          {admin?.profileImgLink && (
-            <Image
-              alt={"Profile"}
-              className="h-auto w-[100px] object-cover"
-              src={admin?.profileImgLink || profileImgLink}
-              width={"150"}
-              height={"100"}
-              priority={true}
-            />
-          )}
-        </div>
 
-        <div className=" flex flex-col justify-center gap-7 pl-6 capitalize">
-          {routes.map((item: any, i: any) => (
-            <div
-              key={i}
-              // href={item.path}
-              onClick={() => {
-                handleNavigate(item.path);
-              }}
-              className="group flex cursor-pointer items-center gap-4 "
-            >
-              <Image
-                alt=""
-                src={item.icon as StaticImageData}
-                className={`group-hover:brightness-200  ${
-                  pathName === item.path && "brightness-200"
-                }`}
-              />
-              <h1
-                style={
-                  {
-                    // transitionDelay: `${i + 3}00ms`,
-                  }
-                }
-                className={`text-[#8B8D91] group-hover:text-white ${
-                  pathName === item.path && "text-white"
-                }  ${!open && "pointer-events-none opacity-0"}`}
-              >
-                {item?.name}
-              </h1>
-            </div>
-          ))}
-        </div>
-        <div className="absolute bottom-6 mt-5 flex flex-col justify-center gap-7 pl-6 capitalize">
-          <button
-            className="group flex cursor-pointer items-center gap-3"
-            onClick={LogoutUser}
+        {/* Logout at bottom */}
+        <div className="p-4 border-t border-gray-50">
+          <div
+            onClick={() => handleNavigate("/auth/login")}
+            className={`group flex cursor-pointer items-center transition-all duration-300 ${isCollapsed ? "justify-center p-3" : "gap-4 p-3"} rounded-lg text-[#606060] hover:bg-gray-50 hover:text-[#1A1C1E]`}
           >
-            <Image
-              alt=""
-              src={logout as StaticImageData}
-              className={`group-hover:brightness-200`}
-            />
-            <h1
-              className={`text-[#8B8D91] group-hover:text-white ${
-                !open && "opacity-0 "
-              }`}
-            >
-              Logout
-            </h1>
-          </button>
+            <div className="flex-shrink-0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#606060] group-hover:text-[#1A1C1E]">
+                <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M16 17L21 12L16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            {!isCollapsed && (
+              <span className="text-sm font-semibold whitespace-nowrap">Logout</span>
+            )}
+          </div>
         </div>
       </nav>
-    </>
+    </Fragment>
   );
 };
 
