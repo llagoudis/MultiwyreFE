@@ -348,9 +348,9 @@ const ExchangeNew = () => {
 
           <div className="h-[1px] bg-[#0B09094A] w-full"></div>
 
-          <div className="p-6 space-y-10">
+          <div className="p-4 md:p-6 space-y-6 md:space-y-10">
             {/* Asset Selection */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row md:items-center gap-4">
               <div className="flex-1 space-y-2.5">
                 <label className="text-lg font-semibold text-[#1A1C1E] ml-1">From</label>
                 <Controller
@@ -400,16 +400,18 @@ const ExchangeNew = () => {
                 />
               </div>
 
-              <button
-                type="button"
-                onClick={handleSwap}
-                className="mt-9 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-gray-100 bg-white hover:bg-gray-50 transition-all shadow-sm"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M17 1L21 5M21 5L17 9M21 5H7" stroke="#606060" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M7 23L3 19M3 19L7 15M3 19H17" stroke="#606060" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
+              <div className="flex justify-center md:mt-9">
+                <button
+                  type="button"
+                  onClick={handleSwap}
+                  className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-gray-100 bg-white hover:bg-gray-50 transition-all shadow-sm rotate-90 md:rotate-0"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 1L21 5M21 5L17 9M21 5H7" stroke="#606060" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M7 23L3 19M3 19L7 15M3 19H17" stroke="#606060" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </div>
 
               <div className="flex-1 space-y-2.5">
                 <label className="text-lg font-semibold text-[#1A1C1E] ml-1">To</label>
@@ -464,7 +466,7 @@ const ExchangeNew = () => {
             {/* Amount Section */}
             <div className="space-y-3">
               <label className="text-lg font-semibold text-[#1A1C1E] ml-1">Amount<span className="text-red-500">*</span></label>
-              <div className="relative h-16 w-full flex items-center bg-white border border-gray-200 rounded-lg px-5 focus-within:border-[#4775F2] transition-all">
+              <div className="relative sm:h-16 min-h-[64px] w-full flex items-center bg-white border border-gray-200 rounded-lg px-3 sm:px-5 focus-within:border-[#4775F2] transition-all gap-2">
                 <Controller
                   control={control}
                   name="volume"
@@ -473,18 +475,18 @@ const ExchangeNew = () => {
                       {...field}
                       type="number"
                       placeholder="Enter Amount"
-                      className="flex-1 bg-transparent text-xl font-medium text-[#1A1C1E] outline-none placeholder:text-gray-300 placeholder:font-normal"
+                      className="flex-1 bg-transparent text-lg sm:text-xl font-medium text-[#1A1C1E] outline-none placeholder:text-gray-300 placeholder:font-normal min-w-0"
                     />
                   )}
                 />
-                <div className="flex items-center gap-4">
-                  <span className="text-xl font-medium text-[#1A1C1E] opacity-60 uppercase">{coinForKrakenName(from)}</span>
+                <div className="flex items-center gap-1.5 sm:gap-4 flex-shrink-0">
+                  <span className="text-base sm:text-xl font-medium text-[#1A1C1E] opacity-60 uppercase">{coinForKrakenName(from)}</span>
                   <button
                     type="button"
                     onClick={() => setValue("volume", parseFloat(assetBalance?.balance ?? "0"))}
-                    className="h-10 px-6 border border-[#4775f2b1] text-[#4775F2] rounded-md text-sm font-semibold bg-white hover:bg-blue-50 transition-colors"
+                    className="h-9 sm:h-10 px-2 sm:px-6 border border-[#4775f2b1] text-[#4775F2] rounded-md text-[10px] sm:text-sm font-semibold bg-white hover:bg-blue-50 transition-colors whitespace-nowrap"
                   >
-                    Max ({Number(assetBalance?.balance || 0).toFixed(6)} {fromAssetValue?.name || ""})
+                    Max <span className="hidden md:inline">({Number(assetBalance?.balance || 0).toFixed(6)} {fromAssetValue?.name || ""})</span>
                   </button>
                 </div>
               </div>
@@ -523,17 +525,17 @@ const ExchangeNew = () => {
             </div>
 
             {/* Price Information Boxes */}
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-white border border-gray-200 rounded-lg p-8 space-y-3">
-                <p className="text-lg font-medium text-[#606060] opacity-80">Market Price</p>
-                <h2 className="text-4xl font-bold text-[#1A1C1E] tracking-tight">{market || "78258.60000000"}</h2>
-                <p className="text-lg text-[#606060] opacity-60 font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
+            <div className="grid grid-cols-2 sm:gap-6 gap-4">
+              <div className="bg-white border border-gray-200 rounded-md sm:p-6 p-4 space-y-3">
+                <p className="text-base sm:text-lg font-medium text-[#606060] opacity-80">Market Price</p>
+                <h2 className="text-xl sm:text-2xl break-all font-bold text-[#1A1C1E] tracking-tight">{market || "78258.60000000"}</h2>
+                <p className="text-sm md:text-base text-[#606060] opacity-60 font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
               </div>
 
-              <div className="bg-[#FFF8F9] border border-[#FFD0DA] rounded-lg p-8 space-y-3">
-                <p className="text-lg font-medium text-[#606060] opacity-80">You will receive</p>
-                <h2 className="text-4xl font-bold text-[#FF3D71] tracking-tight">{receive || "0.1"}</h2>
-                <p className="text-lg text-[#606060] opacity-60 font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
+              <div className="bg-[#FFF8F9] border border-[#FFD0DA] rounded-md sm:p-6 p-4 space-y-3">
+                <p className="text-base sm:text-lg font-medium text-[#606060] opacity-80">You will receive</p>
+                <h2 className="text-xl sm:text-2xl break-all font-bold text-[#FF3D71] tracking-tight">{receive || "0.1"}</h2>
+                <p className="text-sm md:text-base text-[#606060] opacity-60 font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
               </div>
             </div>
 
@@ -542,7 +544,7 @@ const ExchangeNew = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="bg-primary-gradient text-white px-12 py-4 rounded-lg font-bold text-xl shadow-lg shadow-blue-100 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                className="w-full md:w-auto bg-primary-gradient text-white px-12 py-4 rounded-lg font-bold text-xl shadow-lg shadow-blue-100 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
               >
                 {isLoading ? "Processing..." : "Execute Trade"}
               </button>

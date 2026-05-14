@@ -103,27 +103,26 @@ const WalletCard: React.FC<WalletCardProps> = ({ walletDetails, currency }) => {
               )} */}
             </div>
 
-            <div className="flex flex-col w-full ">
-              <div className="flex items-center justify-between  flex-1 gap-3">
-                <p className="text-lg  text-[#424242] whitespace-nowrap">{walletDetails.name}</p>
+            <div className="flex flex-col w-full min-w-0">
+              <div className="flex items-center justify-between flex-1 gap-2 md:gap-3">
+                <p className="text-base md:text-lg text-[#424242] whitespace-nowrap truncate">{walletDetails.name}</p>
 
-                {/* Smooth hover buttons - only appear on hover */}
-                <div className={`flex gap-1.5 transition-all duration-300 ease-in-out ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 pointer-events-none'}`}>
+                {/* Smooth hover buttons - always visible on mobile, hover on desktop */}
+                <div className={`flex gap-1.5 transition-all duration-300 ease-in-out md:translate-x-0 ${isHovered ? 'opacity-100 translate-x-0' : 'md:opacity-0 md:-translate-x-2 md:pointer-events-none opacity-100'}`}>
                   <button
                     onClick={(e) => { e.stopPropagation(); setOpen(true); }}
-                    className="group flex h-9 w-9 items-center justify-center rounded-md border border-[#4775F2] bg-white hover:bg-[#4775F2] transition-all duration-200"
+                    className="group flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-md border border-[#4775F2] bg-white hover:bg-[#4775F2] transition-all duration-200 flex-shrink-0"
                   >
-                    <DownloadIcon className="text-[#4775F2] group-hover:text-white transition-colors" />
+                    <DownloadIcon className="w-4 h-4 md:w-5 md:h-5 text-[#4775F2] group-hover:text-white transition-colors" />
                   </button>
                   <Link href={`./transfers/?from=${walletDetails.assetId}&type=send`} onClick={(e) => e.stopPropagation()}>
-                    <div className="group flex h-9 w-9 items-center justify-center rounded-md border border-[#4775F2] bg-white hover:bg-[#4775F2] transition-all duration-200"
-                    >
-                      <UploadIcon className="text-[#4775F2] group-hover:text-white transition-colors" />
+                    <div className="group flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-md border border-[#4775F2] bg-white hover:bg-[#4775F2] transition-all duration-200 flex-shrink-0">
+                      <UploadIcon className="w-4 h-4 md:w-5 md:h-5 text-[#4775F2] group-hover:text-white transition-colors" />
                     </div>
                   </Link>
                   <Link href={`./exchange`} onClick={(e) => e.stopPropagation()}>
-                    <div className="group flex h-9 w-9 items-center justify-center rounded-md border border-[#4775F2] bg-white hover:bg-[#4775F2] transition-all duration-200">
-                      <ExchangeIcon className="text-[#4775F2] group-hover:text-white transition-colors" />
+                    <div className="group flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-md border border-[#4775F2] bg-white hover:bg-[#4775F2] transition-all duration-200 flex-shrink-0">
+                      <ExchangeIcon className="w-4 h-4 md:w-5 md:h-5 text-[#4775F2] group-hover:text-white transition-colors" />
                     </div>
                   </Link>
                 </div>
@@ -131,8 +130,8 @@ const WalletCard: React.FC<WalletCardProps> = ({ walletDetails, currency }) => {
             </div>
           </div>
 
-          <div className={`flex flex-col min-w-4  items-end transition-opacity duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'}`}>
-            <p className="text-lg font-semibold text-[#1A1C1E]">
+          <div className={`flex flex-col min-w-[60px] items-end transition-opacity duration-300 ${isHovered ? 'md:opacity-0 md:pointer-events-none' : 'opacity-100'} hidden sm:flex`}>
+            <p className="text-base md:text-lg font-semibold text-[#1A1C1E]">
               {Number(walletDetails.balance) ? Number(walletDetails.balance).toLocaleString() : 0}
             </p>
             <p className="text-xs font-medium text-[#8B8D91]">1</p>

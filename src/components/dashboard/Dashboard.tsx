@@ -5,6 +5,8 @@ import VerificationScreen from "../verification/identity-verification/MainScreen
 import CompanyVerification from "../verification/company-verification/MainScreen";
 import localStorageService from "~/service/LocalstorageService";
 import useGlobalStore from "~/store/useGlobalStore";
+import DepositDrawer from "./DepositDrawer";
+import ExchangeDrawer from "./ExchangeDrawer";
 import TableComponent from "../TableComponent";
 import { euroFormat } from "~/helpers/helper";
 import Head from "next/head";
@@ -87,6 +89,10 @@ const Dashboard = () => {
 
   const [authBody, setAuthBody] = useState<AuthBody | null>(null);
   const [merchantsAvailable, setMerchantsAvailable] = useState<boolean>(false);
+  
+  const [depositOpen, setDepositOpen] = useState(false);
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const [exchangeOpen, setExchangeOpen] = useState(false);
 
   const handleCompanyVerifyScreen = (value: boolean) => {
     setCompanyVerificationScreen(value);
@@ -220,25 +226,34 @@ const Dashboard = () => {
               <span className="text-lg font-bold uppercase tracking-wider">Total Balance</span>
             </div>
 
-            <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold text-black">€ 1,05,068</span>
-              <span className="text-4xl font-bold text-[#8B8D91]">.00</span>
+            <div className="flex items-baseline gap-1 md:gap-2">
+              <span className="text-2xl md:text-4xl font-bold text-black">€ 1,05,068</span>
+              <span className="text-2xl md:text-4xl font-bold text-[#8B8D91]">.00</span>
             </div>
             <p className="text-sm font-medium text-[#8B8D91]">
               All accounts balance in {dashboard.currency}
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button className="flex items-center gap-2 rounded-md bg-[#EEF1FF] px-6 py-3 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]">
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
+            <button 
+              onClick={() => setDepositOpen(true)}
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-3 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
+            >
               <DownloadIcon />
               Deposit
             </button>
-            <button onClick={() => (window.location.href = "./transfers")} className="flex items-center gap-2 rounded-md bg-[#EEF1FF] px-6 py-3 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]">
+            <button 
+              onClick={() => setWithdrawOpen(true)}
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-3 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
+            >
               <UploadIcon />
               Withdraw
             </button>
-            <button onClick={() => (window.location.href = "./exchange")} className="flex items-center gap-2 rounded-md bg-[#EEF1FF] px-6 py-3 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]">
+            <button 
+              onClick={() => setExchangeOpen(true)}
+              className="w-full md:w-auto flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-3 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
+            >
               <ExchangeIcon />
               Exchange
             </button>
@@ -271,7 +286,20 @@ const Dashboard = () => {
       {companyVerificationScreen &&
         verificationStatus.company === "PENDING" && (
           <CompanyVerification close={() => handleCompanyVerifyScreen(false)} />
-        )}    </Fragment>
+        )}
+
+      <DepositDrawer 
+        open={depositOpen} 
+        onClose={() => setDepositOpen(false)} 
+        assets={dashboard.assets}
+      />
+
+      <ExchangeDrawer
+        open={exchangeOpen}
+        onClose={() => setExchangeOpen(false)}
+        assets={dashboard.assets}
+      />
+    </Fragment>
   );
 };
 

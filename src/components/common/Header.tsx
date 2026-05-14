@@ -13,6 +13,7 @@ import { Dialog } from "@headlessui/react";
 
 interface State {
   handleSidebar: () => void;
+  setMobileOpen: (open: boolean) => void;
 }
 
 interface HeaderProps {
@@ -28,7 +29,7 @@ interface SwitchAccounts {
 }
 
 const Topbar: React.FC<HeaderProps> = ({ title }) => {
-  const { handleSidebar }: State = useContext(SidebarContext);
+  const { handleSidebar, setMobileOpen }: State = useContext(SidebarContext);
   const router = useRouter();
 
   const profileImgLink = useGlobalStore((state) => state.user.profileImgLink);
@@ -104,11 +105,11 @@ const Topbar: React.FC<HeaderProps> = ({ title }) => {
   }
 
   return (
-    <div className="relative bg-primary-gradient h-20 flex items-center shadow-md">
+    <div className="relative bg-primary-gradient sm:h-20 h-14 flex items-center shadow-md">
       <Dialog
         open={openSwitchAccounts}
         onClose={() => setopenSwitchAccounts(false)}
-        className="absolute right-[2.5%] top-[5.5rem] z-[1000] rounded-xl bg-white text-[#1A1C1E] shadow-2xl outline-none"
+        className="absolute right-[2.5%] sm:top-[5.5rem] top-[3.5rem] z-[1000] rounded-xl bg-white text-[#1A1C1E] shadow-2xl outline-none"
       >
         <div className="min-w-[320px] max-h-[65vh] overflow-y-auto px-2 py-4">
           {swicthAccounts.map((item, i) => (
@@ -140,15 +141,21 @@ const Topbar: React.FC<HeaderProps> = ({ title }) => {
         </div>
       </Dialog>
 
-      <div className="m-auto flex px-5 w-full items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="m-auto flex sm:px-5 px-3 w-full items-center justify-between">
+        <div className="flex items-center sm:gap-4 gap-2">
           <div
-            onClick={handleSidebar}
-            className="flex h-9 w-9 items-center justify-center rounded-md bg-white/20 hover:bg-white/30 cursor-pointer transition-colors"
+            onClick={() => {
+              if (window.innerWidth < 768) {
+                setMobileOpen(true);
+              } else {
+                handleSidebar();
+              }
+            }}
+            className="flex sm:h-9 h-8 sm:w-9 w-8 items-center justify-center rounded-md bg-white/20 hover:bg-white/30 cursor-pointer transition-colors"
           >
-            <Image src={menu as StaticImageData} alt="Menu" className="brightness-0 invert w-5 h-5" />
+            <Image src={menu as StaticImageData} alt="Menu" className="brightness-0 invert sm:w-5 w-4 sm:h-5 h-4" />
           </div>
-          <h1 className="text-xl font-medium text-white">
+          <h1 className="sm:text-xl font-medium text-white">
             {title === "bulkPayout" ? "Bulk Payout" : title}
           </h1>
         </div>
@@ -158,8 +165,8 @@ const Topbar: React.FC<HeaderProps> = ({ title }) => {
             onClick={() => setopenSwitchAccounts(true)}
             className="cursor-pointer"
           >
-            <div className="flex items-center gap-4 rounded-md bg-white/15 bg-[#F8F8F840] p-2 pr-4 transition-all border border-[#7E7E7E14]">
-              <div className="relative h-10 w-10">
+            <div className="flex items-center sm:gap-4 gap-2 rounded-md bg-white/15 sm:bg-[#F8F8F840] p-2 sm:pr-4 pr-2 transition-all border border-[#7E7E7E14]">
+              <div className="relative sm:h-10 h-8 sm:w-10 w-8">
                 <Image
                   alt="Profile"
                   className="h-full w-full rounded-lg object-cover"
@@ -168,12 +175,12 @@ const Topbar: React.FC<HeaderProps> = ({ title }) => {
                   height={44}
                 />
               </div>
-              <div className="flex flex-col">
-                <p className="text-sm font-bold text-white leading-tight">{activeName}</p>
-                <p className="text-[10px] font-medium text-white/80 leading-tight">{activeRole}</p>
+              <div className="hidden sm:flex flex-col">
+                <p className="sm:text-sm text-xs font-bold text-white leading-tight">{activeName}</p>
+                <p className="sm:text-[10px] text-[9px] font-medium text-white/80 leading-tight">{activeRole}</p>
               </div>
               <Image
-                className="h-2 w-3 ml-2"
+                className="h-2 w-3 ml-2 sm:block hidden"
                 style={{ filter: "brightness(0) invert(1)" }}
                 src={ArrowDown}
                 alt="down arrow"
