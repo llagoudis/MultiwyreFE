@@ -7,48 +7,40 @@ function classNames(...classes: string[]) {
 }
 
 export default function PaymentActivity() {
-  const Tabs = ["Deposits", "Withdrawals"];
-  return (
-    // <div className=" rounded-md bg-white p-6 shadow-[0px_16px_32px_0px_rgba(0,0,0,0.04)]">
-    //   <div className=" mb-4 w-full border-b-2 border-[#cdcdcd]">
-    //     <p className=" mb-4 text-base font-bold">PAYMENT ACTIVITY</p>
-    //   </div>
-    //   <Tab.Group>
-    //     <Tab.List className="">
-    //       {Tabs.map((item) => (
-    //         <Tab
-    //           key={item}
-    //           className={({ selected }) =>
-    //             classNames(
-    //               " rounded-[9px] border-none px-4 py-3 text-sm text-black",
+  const tabs = ["Deposits", "Withdrawals"];
 
-    //               selected
-    //                 ? "border-b-[3px] bg-gradient-to-r from-blue-500 to-purple-700font-bold text-white outline-none"
-    //                 : " font-medium text-black hover:text-black",
-    //             )
-    //           }
-    //         >
-    //           <p className="w-fit">{item}</p>
-    //         </Tab>
-    //       ))}
-    //     </Tab.List>
-    //     <Tab.Panels className="mt-4">
-    //       <Tab.Panel>
-    //         <Deposits />
-    //       </Tab.Panel>
-    //       <Tab.Panel>
-    //         <Withdrawals />
-    //       </Tab.Panel>
-    //     </Tab.Panels>
-    //   </Tab.Group>
-    // </div>
-    <div className="rounded-md bg-white p-6 shadow-[0px_16px_32px_0px_rgba(0,0,0,0.04)]">
-      {/* <div className="mb-4 w-full border-b-2 border-[#cdcdcd]"> */}
-        <p className="mb-4 text-base font-bold">PAYMENT ACTIVITY</p>
-      {/* </div> */}
-      <div className="mb-4">
-        <Deposits />
-      </div>
+  return (
+    <div className="rounded-2xl bg-white p-8 shadow-sm border border-gray-100">
+      <p className="mb-6 text-xl font-bold text-[#1A1C1E]">Payment Activity</p>
+
+      <Tab.Group>
+        <Tab.List className="flex space-x-2 rounded-md bg-[#EEF1FF] p-2 w-fit mb-8">
+          {tabs.map((tab) => (
+            <Tab
+              key={tab}
+              className={({ selected }) =>
+                classNames(
+                  "w-32 rounded-md py-3 text-sm font-bold leading-5 transition-all duration-200",
+                  "ring-white ring-opacity-60 ring-offset-2 focus:outline-none",
+                  selected
+                    ? "bg-primary-gradient text-white shadow"
+                    : "text-[#8B8D91] hover:bg-white/[0.12] hover:text-[#1A1C1E]"
+                )
+              }
+            >
+              {tab}
+            </Tab>
+          ))}
+        </Tab.List>
+        <Tab.Panels>
+          <Tab.Panel>
+            <Deposits />
+          </Tab.Panel>
+          <Tab.Panel>
+            <div className="text-center py-10 text-gray-400 font-medium">No withdrawal activity found.</div>
+          </Tab.Panel>
+        </Tab.Panels>
+      </Tab.Group>
     </div>
   );
 }

@@ -17,15 +17,15 @@ const Layout = ({ children, title }: Props) => {
   return (
     <>
       <SidebarProvider>
-        <div className="flex h-[100vh]">
+        <div className="flex h-[100vh] bg-brand-gray">
           <div className="">
             {!routesArray.includes(pathName) && <Sidebar />}
           </div>
           <div className="w-full overflow-y-auto " >
-<div className="sticky top-0 z-50 bg-gradient-to-r from-blue-500 to-purple-700">
-  {!routesArray.includes(pathName) && <Header title={title} />}
-</div>
-            <div>{children}</div>
+            <div className="sticky top-0 z-50 ">
+              {!routesArray.includes(pathName) && <Header title={title} />}
+            </div>
+            <div className="p-4">{children}</div>
           </div>
         </div>
       </SidebarProvider>

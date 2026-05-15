@@ -4,16 +4,26 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --primary-gradient: linear-gradient(90deg, #4775F2 27.54%, #DB33A1 100%);
+}
+
+.bg-primary-gradient {
+  background: var(--primary-gradient);
+}
+
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 /* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
 /* html {
   font-family: "Segoe UI" !important;
 } */
@@ -29,6 +39,7 @@ input[type="number"] {
   outline: none;
   cursor: pointer;
 }
+
 .rounded_checkbox:checked {
   appearance: auto;
   clip-path: circle(50% at 50% 50%);
@@ -39,7 +50,7 @@ input[type="number"] {
     linear-gradient(0deg, rgba(160, 160, 160, 0), rgba(160, 160, 160, 0));
   color: #ffffff;
 } */
- 
+
 
 @layer utilities {
   .animate-slide-up {
@@ -50,6 +61,7 @@ input[type="number"] {
     from {
       transform: translateY(100%);
     }
+
     to {
       transform: translateY(0);
     }
@@ -60,11 +72,12 @@ input[type="number"] {
   width: 4px;
   height: 15px;
 }
+
 .custom-scroll::-webkit-scrollbar-thumb {
   background-color: #000000;
   border-radius: 50px;
 }
+
 .custom-scroll::-webkit-scrollbar-track {
   background-color: #D9D9D9;
 }
-

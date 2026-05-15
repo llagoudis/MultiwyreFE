@@ -1,3 +1,4 @@
+import { Manrope } from "next/font/google";
 import { type AppType } from "next/dist/shared/lib/utils";
 import { Toaster } from "react-hot-toast";
 import { useRouter } from "next/router";
@@ -13,6 +14,12 @@ import { logout, roleRestrictions } from "~/helpers/helper";
 import Home from ".";
 import toast from "react-hot-toast";
 import { ApiHandler } from "~/service/UtilService";
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-manrope",
+});
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   const [isAllowed, setIsAllowed] = useState(false);
@@ -150,7 +157,15 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   }
 
   return (
-    <div>
+    <div className={`${manrope.variable} font-sans`}>
+      <style jsx global>{`
+        :root {
+          --font-manrope: ${manrope.style.fontFamily};
+        }
+        html, body {
+          font-family: ${manrope.style.fontFamily}, sans-serif !important;
+        }
+      `}</style>
       <Home />
       <Component {...pageProps} />
       <Toaster />

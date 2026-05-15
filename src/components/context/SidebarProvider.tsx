@@ -13,6 +13,8 @@ type Props = {
 type SidebarContextType = {
   open: boolean;
   handleSidebar: () => void;
+  mobileOpen: boolean;
+  setMobileOpen: (open: boolean) => void;
   profileImgLink: string;
   setProfileImgLink: (link: string) => void;
 };
@@ -22,6 +24,8 @@ export const SidebarContext = createContext<SidebarContextType>({
   handleSidebar: () => {
     /**/
   },
+  mobileOpen: false,
+  setMobileOpen: () => {},
   profileImgLink: "",
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   setProfileImgLink: () => {},
@@ -29,6 +33,7 @@ export const SidebarContext = createContext<SidebarContextType>({
 
 const SidebarProvider = ({ children }: Props) => {
   const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const [profileImgLink, setProfileImgLink] = useState<string>("");
   const handleSidebar = () => {
@@ -44,7 +49,7 @@ const SidebarProvider = ({ children }: Props) => {
 
   return (
     <SidebarContext.Provider
-      value={{ handleSidebar, open, setProfileImgLink, profileImgLink }}
+      value={{ handleSidebar, open, mobileOpen, setMobileOpen, setProfileImgLink, profileImgLink }}
     >
       {children}
     </SidebarContext.Provider>

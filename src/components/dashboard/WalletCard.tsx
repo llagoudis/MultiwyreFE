@@ -1,27 +1,20 @@
-import {Fragment, useCallback, useState} from "react";
-import Image, {type StaticImageData} from "next/image";
+import { Fragment, useState } from "react";
+import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
-import arrowUp from "../../assets/general/send_money.svg";
-import arrowDown from "../../assets/general/receive_money.svg";
-import transfer from "../../assets/general/transfer_money.svg";
-import qrScanner from "../../assets/general/qr_code_scanner.svg";
-import {euroFormat, maskAddress} from "~/helpers/helper";
-import {Dialog, Snackbar} from "@mui/material";
 import Copy from "~/assets/general/copy.svg";
-
-type imageType = StaticImageData;
+import { Dialog, Snackbar } from "@mui/material";
+import { DownloadIcon, ExchangeIcon, UploadIcon } from "~/assets/svgs";
 
 interface WalletCardProps {
   walletDetails: DashboardAssetType;
   currency?: string;
 }
 
-const WalletCard: React.FC<WalletCardProps> = ({walletDetails, currency}) => {
+const WalletCard: React.FC<WalletCardProps> = ({ walletDetails, currency }) => {
   const [openqr, setOpen] = useState(false);
   const [messagePopup, setMessagePopup] = useState(false);
-  const openQR = () => setOpen(true);
+  const [isHovered, setIsHovered] = useState(false);
   const closeQR = () => setOpen(false);
-  // const toggleOpen = useCallback(() => setOpen((prev) => !prev), []);
 
   const onCopy = () => {
     if (walletDetails.assetAddress) {
@@ -32,114 +25,116 @@ const WalletCard: React.FC<WalletCardProps> = ({walletDetails, currency}) => {
     }
   };
 
+  const name = walletDetails.name.toLowerCase();
+  const isEuro = name.includes('eiro') || name.includes('euro');
+  const isBtc = name.includes('bitcoin');
+  const isUsdt = name.includes('usdt');
+  const isEth = name.includes('eth');
+  const isUsdc = name.includes('usdc');
+
+  const isTRC = name.includes('trc');
+  const isBSC = name.includes('bsc');
+  const isPolygon = name.includes('polygon');
+
+  const getBgColor = () => {
+    if (isEuro) return 'bg-[#4775F2]';
+    if (isBtc) return 'bg-[#F7931A]';
+    if (isUsdt) return 'bg-[#26A17B]';
+    if (isEth) return 'bg-[#627EEA]';
+    if (isUsdc) return 'bg-[#2775CA]';
+    return 'bg-gray-200';
+  };
+
   return (
     <Fragment>
       <Snackbar
         open={messagePopup}
-        anchorOrigin={{vertical: "top", horizontal: "center"}}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
         onClose={() => setMessagePopup(false)}
         autoHideDuration={1000}
         message="Copied to clipboard"
       />
       {!!walletDetails.qrImage && (
-        <Dialog
-          open={openqr}
-          onClose={closeQR}
-          fullWidth
-          sx={{
-            "& .MuiDialog-container": {
-              "& .MuiPaper-root": {
-                width: "auto",
-                maxWidth: "750px",
-              },
-            },
-          }}
-        >
+        <Dialog open={openqr} onClose={closeQR} fullWidth>
           <div className=" h-full w-full rounded p-8 md:h-[35vh]">
-            <div className="flex h-full w-full flex-col items-center md:flex-row">
-              <Image
-                className=" aspect-square w-40"
-                alt="qr code"
-                src={walletDetails.qrImage ?? ""}
-                width={20}
-                height={20}
-              />
+            <div className="flex h-full w-full flex-col items-center md:flex-row gap-6">
+              <Image className=" aspect-square w-40" alt="qr code" src={walletDetails.qrImage ?? ""} width={160} height={160} />
               <div className="flex flex-col items-center justify-center gap-2 md:items-start md:justify-start ">
                 <p className=" text-xl font-bold">Wallet address</p>
-                <div className="flex flex-col items-center justify-center gap-2 md:flex-row md:justify-start">
-                  <p className=" break-all text-center font-medium sm:break-normal sm:text-start">
-                    {walletDetails.assetAddress}
-                  </p>
-                  <Image
-                    onClick={onCopy}
-                    className="cursor-pointer"
-                    src={Copy as StaticImageData}
-                    alt="Copy"
-                  />
+                <div className="flex items-center gap-2">
+                  <p className=" break-all font-medium">{walletDetails.assetAddress}</p>
+                  <Image onClick={onCopy} className="cursor-pointer" src={Copy as StaticImageData} alt="Copy" />
                 </div>
-
-                <button
-                  onClick={closeQR}
-                  className=" cursor-pointer text-sm"
-                >
-                  <p className=" text-base font-bold text-[#C1922E]">Go back</p>
-                </button>
+                <button onClick={closeQR} className=" mt-4 text-[#4775F2] font-bold">Go back</button>
               </div>
             </div>
           </div>
         </Dialog>
       )}
 
-      {/* Updated Card Design */}
       <div
-        key={walletDetails.id}
-        className="rounded-sm bg-white p-4"
-        style={{
-          border: "1px solid blue",
-          borderRadius: "5px"
-        }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className={`relative rounded-lg bg-white p-4 transition-all duration-300 border h-[80px] flex items-center ${isHovered ? 'border-[#4775F2] shadow-[0px_4px_12px_rgba(71,117,242,0.1)]' : 'border-gray-200'}`}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Image
-              className="aspect-square h-10 w-10"
-              src={walletDetails.icon ?? ""}
-              width={15}
-              height={15}
-              alt="Icon"
-            />
-            <p className="font-medium">{walletDetails.name}</p>
-            <p className="text-2xl font-bold">
-              {Number(walletDetails.balance)
-                ? Number(walletDetails.balance)?.toFixed(6)
-                : 0}
-            </p>
+        <div className="flex items-center  justify-between w-full">
+          <div className="flex items-center gap-4  flex-1">
+            {/* Square icon background with network badge */}
+            <div className="relative flex-shrink-0">
+              <div className={`flex h-12 w-12 items-center justify-center rounded-lg shadow-sm ${getBgColor()}`}>
+                {/* Removed filters to fix icon visibility */}
+                <Image className="h-7 w-7 object-contain" src={walletDetails.icon ?? ""} width={28} height={28} alt={walletDetails.name} />
+              </div>
+
+              {/* {isTRC && (
+                <div className="absolute -bottom-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white shadow-sm border border-gray-100">
+                   <div className="h-2.5 w-2.5 rounded-full bg-[#EF0027]"></div>
+                </div>
+              )}
+              {isBSC && (
+                <div className="absolute -bottom-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white shadow-sm border border-gray-100">
+                   <div className="h-2.5 w-2.5 rounded-full bg-[#F3BA2F]"></div>
+                </div>
+              )}
+              {isPolygon && (
+                <div className="absolute -bottom-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white shadow-sm border border-gray-100">
+                   <div className="h-2.5 w-2.5 rounded-full bg-[#8247E5]"></div>
+                </div>
+              )} */}
+            </div>
+
+            <div className="flex flex-col w-full min-w-0">
+              <div className="flex items-center justify-between flex-1 gap-2 md:gap-3">
+                <p className="text-base md:text-lg text-[#424242] whitespace-nowrap truncate">{walletDetails.name}</p>
+
+                {/* Smooth hover buttons - always visible on mobile, hover on desktop */}
+                <div className={`flex gap-1.5 transition-all duration-300 ease-in-out md:translate-x-0 ${isHovered ? 'opacity-100 translate-x-0' : 'md:opacity-0 md:-translate-x-2 md:pointer-events-none opacity-100'}`}>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setOpen(true); }}
+                    className="group flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-md border border-[#4775F2] bg-white hover:bg-[#4775F2] transition-all duration-200 flex-shrink-0"
+                  >
+                    <DownloadIcon className="w-4 h-4 md:w-5 md:h-5 text-[#4775F2] group-hover:text-white transition-colors" />
+                  </button>
+                  <Link href={`./transfers/?from=${walletDetails.assetId}&type=send`} onClick={(e) => e.stopPropagation()}>
+                    <div className="group flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-md border border-[#4775F2] bg-white hover:bg-[#4775F2] transition-all duration-200 flex-shrink-0">
+                      <UploadIcon className="w-4 h-4 md:w-5 md:h-5 text-[#4775F2] group-hover:text-white transition-colors" />
+                    </div>
+                  </Link>
+                  <Link href={`./exchange`} onClick={(e) => e.stopPropagation()}>
+                    <div className="group flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-md border border-[#4775F2] bg-white hover:bg-[#4775F2] transition-all duration-200 flex-shrink-0">
+                      <ExchangeIcon className="w-4 h-4 md:w-5 md:h-5 text-[#4775F2] group-hover:text-white transition-colors" />
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="flex gap-2">
-
-
-            {/* Receive Icon - opens QR dialog */}
-            <button onClick={() => {
-              console.log(walletDetails.qrImage);
-              setOpen(true);
-            }} className="cursor-pointer p-3 text-sm  border-4 border-blue-500 rounded-lg">
-              <Image alt="" src={arrowDown as imageType}/>
-            </button>
-            {/* Send Icon */}
-            <Link href={`./transfers/?from=${walletDetails.assetId}&type=send`}>
-              <button className="cursor-pointer p-3 text-sm border-4  border-blue-500 bg-blue-500 rounded-lg">
-                <Image alt="" src={arrowUp as imageType}/>
-              </button>
-            </Link>
-
-
-            {/* Transfer Icon */}
-            <Link href={`./exchange`}>
-              <button className="cursor-pointer p-3 text-sm  border-4 border-blue-500 rounded-lg">
-                <Image alt="" src={transfer as imageType}/>
-              </button>
-            </Link>
+          <div className={`flex flex-col min-w-[60px] items-end transition-opacity duration-300 ${isHovered ? 'md:opacity-0 md:pointer-events-none' : 'opacity-100'} hidden sm:flex`}>
+            <p className="text-base md:text-lg font-semibold text-[#1A1C1E]">
+              {Number(walletDetails.balance) ? Number(walletDetails.balance).toLocaleString() : 0}
+            </p>
+            <p className="text-xs font-medium text-[#8B8D91]">1</p>
           </div>
         </div>
       </div>

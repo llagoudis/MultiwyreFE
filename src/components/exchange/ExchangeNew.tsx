@@ -1,10 +1,7 @@
 import React, { Fragment, useEffect, useMemo, useState } from "react";
-import { Autocomplete, Dialog, TextField } from "@mui/material";
+import { Autocomplete, Dialog, TextField, InputAdornment } from "@mui/material";
 import Image, { type StaticImageData } from "next/image";
-import { Controller, set, useForm } from "react-hook-form";
-import ExchangeInput from "../common/ExchangeInput";
-import MuiButton from "../MuiButton";
-import SelectComponent from "../common/SelectComponent";
+import { Controller, useForm } from "react-hook-form";
 import useGlobalStore from "~/store/useGlobalStore";
 import {
   changeName,
@@ -24,6 +21,8 @@ import { getLimits } from "~/service/api/transaction";
 import toast from "react-hot-toast";
 import Close from "~/assets/general/close.svg";
 import useDashboard from "~/hooks/useDashboard";
+import { ExchangeIcon } from "~/assets/svgs";
+import ArrowDown from "~/assets/general/arrow_down.svg";
 
 const pairs = [
   "BTC/USDC",
@@ -51,8 +50,8 @@ const ExchangeNew = () => {
     getValues,
     formState: { errors },
   } = useForm<ExchangeForm>({
-    mode: "onChange", //  validate as user types
-    reValidateMode: "onChange", // optional: revalidate on change
+    mode: "onChange",
+    reValidateMode: "onChange",
     defaultValues: {
       from: coinName("BTC"),
       to: coinName("USDC"),
@@ -92,8 +91,6 @@ const ExchangeNew = () => {
     transactionFee,
   } = watch();
 
-  const admin = useGlobalStore((state) => state.admin);
-
   const dashboard = useGlobalStore((state) => state.dashboard);
   const [otcConfirmData, setOtcConfirmData] = useState<any>();
   const [isLoading, setLoading] = useState(false);
@@ -129,12 +126,8 @@ const ExchangeNew = () => {
       : parseFloat(limit ?? "0");
 
     const amount = volume * (price ? price : 0);
-
     const exchangeFee = amount * (exchangePercent / 100) + exchangeFixedFee;
-
-    const transactionFee =
-      amount * (transactionPercent / 100) + transactionFixedFee;
-
+    const transactionFee = amount * (transactionPercent / 100) + transactionFixedFee;
     const fee = Math.max(exchangeFee, 0) + Math.max(transactionFee, 0);
 
     setValue("totalFees", fee);
@@ -145,7 +138,6 @@ const ExchangeNew = () => {
     if (reversed) {
       baseVolume = parseFloat((Number(volume) * Number(price)).toFixed(8));
     }
-
     setValue("baseVolume", baseVolume);
 
     return (amount - fee).toFixed(8);
@@ -153,63 +145,43 @@ const ExchangeNew = () => {
 
   const fetchMarketData = async (pair: string, reversed: boolean) => {
     try {
-      // kraken
-      const response = await fetch(
-        `https://api.kraken.com/0/public/Ticker?pair=${pair}`,
-      );
-
+      const response = await fetch(`https://api.kraken.com/0/public/Ticker?pair=${pair}`);
       const data = await response.json();
       const priceStr = data.result[changeName(pair)]?.a[0];
 
       if (priceStr) {
         const price = parseFloat(priceStr);
         const finalPrice = reversed ? (1 / price).toFixed(8) : priceStr;
-
         const markupMultiplier = 1 + (fxMarkUp ?? 0) / 100;
-
-        const markedUpPrice = finalPrice * markupMultiplier;
-
+        const markedUpPrice = Number(finalPrice) * markupMultiplier;
         setValue("market", markedUpPrice.toFixed(8));
 
-        // Calculate 'receive' based on volume and market
         const amount = getValues("volume");
         if (!isNaN(amount) && amount > 0) {
           const received = calculateReceivedAmount(amount);
           setValue("receive", received);
         }
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const fetchFxMarkup = async (value: any) => {
     const [res] = await getFxMarkup(dashboard.priceList);
-    console.log("res: ", res);
-
-    const array: FXMarkup[] =
-      res?.body?.filter(
-        (item: any) => item?.priceListId === dashboard?.priceList,
-      ) ?? [];
-
+    const array: FXMarkup[] = res?.body?.filter((item: any) => item?.priceListId === dashboard?.priceList) ?? [];
     const filterPriceList: FXMarkup[] = array?.filter((item: any) => {
       return (
-        (item?.fromCurrencyId === "ANY" ||
-          item?.fromCurrencyId === coinName(value?.coin1)) &&
-        (item?.toCurrencyId === "ANY" ||
-          item?.toCurrencyId === coinName(value?.coin2)) &&
+        (item?.fromCurrencyId === "ANY" || item?.fromCurrencyId === coinName(value?.coin1)) &&
+        (item?.toCurrencyId === "ANY" || item?.toCurrencyId === coinName(value?.coin2)) &&
         dateValidation(item) &&
         item.status
       );
     });
-
     const fee = filterPriceList[0]?.percent ?? 0;
     setValue("fxMarkUp", Number(fee));
   };
 
   const fetchTransaferFees = async (value: any) => {
-    const [res, error]: APIResult<TransferFees[]> = await ApiHandler(
-      fetchTransaferFeesApi,
-    );
-
+    const [res, error]: APIResult<TransferFees[]> = await ApiHandler(fetchTransaferFeesApi);
     const exchangeFees = res?.body?.find((item: any) => {
       return (
         item?.priceListId === dashboard?.priceList &&
@@ -219,7 +191,6 @@ const ExchangeNew = () => {
         item.status
       );
     });
-
     const Transactionfees = res?.body?.find((item: any) => {
       return (
         item?.priceListId === dashboard?.priceList &&
@@ -230,36 +201,21 @@ const ExchangeNew = () => {
       );
     });
 
-    const response = {
-      exchangePercent: exchangeFees?.percent ?? 0,
-      exchangeFixedFee: exchangeFees?.fixedFee ?? 0,
-      transactionPercent: Transactionfees?.percent ?? 0,
-      transactionFixedFee: Transactionfees?.fixedFee ?? 0,
-    };
-
-    setValue("exchangePercent", response.exchangePercent);
-    setValue("exchangeFixedFee", response.exchangeFixedFee);
-    setValue("transactionPercent", response.transactionPercent);
-    setValue("transactionFixedFee", response.transactionFixedFee);
+    setValue("exchangePercent", exchangeFees?.percent ?? 0);
+    setValue("exchangeFixedFee", exchangeFees?.fixedFee ?? 0);
+    setValue("transactionPercent", Transactionfees?.percent ?? 0);
+    setValue("transactionFixedFee", Transactionfees?.fixedFee ?? 0);
   };
 
   const fetchEuroMarketData = async (value: string) => {
     const euroPair = value + "/EUR";
-
     try {
-      const response = await fetch(
-        `https://api.kraken.com/0/public/Ticker?pair=${changeName(euroPair)}`,
-      );
-
+      const response = await fetch(`https://api.kraken.com/0/public/Ticker?pair=${changeName(euroPair)}`);
       const data = await response.json();
-
       if (data.result[changeName(euroPair)]) {
         setValue("euroMarket", data.result[changeName(euroPair)]?.a[0]);
       }
-    } catch (error) {
-      // setPrizeFromKraken(0);
-      clearInterval(0);
-    }
+    } catch (error) { }
   };
 
   useEffect(() => {
@@ -273,33 +229,18 @@ const ExchangeNew = () => {
       reversed = true;
     }
 
-    if (reversed) {
-      setValue("reversed", true);
-    }
-
+    setValue("reversed", reversed);
     if (!matchingPair) return;
-    else setValue("pair", matchingPair);
+    setValue("pair", matchingPair);
 
     const krakenType = reversed ? "buy" : "sell";
     setValue("type", krakenType);
 
-    const base = reversed ? to : from;
-    const quote = reversed ? from : to;
-
-    //  fetchFxMarkup only with base and quote currency
-    void fetchFxMarkup({ coin1: base, coin2: quote });
-    //  fetchTransaferFees only with receiving currency
+    void fetchFxMarkup({ coin1: reversed ? to : from, coin2: reversed ? from : to });
     void fetchTransaferFees(to);
 
-    const safePair = matchingPair;
-
-    const interval_1 = setInterval(() => {
-      fetchMarketData(safePair, reversed);
-    }, 4000);
-
-    const interval_2 = setInterval(() => {
-      fetchEuroMarketData(to === "EUR" ? from_ : to_);
-    }, 4000);
+    const interval_1 = setInterval(() => fetchMarketData(matchingPair!, reversed), 4000);
+    const interval_2 = setInterval(() => fetchEuroMarketData(to === "EUR" ? from_ : to_), 4000);
 
     return () => {
       clearInterval(interval_1);
@@ -307,368 +248,34 @@ const ExchangeNew = () => {
     };
   }, [from, to]);
 
-  // Recalculate receive when volume changes
   useEffect(() => {
     if (!market || isNaN(volume) || volume <= 0) {
       setValue("receive", "0.0");
       return;
     }
-
-    const received = calculateReceivedAmount(volume);
-
-    setValue("receive", received);
+    setValue("receive", calculateReceivedAmount(volume));
   }, [volume, market]);
 
   const [limits, setLimits] = useState<Limits[]>();
-
   useEffect(() => {
     if (dashboard.limitList) {
       getLimits(dashboard.limitList).then(([res]) => {
-        if (res?.success && res?.body) {
-          setLimits(res?.body);
-        }
+        if (res?.success && res?.body) setLimits(res?.body);
       });
     }
   }, []);
-
-  const onSubmit = (data: ExchangeForm) => {
-    handleOTCConfirm();
-  };
-
-  const handleOTCConfirm = () => {
-    const { receive, to, euroMarket } = getValues();
-    const limitValue =
-      to === "EUR"
-        ? Number(receive ?? 0)
-        : Number(receive ?? 0) * Number(euroMarket ?? 0);
-
-    const errorConditionBuy = limits?.some((item) => {
-      if (
-        (item.currencyId === coinName(to) || item.currencyId === "ANY") &&
-        item.exchangeType === "TRADE" &&
-        item.exchangeLimit === "MIN"
-      ) {
-        return limitValue <= Number(item.amount);
-      } else if (
-        (item.currencyId === coinName(to) || item.currencyId === "ANY") &&
-        item.exchangeType === "TRADE" &&
-        item.exchangeLimit === "MAX"
-      ) {
-        return limitValue >= Number(item.amount);
-      } else {
-        return false;
-      }
-    });
-
-    if (errorConditionBuy) {
-      SendOTCPopup();
-      setOpen("otcPopupOne");
-    } else {
-      setOpen("confirmPopup");
-    }
-  };
-
-  function SendOTCPopup() {
-    const date = JSON.stringify(new Date());
-
-    let transactionData: TransactionConfirmData = {
-      clientName: dashboard?.firstname,
-      contactPerson: dashboard?.lastname,
-      ordertype: orderType,
-      walletAddress: "",
-      date: formatDate(JSON.parse(date)),
-      fromCurrency: "",
-      toCurrency: "",
-      amount: 0,
-    };
-
-    transactionData.fromCurrency = from;
-    transactionData.toCurrency = to;
-    transactionData.amount = volume;
-
-    const matchingAsset = dashboard.assets.find(
-      (asset) => asset.assetId === transactionData.fromCurrency,
-    );
-
-    if (matchingAsset) {
-      transactionData.walletAddress = matchingAsset.assetAddress;
-    }
-
-    transactionData = {
-      accountNumber: matchingAsset?.assetAddress,
-      ...transactionData,
-    };
-
-    setOtcConfirmData(transactionData);
-  }
-
-  async function SendOTCMail() {
-    setLoading(true);
-    const date = JSON.stringify(new Date());
-
-    let transactionData: TransactionConfirmData = {
-      clientName: dashboard?.firstname,
-      contactPerson: dashboard?.lastname,
-      ordertype: orderType,
-      walletAddress: "",
-      date: formatDate(JSON.parse(date)),
-      fromCurrency: "",
-      toCurrency: "",
-      amount: 0,
-    };
-
-    transactionData.fromCurrency = from;
-    transactionData.toCurrency = to;
-    transactionData.amount = volume;
-
-    const matchingAsset = dashboard.assets.find(
-      (asset) => asset.assetId === transactionData.fromCurrency,
-    );
-    if (matchingAsset) {
-      transactionData.walletAddress = matchingAsset.assetAddress;
-    }
-
-    transactionData = {
-      accountNumber: matchingAsset?.assetAddress,
-      ...transactionData,
-    };
-
-    const [data, error] = await ApiHandler(SendOTCTradeMail, transactionData);
-
-    setLoading(false);
-    if (data?.success) {
-      toast.success("Mail sent Successfully");
-      setOpen("");
-    }
-  }
-
-  function OTC_Dialog() {
-    return (
-      <Dialog
-        open={open === "otcPopup"}
-        onClose={() => {
-          setOpen("");
-        }}
-        maxWidth={"sm"}
-        fullWidth
-      >
-        <div className=" rounded p-4">
-          <div>
-            <div className="flex justify-between pb-4">
-              <p className=" text-sm font-bold sm:text-base lg:text-lg">
-                Confirm your Order
-              </p>
-              <button
-                onClick={() => {
-                  setOpen("");
-                }}
-              >
-                <div>
-                  <Image src={Close as StaticImageData} alt="Close" />
-                </div>
-              </button>
-            </div>
-            <div className="">
-              <div className=" flex justify-between border-b border-[#DFDDDD] py-4 text-xs sm:text-sm lg:text-base">
-                <p>Please note your order will be sent to OTC desk</p>
-              </div>
-            </div>
-            <div className="mt-4 flex items-center justify-end gap-6 ">
-              <MuiButton
-                name={"Ok"}
-                loading={isLoading}
-                className="px-8 py-3"
-                onClick={() => {
-                  SendOTCMail();
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </Dialog>
-    );
-  }
-
-  function OTC_Confirm_Dialog() {
-    return (
-      <Dialog
-        open={open === "otcPopupOne"}
-        onClose={() => {
-          setOpen("");
-        }}
-        maxWidth={"sm"}
-        fullWidth
-      >
-        <div className=" rounded p-4">
-          <div>
-            <div className="flex justify-between">
-              <p className="w-full pb-2 text-center text-sm font-bold sm:text-base lg:text-lg">
-                OTC Order Form
-              </p>
-              <button
-                onClick={() => {
-                  setOpen("");
-                }}
-              >
-                <div>
-                  <Image src={Close as StaticImageData} alt="Close" />
-                </div>
-              </button>
-            </div>
-            <div className=" flex justify-between border-b border-[#DFDDDD] py-4 text-xs sm:text-sm lg:text-base">
-              <p>
-                You are now accessing our OTC Trading desk for exclusive and
-                personalized services tailored to facilitate large transactions.
-              </p>
-            </div>
-            <div className="">
-              <p className=" mt-4 text-xs font-bold text-[#99B2C6]">
-                ORDER DETAILS
-              </p>
-              <div className=" flex justify-between border-b border-[#DFDDDD] py-4 text-xs sm:text-sm lg:text-base">
-                <p>Account Number </p>
-                <p>{otcConfirmData?.walletAddress}</p>
-              </div>
-              <div className=" flex justify-between border-b border-[#DFDDDD] py-4 text-xs sm:text-sm lg:text-base">
-                <p>Order Type</p>
-                <p>{otcConfirmData?.ordertype}</p>
-              </div>
-              <div className=" flex justify-between border-b border-[#DFDDDD] py-4 text-xs sm:text-sm lg:text-base">
-                <p>Date</p>
-                <p>{otcConfirmData?.date}</p>
-              </div>
-              <div className=" flex justify-between border-b border-[#DFDDDD] py-4 text-xs sm:text-sm lg:text-base">
-                <p>From Currency</p>
-                <p>{coinForKrakenName(from)}</p>
-              </div>
-              <div className=" flex justify-between border-b border-[#DFDDDD] py-4 text-xs sm:text-sm lg:text-base">
-                <p>To Currency</p>
-                <p>{coinForKrakenName(to)}</p>
-              </div>
-              <div className=" flex justify-between border-b border-[#DFDDDD] py-4 text-xs sm:text-sm lg:text-base">
-                <p>Amount</p>
-                <p>{otcConfirmData?.amount}</p>
-              </div>
-            </div>
-
-            <div className="mt-4 flex items-center justify-end gap-6 ">
-              <button
-                className=" cursor-pointer text-sm"
-                onClick={() => {
-                  setOpen("");
-                }}
-              >
-                Cancel
-              </button>
-              <MuiButton
-                name={"Continue"}
-                disabled={isLoading}
-                className="px-8 py-3"
-                onClick={() => {
-                  setOpen("otcPopup");
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </Dialog>
-    );
-  }
-
-  function confirmTradeDialog() {
-    return (
-      <Dialog
-        open={open === "confirmPopup"}
-        onClose={() => {
-          setOpen("");
-        }}
-        maxWidth={"sm"}
-        fullWidth
-      >
-        <div className=" rounded p-4">
-          <div>
-            <div className="flex justify-between pb-4">
-              <p className=" text-sm font-bold sm:text-base lg:text-lg">
-                Confirm your Order
-              </p>
-              <button
-                onClick={() => {
-                  setOpen("");
-                }}
-              >
-                <div>
-                  <Image src={Close as StaticImageData} alt="Close" />
-                </div>
-              </button>
-            </div>
-            <div className="">
-              <p className=" mt-4 text-xs font-bold text-[#99B2C6]">
-                ORDER DETAILS
-              </p>
-              <div className=" flex justify-between border-b border-[#DFDDDD] py-4 text-xs sm:text-sm lg:text-base">
-                <p>Order Type </p>
-                <p>{orderType === "market" ? "Market" : "Limit"}</p>
-              </div>
-              <div className=" flex justify-between border-b border-[#DFDDDD] py-4 text-xs sm:text-sm lg:text-base">
-                <p>Currency</p>
-                <p>{coinForKrakenName(to)}</p>
-              </div>
-              <div className=" flex justify-between border-b border-[#DFDDDD] py-4 text-xs sm:text-sm lg:text-base">
-                <>
-                  <p>Estimated amount to spend </p>
-                  {volume}&nbsp;{coinForKrakenName(from)}
-                </>
-              </div>
-              <div className=" flex justify-between border-b border-[#DFDDDD] py-4 text-xs sm:text-sm lg:text-base">
-                <p>Fees</p>
-                <span>
-                  {totalFees} &nbsp;
-                  {coinForKrakenName(to)}
-                </span>
-              </div>
-              <div className=" flex justify-between border-b border-[#DFDDDD] py-4 text-xs sm:text-sm lg:text-base">
-                <>
-                  <p>Estimated amount to receive </p>
-                  {receive}&nbsp;{coinForKrakenName(to)}
-                </>
-              </div>
-            </div>
-            <div className="mt-4 flex items-center justify-end gap-6 ">
-              <button
-                className=" cursor-pointer text-sm"
-                onClick={() => {
-                  setOpen("");
-                }}
-              >
-                Cancel
-              </button>
-              <MuiButton
-                name={"Continue"}
-                disabled={isLoading}
-                loading={isLoading}
-                className="px-8 py-3"
-                onClick={() => {
-                  handleAddOrder();
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </Dialog>
-    );
-  }
 
   const handleAddOrder = async () => {
     const formData = {
       spendingCurrency: from,
       receivingCurrency: to,
-      pair: pair,
+      pair,
       ordertype: orderType,
       price: market,
       spendingAmount: volume ?? 0,
       receivingAmount: receive ?? 0,
       volume: type === "sell" ? volume ?? 0 : receive ?? 0,
-      type: type,
+      type,
       fxMarkUp,
       exchangeFixedFee,
       exchangePercent,
@@ -679,235 +286,272 @@ const ExchangeNew = () => {
     };
 
     setLoading(true);
-
-    const [data, error]: APIResult<{ txid: string }> = await ApiHandler(
-      createExchangeTransaction,
-      formData,
-    );
+    const [data] = await ApiHandler(createExchangeTransaction, formData);
     setLoading(false);
 
-    if (data?.success == true) {
+    if (data?.success) {
       reset();
-      if (data?.message) {
-        toast.success(data?.message);
-      } else {
-        toast.success("Order added successfully");
-      }
-      setOpen("");
-    }
-
-    if (error) {
+      toast.success(data?.message || "Order added successfully");
       setOpen("");
     }
   };
 
+  const handleSwap = () => {
+    const tempFrom = from;
+    setValue("from", to);
+    setValue("to", tempFrom);
+  };
+
   return (
-    <div className="mt-8">
-      {OTC_Dialog()}
+    <div className="flex justify-center py-10">
+      {/* Functionality: Confirmation Dialog */}
+      <Dialog open={open === "confirmPopup"} onClose={() => setOpen("")} maxWidth="sm" fullWidth>
+        <div className="p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold">Confirm your Order</h2>
+            <button onClick={() => setOpen("")}><Image src={Close} alt="close" /></button>
+          </div>
+          <div className="space-y-4">
+            <div className="flex justify-between py-3 border-b border-gray-100">
+              <span className="text-gray-500">Order Type</span>
+              <span className="font-bold capitalize">{orderType}</span>
+            </div>
+            <div className="flex justify-between py-3 border-b border-gray-100">
+              <span className="text-gray-500">Estimated to spend</span>
+              <span className="font-bold">{volume} {coinForKrakenName(from)}</span>
+            </div>
+            <div className="flex justify-between py-3 border-b border-gray-100">
+              <span className="text-gray-500">Estimated to receive</span>
+              <span className="font-bold">{receive} {coinForKrakenName(to)}</span>
+            </div>
+          </div>
+          <div className="mt-8 flex justify-end gap-4">
+            <button type="button" onClick={() => setOpen("")} className="text-gray-500 font-semibold px-6">Cancel</button>
+            <button
+              type="button"
+              onClick={handleAddOrder}
+              className="bg-[#4775F2] text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-600 transition-colors"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      </Dialog>
 
-      {OTC_Confirm_Dialog()}
+      <form onSubmit={handleSubmit(() => setOpen("confirmPopup"))} className="w-full  max-w-3xl">
+        <div className="bg-white rounded-2xl shadow-sm border border-[#0B09094A] overflow-hidden">
+          {/* Header Section */}
+          <div className="p-6">
+            <h1 className="text-2xl font-bold text-[#1A1C1E]">Exchange</h1>
+            <p className="text-[#606060] mt-2  font-normal opacity-70">Exchange at best market price</p>
+          </div>
 
-      {confirmTradeDialog()}
-     <form onSubmit={handleSubmit(onSubmit)}>
-  <div className="mx-auto my-2 max-w-lg">
-    {/* Title and subtitle moved to left */}
-    <div className="text-left">
-      <p className="pb-[5px] text-xl font-semibold">Exchange</p>
-      <p className="pb-[15px]">Exchange at best market price</p>
-    </div>
-  </div>
-  <div className="mx-auto max-w-lg">
-    <div className="rounded-md bg-white p-6 shadow-md">
-      {/* From/To Selectors */}
-      <div className="grid grid-cols-2 gap-4">
-        {["from", "to"].map((type) => {
-          const value = type === "from" ? from : to;
-          const setValueKey = type === "from" ? to : from;
-          const assetValue =
-            type === "from" ? fromAssetValue : toAssetValue;
+          <div className="h-[1px] bg-[#0B09094A] w-full"></div>
 
-          return (
-            <div key={type} className={`${type} space-y-1`}>
-              <p>{type === "from" ? "From :" : "To :"}</p>
-              <Controller
-                control={control}
-                name={type as "from" | "to"}
-                rules={{ required: `Please select ${type} asset` }}
-                render={({
-                  field: { value, onChange },
-                  fieldState: { error },
-                }) => (
-                  <>
+          <div className="p-4 md:p-6 space-y-6 md:space-y-10">
+            {/* Asset Selection */}
+            <div className="flex flex-col md:flex-row md:items-center gap-4">
+              <div className="flex-1 space-y-2.5">
+                <label className="text-lg font-semibold text-[#1A1C1E] ml-1">From</label>
+                <Controller
+                  control={control}
+                  name="from"
+                  render={({ field: { value, onChange } }) => (
                     <Autocomplete
-                      size="small"
-                      options={assets.filter((item) => {
-                        const isSame = item.assetId !== setValueKey;
-                        return isSame;
-                      })}
-                      onChange={(_, nextValue) => {
-                        onChange(nextValue?.assetId ?? "");
-                      }}
-                      value={assetValue ?? null}
-                      getOptionLabel={(option) => option.name ?? value}
-                      renderOption={(props, option) => (
-                        <li
-                          {...props}
-                          className="flex items-center gap-2 p-2"
-                        >
-                          <Image
-                            src={option.icon ?? ""}
-                            alt={option.name}
-                            width={30}
-                            height={30}
-                          />
-                          {option.name}
-                        </li>
-                      )}
+                      options={assets}
+                      getOptionLabel={(option) => option.name || ""}
+                      value={assets.find(a => a.assetId === value) || null}
+                      onChange={(_, v) => onChange(v?.assetId)}
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          placeholder="Select currency"
-                          variant="outlined"
+                          placeholder="Select"
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              height: "64px",
+                              borderRadius: "8px",
+                              backgroundColor: "white",
+                              fontSize: "18px",
+                              fontWeight: 500,
+                              paddingLeft: "12px",
+                              "& fieldset": { borderColor: "#E5E7EB" },
+                              "&:hover fieldset": { borderColor: "#4775F2" },
+                              "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
+                            }
+                          }}
                           InputProps={{
                             ...params.InputProps,
-                            startAdornment: assetValue && (
-                              <Image
-                                className="ml-2 h-5 w-4"
-                                src={assetValue.icon ?? ""}
-                                alt={assetValue.name}
-                                width={80}
-                                height={80}
-                              />
+                            startAdornment: fromAssetValue && (
+                              <InputAdornment position="start">
+                                <Image src={fromAssetValue.icon || ""} alt="" width={28} height={28} />
+                              </InputAdornment>
                             ),
                           }}
                         />
                       )}
+                      renderOption={(props, option) => (
+                        <li {...props} className="flex items-center gap-3 p-4">
+                          <Image src={option.icon || ""} alt="" width={28} height={28} />
+                          <span className="font-medium text-lg">{option.name}</span>
+                        </li>
+                      )}
                     />
-                    <p className="text-sm text-red-500">
-                      {error?.message}
-                    </p>
-                  </>
+                  )}
+                />
+              </div>
+
+              <div className="flex justify-center md:mt-9">
+                <button
+                  type="button"
+                  onClick={handleSwap}
+                  className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-gray-100 bg-white hover:bg-gray-50 transition-all shadow-sm rotate-90 md:rotate-0"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 1L21 5M21 5L17 9M21 5H7" stroke="#606060" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M7 23L3 19M3 19L7 15M3 19H17" stroke="#606060" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="flex-1 space-y-2.5">
+                <label className="text-lg font-semibold text-[#1A1C1E] ml-1">To</label>
+                <Controller
+                  control={control}
+                  name="to"
+                  render={({ field: { value, onChange } }) => (
+                    <Autocomplete
+                      options={assets}
+                      getOptionLabel={(option) => option.name || ""}
+                      value={assets.find(a => a.assetId === value) || null}
+                      onChange={(_, v) => onChange(v?.assetId)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Select"
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              height: "64px",
+                              borderRadius: "8px",
+                              backgroundColor: "white",
+                              fontSize: "18px",
+                              fontWeight: 500,
+                              paddingLeft: "12px",
+                              "& fieldset": { borderColor: "#E5E7EB" },
+                              "&:hover fieldset": { borderColor: "#4775F2" },
+                              "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
+                            }
+                          }}
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: toAssetValue && (
+                              <InputAdornment position="start">
+                                <Image src={toAssetValue.icon || ""} alt="" width={28} height={28} />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      )}
+                      renderOption={(props, option) => (
+                        <li {...props} className="flex items-center gap-3 p-4">
+                          <Image src={option.icon || ""} alt="" width={28} height={28} />
+                          <span className="font-medium text-lg">{option.name}</span>
+                        </li>
+                      )}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Amount Section */}
+            <div className="space-y-3">
+              <label className="text-lg font-semibold text-[#1A1C1E] ml-1">Amount<span className="text-red-500">*</span></label>
+              <div className="relative sm:h-16 min-h-[64px] w-full flex items-center bg-white border border-gray-200 rounded-lg px-3 sm:px-5 focus-within:border-[#4775F2] transition-all gap-2">
+                <Controller
+                  control={control}
+                  name="volume"
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="number"
+                      placeholder="Enter Amount"
+                      className="flex-1 bg-transparent text-lg sm:text-xl font-medium text-[#1A1C1E] outline-none placeholder:text-gray-300 placeholder:font-normal min-w-0"
+                    />
+                  )}
+                />
+                <div className="flex items-center gap-1.5 sm:gap-4 flex-shrink-0">
+                  <span className="text-base sm:text-xl font-medium text-[#1A1C1E] opacity-60 uppercase">{coinForKrakenName(from)}</span>
+                  <button
+                    type="button"
+                    onClick={() => setValue("volume", parseFloat(assetBalance?.balance ?? "0"))}
+                    className="h-9 sm:h-10 px-2 sm:px-6 border border-[#4775f2b1] text-[#4775F2] rounded-md text-[10px] sm:text-sm font-semibold bg-white hover:bg-blue-50 transition-colors whitespace-nowrap"
+                  >
+                    Max <span className="hidden md:inline">({Number(assetBalance?.balance || 0).toFixed(6)} {fromAssetValue?.name || ""})</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Order Type Section */}
+            <div className="space-y-3">
+              <label className="text-lg font-semibold text-[#1A1C1E] ml-1">Order Type</label>
+              <Controller
+                control={control}
+                name="orderType"
+                render={({ field: { value, onChange } }) => (
+                  <Autocomplete
+                    options={["market", "limit"]}
+                    getOptionLabel={(v) => v === "market" ? "Market" : "Limit"}
+                    value={value}
+                    onChange={(_, v) => onChange(v)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            height: "64px",
+                            borderRadius: "8px",
+                            backgroundColor: "white",
+                            fontSize: "18px",
+                            fontWeight: 500,
+                            "& fieldset": { borderColor: "#E5E7EB" },
+                          }
+                        }}
+                      />
+                    )}
+                  />
                 )}
               />
             </div>
-          );
-        })}
-      </div>
 
-      <ExchangeInput
-        control={control}
-        label="Amount"
-        placeholder="Enter amount"
-        name="volume"
-        type="number"
-        rules={{
-          required: "Amount is required",
-          min: {
-            value: 0.00000001,
-            message: `Amount should be greater than 0.00000001`,
-          },
-          max: {
-            value: Number(assetBalance?.balance) ?? 0.00000001,
-            message: `Amount should be lower than or equal to ${assetBalance?.balance}`,
-          },
-        }}
-      />
+            {/* Price Information Boxes */}
+            <div className="grid grid-cols-2 sm:gap-6 gap-4">
+              <div className="bg-white border border-gray-200 rounded-md sm:p-6 p-4 space-y-3">
+                <p className="text-base sm:text-lg font-medium text-[#606060] opacity-80">Market Price</p>
+                <h2 className="text-xl sm:text-2xl break-all font-bold text-[#1A1C1E] tracking-tight">{market || "78258.60000000"}</h2>
+                <p className="text-sm md:text-base text-[#606060] opacity-60 font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
+              </div>
 
-      <div className="mb-2 flex w-fit items-center gap-2">
-        <input
-          onChange={(e) => {
-            e.target.checked
-              ? void setValue(
-                  "volume",
-                  parseFloat(assetBalance?.balance ?? "0"),
-                )
-              : void setValue("volume", 0);
-          }}
-          className=" mt-1 scale-150"
-          type="checkbox"
-          id="max"
-        />
-        <label
-          className="text-md mt-1 font-bold text-[#C1922E]"
-          htmlFor="max"
-        >
-          Max (
-          {assetBalance?.balance
-            ? `${Number(assetBalance?.balance).toFixed(6) ?? 0} ${
-                assetBalance?.name ?? ""
-              }`
-            : 0}
-          )
-        </label>
-      </div>
+              <div className="bg-[#FFF8F9] border border-[#FFD0DA] rounded-md sm:p-6 p-4 space-y-3">
+                <p className="text-base sm:text-lg font-medium text-[#606060] opacity-80">You will receive</p>
+                <h2 className="text-xl sm:text-2xl break-all font-bold text-[#FF3D71] tracking-tight">{receive || "0.1"}</h2>
+                <p className="text-sm md:text-base text-[#606060] opacity-60 font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
+              </div>
+            </div>
 
-      <div className="as">
-        <label htmlFor="orderType" className="subText mb-1 block">
-          Order type
-        </label>
-        <SelectComponent
-          control={control}
-          name="orderType"
-          label="Order type"
-          rules={{ required: "Order type is required" }}
-          options={[
-            { value: "market", label: "Market" },
-            { value: "limit", label: "Limit" },
-          ]}
-        />
-      </div>
-
-      {/* Market Price and You Will Receive - Side by side with border-radius 5 */}
-      <div className="mt-4 grid grid-cols-2 gap-4">
-        {/* Market Price Card */}
-        {orderType === "market" && (
-          <div className="rounded-[5px] border border-gray-200 bg-gray-50 p-3">
-            <ExchangeInput
-              control={control}
-              disabled
-              label="Market price"
-              placeholder="0.0"
-              name="market"
-              type="text"
-            />
+            {/* Execute Button */}
+            <div className="flex justify-end pt-4">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full md:w-auto bg-primary-gradient text-white px-12 py-4 rounded-lg font-bold text-xl shadow-lg shadow-blue-100 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+              >
+                {isLoading ? "Processing..." : "Execute Trade"}
+              </button>
+            </div>
           </div>
-        )}
-
-        {orderType === "limit" && (
-          <div className="rounded-[5px] border border-gray-200 bg-gray-50 p-3">
-            <ExchangeInput
-              control={control}
-              label="Enter limit price"
-              placeholder="0.0"
-              name="limit"
-              type="text"
-            />
-          </div>
-        )}
-
-        {/* You Will Receive Card */}
-        <div className="rounded-[5px] border border-gray-200 bg-gray-50 p-3">
-          <ExchangeInput
-            control={control}
-            disabled
-            label="You will receive"
-            placeholder="0.0"
-            name="receive"
-            type="text"
-          />
         </div>
-      </div>
-
-      <div className="ml-auto mt-4 w-fit md:block">
-        <MuiButton
-          disabled={isLoading}
-          type="submit"
-          name="Execute Trade"
-        />
-      </div>
-    </div>
-  </div>
-</form>
+      </form>
     </div>
   );
 };
