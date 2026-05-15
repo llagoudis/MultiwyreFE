@@ -56,6 +56,12 @@ const getPaymentActivity = async (): Promise<any> =>
       await ProtectedAxiosInstance.get("ecommerce/payment-activity-deposit"),
   );
 
+const getWithdrawActivity = async (): Promise<any> =>
+  ApiHandler(
+    async () =>
+      await ProtectedAxiosInstance.get("ecommerce/payment-activity-withdraw"),
+  );
+
 export {
   getAllAssets,
   runSetup,
@@ -68,4 +74,5 @@ export {
   checkMerchants,
   getAllCustomerMerchants,
   getPaymentActivity,
+  getWithdrawActivity,
 };

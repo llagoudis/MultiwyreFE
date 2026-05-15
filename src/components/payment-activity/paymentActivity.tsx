@@ -1,6 +1,7 @@
 import { Tab } from "@headlessui/react";
 import React from "react";
 import Deposits from "./Deposits";
+import Withdrawals from "./Withdrawals";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -37,7 +38,7 @@ export default function PaymentActivity() {
             <Deposits />
           </Tab.Panel>
           <Tab.Panel>
-            <div className="text-center py-10 text-gray-400 font-medium">No withdrawal activity found.</div>
+            <Withdrawals />
           </Tab.Panel>
         </Tab.Panels>
       </Tab.Group>

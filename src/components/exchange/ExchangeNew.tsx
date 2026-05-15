@@ -303,7 +303,7 @@ const ExchangeNew = () => {
   };
 
   return (
-    <div className="flex justify-center py-10">
+    <div className="flex justify-center py-2">
       {/* Functionality: Confirmation Dialog */}
       <Dialog open={open === "confirmPopup"} onClose={() => setOpen("")} maxWidth="sm" fullWidth>
         <div className="p-8">
@@ -338,20 +338,20 @@ const ExchangeNew = () => {
         </div>
       </Dialog>
 
-      <form onSubmit={handleSubmit(() => setOpen("confirmPopup"))} className="w-full  max-w-3xl">
+      <form onSubmit={handleSubmit(() => setOpen("confirmPopup"))} className="w-full  max-w-4xl">
         <div className="bg-white rounded-2xl shadow-sm border border-[#0B09094A] overflow-hidden">
           {/* Header Section */}
-          <div className="p-6">
+          <div className="p-4">
             <h1 className="text-2xl font-bold text-[#1A1C1E]">Exchange</h1>
             <p className="text-[#606060] mt-2  font-normal opacity-70">Exchange at best market price</p>
           </div>
 
           <div className="h-[1px] bg-[#0B09094A] w-full"></div>
 
-          <div className="p-4 md:p-6 space-y-6 md:space-y-10">
+          <div className="p-4  space-y-5">
             {/* Asset Selection */}
             <div className="flex flex-col md:flex-row md:items-center gap-4">
-              <div className="flex-1 space-y-2.5">
+              <div className="flex-1 space-y-2">
                 <label className="text-lg font-semibold text-[#1A1C1E] ml-1">From</label>
                 <Controller
                   control={control}
@@ -368,7 +368,7 @@ const ExchangeNew = () => {
                           placeholder="Select"
                           sx={{
                             "& .MuiOutlinedInput-root": {
-                              height: "64px",
+                              height: "50px",
                               borderRadius: "8px",
                               backgroundColor: "white",
                               fontSize: "18px",
@@ -413,7 +413,7 @@ const ExchangeNew = () => {
                 </button>
               </div>
 
-              <div className="flex-1 space-y-2.5">
+              <div className="flex-1 space-y-2">
                 <label className="text-lg font-semibold text-[#1A1C1E] ml-1">To</label>
                 <Controller
                   control={control}
@@ -430,7 +430,7 @@ const ExchangeNew = () => {
                           placeholder="Select"
                           sx={{
                             "& .MuiOutlinedInput-root": {
-                              height: "64px",
+                              height: "50px",
                               borderRadius: "8px",
                               backgroundColor: "white",
                               fontSize: "18px",
@@ -463,79 +463,81 @@ const ExchangeNew = () => {
               </div>
             </div>
 
-            {/* Amount Section */}
-            <div className="space-y-3">
-              <label className="text-lg font-semibold text-[#1A1C1E] ml-1">Amount<span className="text-red-500">*</span></label>
-              <div className="relative sm:h-16 min-h-[64px] w-full flex items-center bg-white border border-gray-200 rounded-lg px-3 sm:px-5 focus-within:border-[#4775F2] transition-all gap-2">
-                <Controller
-                  control={control}
-                  name="volume"
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="number"
-                      placeholder="Enter Amount"
-                      className="flex-1 bg-transparent text-lg sm:text-xl font-medium text-[#1A1C1E] outline-none placeholder:text-gray-300 placeholder:font-normal min-w-0"
-                    />
-                  )}
-                />
-                <div className="flex items-center gap-1.5 sm:gap-4 flex-shrink-0">
-                  <span className="text-base sm:text-xl font-medium text-[#1A1C1E] opacity-60 uppercase">{coinForKrakenName(from)}</span>
-                  <button
-                    type="button"
-                    onClick={() => setValue("volume", parseFloat(assetBalance?.balance ?? "0"))}
-                    className="h-9 sm:h-10 px-2 sm:px-6 border border-[#4775f2b1] text-[#4775F2] rounded-md text-[10px] sm:text-sm font-semibold bg-white hover:bg-blue-50 transition-colors whitespace-nowrap"
-                  >
-                    Max <span className="hidden md:inline">({Number(assetBalance?.balance || 0).toFixed(6)} {fromAssetValue?.name || ""})</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Order Type Section */}
-            <div className="space-y-3">
-              <label className="text-lg font-semibold text-[#1A1C1E] ml-1">Order Type</label>
-              <Controller
-                control={control}
-                name="orderType"
-                render={({ field: { value, onChange } }) => (
-                  <Autocomplete
-                    options={["market", "limit"]}
-                    getOptionLabel={(v) => v === "market" ? "Market" : "Limit"}
-                    value={value}
-                    onChange={(_, v) => onChange(v)}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        sx={{
-                          "& .MuiOutlinedInput-root": {
-                            height: "64px",
-                            borderRadius: "8px",
-                            backgroundColor: "white",
-                            fontSize: "18px",
-                            fontWeight: 500,
-                            "& fieldset": { borderColor: "#E5E7EB" },
-                          }
-                        }}
+            <div className="flex xl:flex-row flex-col xl:items-center gap-4">
+              {/* Amount Section */}
+              <div className="space-y-3 ">
+                <label className="text-lg font-semibold text-[#1A1C1E] ml-1">Amount<span className="text-red-500">*</span></label>
+                <div className="relative  min-h-[50px]  flex items-center bg-white border border-gray-200 rounded-lg px-3 sm:px-5 focus-within:border-[#4775F2] transition-all gap-2">
+                  <Controller
+                    control={control}
+                    name="volume"
+                    render={({ field }) => (
+                      <input
+                        {...field}
+                        type="number"
+                        placeholder="Enter Amount"
+                        className="flex-1 bg-transparent text-lg sm:text-xl font-medium text-[#1A1C1E] outline-none placeholder:text-gray-300 placeholder:font-normal min-w-0"
                       />
                     )}
                   />
-                )}
-              />
+                  <div className="flex items-center gap-1.5 sm:gap-4 flex-shrink-0">
+                    <span className="text-base sm:text-xl font-medium text-[#1A1C1E] opacity-60 uppercase">{coinForKrakenName(from)}</span>
+                    <button
+                      type="button"
+                      onClick={() => setValue("volume", parseFloat(assetBalance?.balance ?? "0"))}
+                      className="h-8  px-2 sm:px-4 border border-[#4775f2b1] text-[#4775F2] rounded-md text-[10px] sm:text-sm font-semibold bg-white hover:bg-blue-50 transition-colors whitespace-nowrap"
+                    >
+                      Max <span className="hidden md:inline">({Number(assetBalance?.balance || 0).toFixed(6)} {fromAssetValue?.name || ""})</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Type Section */}
+              <div className="space-y-3 flex-1">
+                <label className="text-lg font-semibold text-[#1A1C1E] ml-1">Order Type</label>
+                <Controller
+                  control={control}
+                  name="orderType"
+                  render={({ field: { value, onChange } }) => (
+                    <Autocomplete
+                      options={["market", "limit"]}
+                      getOptionLabel={(v) => v === "market" ? "Market" : "Limit"}
+                      value={value}
+                      onChange={(_, v) => onChange(v)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              height: "50px",
+                              borderRadius: "8px",
+                              backgroundColor: "white",
+                              fontSize: "18px",
+                              fontWeight: 500,
+                              "& fieldset": { borderColor: "#E5E7EB" },
+                            }
+                          }}
+                        />
+                      )}
+                    />
+                  )}
+                />
+              </div>
             </div>
 
             {/* Price Information Boxes */}
-            <div className="grid grid-cols-2 sm:gap-6 gap-4">
-              <div className="bg-white border border-gray-200 rounded-md sm:p-6 p-4 space-y-3">
-                <p className="text-base sm:text-lg font-medium text-[#606060] opacity-80">Market Price</p>
-                <h2 className="text-xl sm:text-2xl break-all font-bold text-[#1A1C1E] tracking-tight">{market || "78258.60000000"}</h2>
-                <p className="text-sm md:text-base text-[#606060] opacity-60 font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white border border-gray-200 rounded-md p-4 space-y-3">
+                <p className="text-base  font-medium text-[#606060] opacity-80">Market Price</p>
+                <h2 className="text-xl break-all font-bold text-[#1A1C1E] tracking-tight">{market || "78258.6000"}</h2>
+                <p className="text-sm  text-[#606060] opacity-60 font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
               </div>
 
-              <div className="bg-[#FFF8F9] border border-[#FFD0DA] rounded-md sm:p-6 p-4 space-y-3">
-                <p className="text-base sm:text-lg font-medium text-[#606060] opacity-80">You will receive</p>
-                <h2 className="text-xl sm:text-2xl break-all font-bold text-[#FF3D71] tracking-tight">{receive || "0.1"}</h2>
-                <p className="text-sm md:text-base text-[#606060] opacity-60 font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
+              <div className="bg-[#FFF8F9] border border-[#FFD0DA] rounded-md p-4 space-y-3">
+                <p className="text-base  font-medium text-[#606060] opacity-80">You will receive</p>
+                <h2 className="text-xl  break-all font-bold text-[#FF3D71] tracking-tight">{receive || "0.1"}</h2>
+                <p className="text-sm  text-[#606060] opacity-60 font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
               </div>
             </div>
 
