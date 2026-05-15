@@ -4,6 +4,9 @@ export default {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-manrope)", "sans-serif"],
+      },
       colors: {
         "brand-blue": "#4775F2",
         "brand-pink": "#DB33A1",

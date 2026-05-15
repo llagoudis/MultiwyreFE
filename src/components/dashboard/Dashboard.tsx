@@ -7,6 +7,8 @@ import localStorageService from "~/service/LocalstorageService";
 import useGlobalStore from "~/store/useGlobalStore";
 import DepositDrawer from "./DepositDrawer";
 import ExchangeDrawer from "./ExchangeDrawer";
+import WithdrawDrawer from "./WithdrawDrawer";
+import AddWhitelistDrawer from "./AddWhitelistDrawer";
 import TableComponent from "../TableComponent";
 import { euroFormat } from "~/helpers/helper";
 import Head from "next/head";
@@ -93,6 +95,7 @@ const Dashboard = () => {
   const [depositOpen, setDepositOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [exchangeOpen, setExchangeOpen] = useState(false);
+  const [addWhitelistOpen, setAddWhitelistOpen] = useState(false);
 
   const handleCompanyVerifyScreen = (value: boolean) => {
     setCompanyVerificationScreen(value);
@@ -297,6 +300,22 @@ const Dashboard = () => {
       <ExchangeDrawer
         open={exchangeOpen}
         onClose={() => setExchangeOpen(false)}
+        assets={dashboard.assets}
+      />
+
+      <WithdrawDrawer
+        open={withdrawOpen}
+        onClose={() => setWithdrawOpen(false)}
+        assets={dashboard.assets}
+        onAddWhitelist={() => {
+          setWithdrawOpen(false);
+          setAddWhitelistOpen(true);
+        }}
+      />
+
+      <AddWhitelistDrawer
+        open={addWhitelistOpen}
+        onClose={() => setAddWhitelistOpen(false)}
         assets={dashboard.assets}
       />
     </Fragment>
