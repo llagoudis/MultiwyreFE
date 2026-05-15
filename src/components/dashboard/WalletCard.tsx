@@ -130,7 +130,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ walletDetails, currency }) => {
             </div>
           </div>
 
-          <div className={`flex flex-col min-w-[60px] items-end transition-opacity duration-300 ${isHovered ? 'md:opacity-0 md:pointer-events-none' : 'opacity-100'} hidden sm:flex`}>
+          <div className={`flex flex-col  items-end transition-opacity duration-300 ${isHovered ? 'md:opacity-0 md:pointer-events-none' : 'opacity-100'} hidden sm:flex`}>
             <p className="text-base md:text-lg font-semibold text-[#1A1C1E]">
               {Number(walletDetails.balance) ? Number(walletDetails.balance).toLocaleString() : 0}
             </p>
