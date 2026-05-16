@@ -79,7 +79,7 @@ const TransferFeesInit: TransferFees = {
   paymentMethod: "",
 };
 
-const CryptoWithdrawal = () => {
+const TransferBetweenUsers = () => {
   const dashboard = useGlobalStore((state) => state.dashboard);
 
   const assets = useAsyncMasterStore<"assets">("assets");
@@ -126,37 +126,15 @@ const CryptoWithdrawal = () => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   // Check if there is data in verificationStatus.isUserVerified
-  //   if (verificationStatus.isUserVerified) {
-  //     if (verificationStatus.isUserVerified !== "APPROVED") {
-  //       router.push("/app/dashboard");
-  //       toast.error(
-  //         "Profile approval pending. Please contact Exchange CRM team",
-  //         { id: "non-verified" },
-  //       );
-  //     }
-  //   }
-  // }, []);
-
   useEffect(() => {
     if (priceList) {
       setTransferFees(priceList.TransferFees ?? []);
     }
   }, [priceList]);
 
-  // useEffect(() => {
-  //   fetchTransaferFees();
-  // }, []);
-
   const selectedAsset = useWatch({
     control,
     name: "assetId",
-  });
-
-  const selectedWhiteList = useWatch({
-    control,
-    name: "whitelistId",
   });
 
   const currentAddressType = useWatch({
@@ -170,12 +148,16 @@ const CryptoWithdrawal = () => {
 
   const whitelistOptions = useMemo(
     () => whitelistedAddress.filter((item) => item.assetId === selectedAsset),
-    [selectedAsset],
+    [selectedAsset, whitelistedAddress],
   );
 
   const assetBalance = useMemo(
-    () => dashboardAssets.find((item) => item.assetId === selectedAsset),
-    [selectedAsset],
+    () => dashboardAssets?.find((item) => item.assetId === selectedAsset),
+    [selectedAsset, dashboardAssets],
+  );
+
+  const assetValue = assets?.find(
+    (item) => item.fireblockAssetId === selectedAsset,
   );
 
   const fetchTransaferFees = async (assetId: any) => {
@@ -189,39 +171,37 @@ const CryptoWithdrawal = () => {
         );
       });
 
-      // Define default values, even if `filteredData` is undefined
       const fees = {
-        percent: filteredData?.percent ?? 0, // Default to 0
-        fixedfee: filteredData?.fixedFee ?? 0, // Default to 0
-        status: res?.success ?? false, // Default to false
-        minimumFee: filteredData?.minimumFee ?? "0", // Default to "0" as a string
-        maximumFee: filteredData?.maximumFee ?? "0", // Default to "0" as a string
+        percent: filteredData?.percent ?? 0,
+        fixedfee: filteredData?.fixedFee ?? 0,
+        status: res?.success ?? false,
+        minimumFee: filteredData?.minimumFee ?? "0",
+        maximumFee: filteredData?.maximumFee ?? "0",
       };
 
       return fees;
     }
 
-    // Return default values if the response or data is not available
     return {
       percent: 0,
       fixedfee: 0,
-      status: false, // Assuming the operation failed or no data
-      minimumFee: "0", // Default to "0" as a string
-      maximumFee: "0", // Default to "0" as a string
+      status: false,
+      minimumFee: "0",
+      maximumFee: "0",
     };
   };
 
   const onSubmit = async (data: CryptoWithdrawalForm) => {
     const feeData = {
       withdrawal: data?.amount,
-      net: 0, // You need to provide a value for net; I'm assuming it's a string for now
-      fee: 0, // You need to provide a value for fee; I'm assuming it's a number for now
+      net: 0,
+      fee: 0,
       minimumFee: "",
       maximumFee: "",
     };
 
     try {
-      const response = await fetchTransaferFees(data);
+      const response = await fetchTransaferFees(data.assetId);
 
       const minimumFee = Number(response?.minimumFee);
       const maximumFee = Number(response?.maximumFee);
@@ -280,7 +260,7 @@ const CryptoWithdrawal = () => {
       transactionFee: transaction?.fee?.fee,
     };
 
-    const [data, error] = await ApiHandler(createTransfer, formData);
+    const [data, error] = await ApiHandler(createInternalTransfer, formData);
 
     if (data?.success == true) {
       toast.success("Transaction Successful");
@@ -289,296 +269,210 @@ const CryptoWithdrawal = () => {
   };
 
   return (
-    <div>
-      <div className="">
-        {!tfaEnabled && (
-          <WarningMsg
-            element={<span>Please enable two factor authentication</span>}
-            handleClickText={"Enable Now"}
-            handleClick={() => {
-              void Router.push("/app/profile");
-            }}
-          />
-        )}
-        <p className="my-4 text-center text-base font-semibold">
-          CREATE A NEW TRANSFER
-        </p>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="mx-auto max-w-xl space-y-4">
-            <div className="flex flex-col gap-2 rounded bg-white p-6 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.25)]">
-              <div className=" ">
-                <p className=" py-1">From</p>
-                <Controller
-                  control={control}
-                  name="assetId"
-                  rules={{
-                    required: "Please select an asset",
-                  }}
-                  render={({
-                    field: { value, onChange },
-                    fieldState: { error },
-                  }) => (
-                    <Fragment>
-                      <Autocomplete
-                        size="small"
-                        options={filterdAssets}
-                        onChange={(_, nextValue) => {
-                          onChange(nextValue?.fireblockAssetId ?? ""),
-                            setValue("whitelistId", "");
-                        }}
-                        getOptionLabel={(option) => option.name}
-                        renderOption={(props, option) => (
-                          <li
-                            {...props}
-                            className="flex cursor-pointer items-center gap-2 p-2"
-                          >
-                            <Image
-                              src={option.icon ?? ""}
-                              alt={option.name}
-                              width={30}
-                              height={30}
-                            />
-                            {option.name}
-                          </li>
-                        )}
-                        renderInput={(params) => (
-                          <TextField
-                            className=" flex items-center gap-2 bg-[#ffffff] "
-                            {...params}
-                            placeholder="Select currency"
-                            InputProps={{
-                              ...params.InputProps,
-                              startAdornment: (() => {
-                                const assetValue = assets?.find(
-                                  (item) => item.fireblockAssetId === value,
-                                );
-                                return (
-                                  <Fragment>
-                                    {assetValue && (
-                                      <Image
-                                        className="ml-2 h-5 w-4"
-                                        src={assetValue?.icon ?? ""}
-                                        alt={assetValue?.name}
-                                        width={80}
-                                        height={80}
-                                      />
-                                    )}
-                                    {params.InputProps.startAdornment}
-                                  </Fragment>
-                                );
-                              })(),
-                            }}
-                            variant="outlined"
-                          />
-                        )}
-                      />
-                      <p className="text-sm text-red-500">{error?.message}</p>
-                    </Fragment>
-                  )}
-                />
-              </div>
+    <div className="py-6">
+      <div className="w-full bg-white rounded-3xl p-12 shadow-sm border border-gray-100 min-h-[600px]">
+        <h2 className="text-2xl font-bold text-[#1A1C1E] text-center mb-12">Internal Transfer</h2>
 
-              <div className=" ">
-                <div className="flex justify-between">
-                  <p className="pt-1">To</p>
-
-                  <Controller
-                    name="addressType"
-                    control={control}
-                    render={({ field: { onChange, value } }) => (
-                      <div className="flex">
-                        <ul
-                          onClick={() => onChange("ONETIME")}
-                          className={`cursor-pointer list-inside rounded p-2 ${
-                            value === "WHITELIST"
-                              ? "text-[#BABABA]"
-                              : "list-disc rounded bg-[#99B2C636] font-semibold text-[#217EFD]"
-                          } `}
-                        >
-                          <li className=" text-sm xl:text-base ">
-                            One time address
-                          </li>
-                        </ul>
-                        <ul
-                          onClick={() => onChange("WHITELIST")}
-                          className={`cursor-pointer list-inside rounded   p-2 ${
-                            value === "ONETIME"
-                              ? "text-[#BABABA]"
-                              : "list-disc rounded bg-[#99B2C636] font-semibold text-[#217EFD]"
-                          } `}
-                        >
-                          <li className="text-sm xl:text-base ">
-                            White listed address
-                          </li>
-                        </ul>
-                      </div>
-                    )}
-                  />
-                </div>
-
-                {currentAddressType === "ONETIME" ? (
-                  <Controller
-                    name="oneTimeAddress"
-                    control={control}
-                    rules={{
-                      required: "Please enter the destination address",
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-2xl mx-auto">
+          {/* Currency Selector */}
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-[#1A1C1E] ml-1">Currency</label>
+            <Controller
+              control={control}
+              name="assetId"
+              rules={{ required: "Please select an asset" }}
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
+                <div className="relative">
+                  <Autocomplete
+                    size="small"
+                    options={filterdAssets}
+                    onChange={(_, nextValue) => {
+                      onChange(nextValue?.fireblockAssetId ?? "");
+                      setValue("whitelistId", "");
                     }}
-                    render={({
-                      field: { onChange, value },
-                      fieldState: { error },
-                    }) => (
-                      <Fragment>
-                        <TextField
-                          size="small"
-                          fullWidth
-                          onChange={onChange}
-                          value={value}
-                          placeholder="Enter Address"
-                          variant="outlined"
-                        />
-                        <p className="text-sm text-red-500">{error?.message}</p>
-                      </Fragment>
+                    value={assetValue || null}
+                    getOptionLabel={(option) => option.name || (typeof value === 'string' ? value : '')}
+                    renderOption={(props, option) => (
+                      <li {...props} className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors">
+                        <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">
+                          <Image src={option.icon ?? ""} alt={option.name} width={24} height={24} className="object-contain" />
+                        </div>
+                        <span className="font-bold text-sm text-[#1A1C1E]">{option.name}</span>
+                      </li>
                     )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        placeholder="Select Currency"
+                        error={!!error}
+                        InputProps={{
+                          ...params.InputProps,
+                          className: "rounded-xl bg-white border-gray-200 hover:border-[#4775F2] focus-within:border-[#4775F2] transition-all h-[56px] px-4",
+                          startAdornment: assetValue && (
+                            <div className="flex items-center mr-2">
+                              <Image src={assetValue.icon ?? ""} alt={assetValue.name} width={24} height={24} className="object-contain" />
+                            </div>
+                          ),
+                        }}
+                      />
+                    )}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "12px",
+                        "& fieldset": { borderColor: "#E2E8F0" },
+                      },
+                    }}
                   />
-                ) : (
-                  currentAddressType === "WHITELIST" && (
-                    <Controller
-                      name="whitelistId"
-                      control={control}
-                      rules={{
-                        required: "Please select whitelisted address",
-                      }}
-                      render={({
-                        field: { onChange, value },
-                        fieldState: { error },
-                      }) => (
-                        <Fragment>
-                          <Autocomplete
-                            size="small"
-                            options={whitelistOptions}
-                            onChange={(_, addressId) => {
-                              onChange(addressId?.id);
-                              // setValue("whitelistId", addressId?.assetAddress);
-                            }}
-                            value={whitelistedAddress.find(
-                              (item) => item?.id == value,
-                            )}
-                            getOptionLabel={(option) => option.label}
-                            renderOption={(props, option) => (
-                              <li {...props}>{option.label}</li>
-                            )}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                placeholder="Select Whitelisted address"
-                                variant="outlined"
-                              />
-                            )}
-                          />
-                          <p className="text-sm text-red-500">
-                            {error?.message}
-                          </p>
-                        </Fragment>
+                  {error && <p className="text-xs text-red-500 mt-1 ml-1">{error.message}</p>}
+                </div>
+              )}
+            />
+          </div>
+
+          {/* Amount Input */}
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-[#1A1C1E] ml-1">Amount</label>
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</div>
+              <Controller
+                name="amount"
+                control={control}
+                rules={{
+                  required: "Please enter the amount",
+                  max: { value: assetBalance?.balance ?? 0, message: "Insufficient balance" },
+                  validate: (val) => parseFloat(val) > 0 || "Amount must be greater than zero",
+                }}
+                render={({ field: { onChange, value }, fieldState: { error } }) => (
+                  <div className="flex flex-col">
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="0.00"
+                      className={`w-full h-[56px] pl-8 pr-44 rounded-xl border ${error ? "border-red-500" : "border-gray-200"} hover:border-[#4775F2] focus:border-[#4775F2] focus:ring-0 transition-all font-bold text-[#1A1C1E] outline-none`}
+                      onChange={onChange}
+                      value={value || ""}
+                      disabled={isMax}
+                    />
+                    {error && <p className="text-xs text-red-500 mt-1 ml-1">{error.message}</p>}
+                  </div>
+                )}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setValue("isMax", true);
+                  setValue("amount", String(assetBalance?.balance || "0"));
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-[#F0F5FF] text-[#4775F2] px-4 py-2 rounded-lg text-xs font-bold hover:bg-[#E2E8FF] transition-colors border border-[#4775F2]/20"
+              >
+                Max ({assetBalance?.balance ? `${Number(assetBalance.balance).toFixed(6)} ${assetBalance.name}` : "0.00"})
+              </button>
+            </div>
+          </div>
+
+          {/* Wallet Address Section */}
+          <div className="space-y-4">
+            <label className="text-sm font-bold text-[#1A1C1E] ml-1">Receiver Details</label>
+            <Controller
+              name="addressType"
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <div className="flex bg-[#F8F9FA] p-1.5 rounded-xl border border-gray-100">
+                  <button
+                    type="button"
+                    onClick={() => onChange("ONETIME")}
+                    className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${value === "ONETIME" ? "bg-white text-[#FF3D71] shadow-sm" : "text-[#8B8D91] hover:text-[#1A1C1E]"}`}
+                  >
+                    Internal Address
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onChange("WHITELIST")}
+                    className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${value === "WHITELIST" ? "bg-white text-[#4775F2] shadow-sm" : "text-[#8B8D91] hover:text-[#1A1C1E]"}`}
+                  >
+                    Whitelisted
+                  </button>
+                </div>
+              )}
+            />
+
+            {currentAddressType === "ONETIME" ? (
+              <Controller
+                name="oneTimeAddress"
+                control={control}
+                rules={{ required: "Please enter receiver address" }}
+                render={({ field: { onChange, value }, fieldState: { error } }) => (
+                  <div className="flex flex-col">
+                    <input
+                      placeholder="Enter Internal Wallet Address"
+                      className={`w-full h-[56px] px-4 rounded-xl border ${error ? "border-red-500" : "border-gray-200"} hover:border-[#4775F2] focus:border-[#4775F2] outline-none transition-all font-medium text-[#1A1C1E]`}
+                      onChange={onChange}
+                      value={value || ""}
+                    />
+                    {error && <p className="text-xs text-red-500 mt-1 ml-1">{error.message}</p>}
+                  </div>
+                )}
+              />
+            ) : (
+              <Controller
+                name="whitelistId"
+                control={control}
+                rules={{ required: "Please select a whitelisted address" }}
+                render={({ field: { onChange, value }, fieldState: { error } }) => (
+                  <div className="relative">
+                    <Autocomplete
+                      size="small"
+                      options={whitelistOptions}
+                      onChange={(_, addr) => onChange(addr?.id)}
+                      value={whitelistedAddress.find(item => item.id == value) || null}
+                      getOptionLabel={(option) => option.label}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Select Whitelisted address"
+                          error={!!error}
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: "12px",
+                              height: "56px",
+                              "& fieldset": { borderColor: "#E2E8F0" },
+                            },
+                          }}
+                        />
                       )}
                     />
-                  )
+                    {error && <p className="text-xs text-red-500 mt-1 ml-1">{error.message}</p>}
+                  </div>
                 )}
-              </div>
+              />
+            )}
+          </div>
 
-              <div className="">
-                <div>
-                  <p className="mb-1">Net amount</p>
-                  <Controller
-                    name="amount"
-                    control={control}
-                    rules={{
-                      required: "Please enter the amount",
-                      max: {
-                        value: assetBalance?.balance ?? 0,
-                        message: "Amount cannot be more than balance",
-                      },
-                      validate: (amount) =>
-                        parseFloat(amount) > 0
-                          ? undefined
-                          : "Amount cannot be zero or less than zero",
-                    }}
-                    render={({
-                      field: { onChange, value },
-                      fieldState: { error },
-                    }) => (
-                      <Fragment>
-                        <TextField
-                          type="number"
-                          size="small"
-                          fullWidth
-                          onChange={onChange}
-                          value={value ?? ""}
-                          placeholder="Amount"
-                          variant="outlined"
-                          disabled={isMax}
-                        />
-                        <p className="text-sm text-red-500">{error?.message}</p>
-                      </Fragment>
-                    )}
-                  />
-                </div>
-                <div className="ml-1 mt-4 flex w-fit items-center gap-2">
-                  <input
-                    {...register("isMax", {
-                      onChange: (event: ChangeEvent<HTMLInputElement>) => {
-                        setValue(
-                          "amount",
-                          event.target?.checked
-                            ? String(assetBalance?.balance) ?? "0"
-                            : "0",
-                        );
-                      },
-                    })}
-                    className=" mt-1 scale-150"
-                    type="checkbox"
-                    id="max"
-                  />
-                  <label
-                    className="text-md font-bold text-[#6E6E6E]"
-                    htmlFor="max"
-                  >
-                    Max{" "}
-                    {assetBalance?.balance
-                      ? `${Number(assetBalance?.balance).toFixed(6) ?? 0} ${
-                          assetBalance?.name ?? ""
-                        }`
-                      : 0}
-                  </label>
-                </div>
-              </div>
+          {/* Description */}
+          <div className="space-y-2">
+            <Controller
+              name="description"
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <textarea
+                  placeholder="Add a note or description"
+                  className="w-full min-h-[120px] p-4 rounded-xl border border-gray-200 hover:border-[#4775F2] focus:border-[#4775F2] outline-none transition-all font-medium text-[#1A1C1E] resize-none"
+                  value={value || ""}
+                  onChange={onChange}
+                />
+              )}
+            />
+          </div>
 
-              <div>
-                <p className="">Description</p>
-                <Controller
-                  name="description"
-                  control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <Fragment>
-                      <textarea
-                        className="mt-2 w-full resize-none rounded-md px-4 py-2 outline outline-1 outline-[#c4c4c4]  placeholder:font-normal"
-                        placeholder={"Note text"}
-                        rows={1}
-                        value={value ?? ""}
-                        onChange={onChange}
-                      />
-                    </Fragment>
-                  )}
-                />
-              </div>
-              <div className="ml-auto w-fit ">
-                <MuiButton
-                  name={"Create transfer"}
-                  type="submit"
-                  width="100%"
-                  loading={isSubmitting}
-                />
-              </div>
-            </div>
+          {/* Submit Button */}
+          <div className="pt-4 flex justify-end">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-primary-gradient text-white px-10 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] disabled:opacity-50 min-w-[200px]"
+            >
+              {isSubmitting ? "Processing..." : "Internal Transfer"}
+            </button>
           </div>
         </form>
 
@@ -623,4 +517,4 @@ const CryptoWithdrawal = () => {
   );
 };
 
-export default CryptoWithdrawal;
+export default TransferBetweenUsers;

@@ -30,7 +30,7 @@ const Sidebar = () => {
     { name: "Dashboard", path: "/app/dashboard", icon: DashboardTabIcon },
     { name: "Exchange", path: "/app/exchange", icon: ExcahngeTabIcon },
     { name: "Transfers", path: "/app/transfers", icon: TransferTabIcon },
-    { name: "Invoice", path: "/app/invoice", icon: InvoiceTabIcon },
+    { name: "Invoice", path: "/app/invoices", icon: InvoiceTabIcon },
     { name: "History", path: "/app/history", icon: HistoryTabIcon },
     { name: "Bulk Payout", path: "/app/bulk-payout", icon: HistoryTabIcon },
     { name: "Profile", path: "/app/profile", icon: ProfileTabIcon },

@@ -1,5 +1,4 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import TransferBetweenUsers from "~/components/transfers/transfer-between-users";
 import Templates from "~/components/transfers/templates";
 import CryptoWithdrawal from "~/components/transfers/crypto-withdrawal";
 
@@ -8,37 +7,47 @@ function classNames(...classes: string[]) {
 }
 
 export default function Transfers() {
-  const Tabs = ["Asset withdrawal", "Transfer between users", "Templates"];
-  return (
-    <div className=" ml-auto my-4 w-[95%]">
-      <TabGroup>
-        <TabList className="flex items-center justify-center gap-8 rounded-lg bg-white pt-2 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.1)]">
-          {Tabs.map((item) => (
-            <Tab
-              key={item}
-              className={({ selected }) =>
-                classNames(
-                  " px-2 pb-5 pt-2.5 text-sm leading-5 text-black",
-                  " focus:outline-none",
+  const tabs = ["Transfer", "Whitelist Addresses"];
 
-                  selected
-                    ? "border-b-[3px] border-[#C1922E] pb-4  font-bold text-black"
-                    : " font-medium text-black hover:text-black",
-                )
-              }
-            >
-              <p className=" w-fit">{item}</p>
-            </Tab>
-          ))}
-        </TabList>
-        <TabPanels className="mt-2">
-          <TabPanel>
+  return (
+    <div className="w-full mx-auto ">
+      <TabGroup>
+        <div className="flex justify-start mb-4 rounded-lg bg-white w-full">
+          <TabList className="flex items-center px-3  lg:w-[60%] w-full p-1.5 rounded-xl ">
+            {tabs.map((tab) => (
+              <Tab
+                key={tab}
+                className={({ selected }) =>
+                  classNames(
+                    "flex-1 px-8 py-3 text-sm font-bold rounded-lg transition-all duration-300 outline-none",
+                    selected
+                      ? "bg-primary-gradient text-white shadow-md scale-[1.02]"
+                      : "text-[#8B8D91] hover:text-[#1A1C1E] hover:bg-gray-50"
+                  )
+                }
+              >
+                {tab}
+              </Tab>
+            ))}
+          </TabList>
+        </div>
+
+        {/* 2FA Alert */}
+        <div className="mb-0 flex items-center justify-between bg-[#FFF8F9] border border-[#FFD0DA] rounded-md px-4 py-2">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-[#FF3D71] text-[#FF3D71]">
+              <span className="font-bold">!</span>
+            </div>
+            <p className="text-[#1A1C1E] font-medium text-sm">Please enable two factor authentication to secure your account.</p>
+          </div>
+          <button className="text-[#4775F2] text-sm whitespace-nowrap font-bold hover:underline">Enable Now</button>
+        </div>
+
+        <TabPanels>
+          <TabPanel className="focus:outline-none">
             <CryptoWithdrawal />
           </TabPanel>
-          <TabPanel>
-            <TransferBetweenUsers />
-          </TabPanel>
-          <TabPanel>
+          <TabPanel className="focus:outline-none">
             <Templates />
           </TabPanel>
         </TabPanels>

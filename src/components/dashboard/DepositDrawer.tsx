@@ -60,13 +60,13 @@ const DepositDrawer: React.FC<DepositDrawerProps> = ({ open, onClose, assets }) 
       >
         <div className="flex flex-col h-full relative">
           <div className="flex justify-between items-start mb-2">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1A1C1E]">Deposit</h2>
+            <h2 className="text-2xl  md:text-3xl font-bold text-[#1A1C1E]">Deposit</h2>
             <IconButton onClick={onClose} size="small" sx={{ color: "#8B8D91", border: "1px solid #E5E7EB" }}>
               <MdClose size={20} />
             </IconButton>
           </div>
 
-          <p className="text-[#606060] text-sm sm:text-base mb-8 leading-relaxed">
+          <p className="text-[#606060] text-sm  mb-4 leading-relaxed">
             To top up your account balance, select the preferred currency and follow the instructions.
           </p>
 
@@ -89,7 +89,7 @@ const DepositDrawer: React.FC<DepositDrawerProps> = ({ open, onClose, assets }) 
                       {...params}
                       sx={{
                         "& .MuiOutlinedInput-root": {
-                          height: "56px",
+                          height: "44px",
                           borderRadius: "8px",
                           backgroundColor: "#fff",
                           "& fieldset": { borderColor: "#E5E7EB" },
@@ -119,10 +119,10 @@ const DepositDrawer: React.FC<DepositDrawerProps> = ({ open, onClose, assets }) 
               {/* QR Code Section */}
               <div className="space-y-4">
                 <p className="text-sm sm:text-base font-bold text-[#1A1C1E]">Scan QR Code</p>
-                <div className="flex justify-center py-2 sm:py-4">
-                  <div className="p-3 sm:p-4 rounded-2xl border border-pink-100 bg-white shadow-sm">
+                <div className="flex justify-center py-2 ">
+                  <div className="p-3 rounded-2xl border border-pink-100 bg-white shadow-sm">
                     {selectedAsset?.qrImage ? (
-                      <div className="relative w-[160px] h-[160px] sm:w-[200px] sm:h-[200px]">
+                      <div className="relative w-[160px] h-[160px] sm:w-[180px] sm:h-[180px]">
                         <Image
                           src={selectedAsset.qrImage}
                           alt="QR Code"
@@ -157,7 +157,7 @@ const DepositDrawer: React.FC<DepositDrawerProps> = ({ open, onClose, assets }) 
                   }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      height: { xs: "48px", sm: "56px" },
+                      height: { xs: "48px", sm: "44px" },
                       borderRadius: "8px",
                       backgroundColor: "#fff",
                       fontSize: { xs: "12px", sm: "14px" },

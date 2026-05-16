@@ -46,11 +46,11 @@ const AddWhitelistDrawer: React.FC<AddWhitelistDrawerProps> = ({ open, onClose, 
             <MdClose size={18} />
           </IconButton>
         </div>
-        <p className="text-[#606060]  mb-5 opacity-80 leading-relaxed max-w-[90%]">
+        <p className="text-[#606060] text-sm mb-4 opacity-80 leading-relaxed max-w-[90%]">
           Initial setup to full implementation, guiding you through every step for seamless.
         </p>
 
-        <div className="flex-1 overflow-y-auto space-y-8 pr-1 custom-scroll">
+        <div className="flex-1 overflow-y-auto space-y-4 pr-1 custom-scroll">
           {/* Currency Selector */}
           <div className="space-y-2">
             <label className="text-sm font-semibold text-[#606060]">Currency</label>
@@ -72,7 +72,7 @@ const AddWhitelistDrawer: React.FC<AddWhitelistDrawerProps> = ({ open, onClose, 
             />
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-3">
             <h3 className="text-lg font-bold text-[#1A1C1E]">Add withdrawal address</h3>
 
             <div className="space-y-2">
@@ -99,7 +99,7 @@ const AddWhitelistDrawer: React.FC<AddWhitelistDrawerProps> = ({ open, onClose, 
           </div>
 
           {/* Empty State */}
-          <div className="py-10 flex flex-col w-full items-center justify-center text-center space-y-1">
+          <div className="py-0 flex flex-col w-full items-center justify-center text-center space-y-1">
             <div className="relative ">
               <Image src={whitelIstAddress} alt="" width={180} height={180} className="object-contain" />
             </div>
@@ -114,7 +114,7 @@ const AddWhitelistDrawer: React.FC<AddWhitelistDrawerProps> = ({ open, onClose, 
 
         <div className="pt-6">
           <button
-            className="w-full bg-[#F4F6F9] text-[#8B8D91] py-4 rounded-md font-bold text-base transition-all hover:bg-gray-200"
+            className="w-full bg-[#F4F6F9] text-[#8B8D91] py-3 rounded-md font-bold text-base transition-all hover:bg-gray-200"
           >
             Next
           </button>
@@ -126,8 +126,8 @@ const AddWhitelistDrawer: React.FC<AddWhitelistDrawerProps> = ({ open, onClose, 
 
 const autocompleteStyles = {
   "& .MuiOutlinedInput-root": {
-    height: "48px",
-    borderRadius: "8px",
+    height: "44px",
+    borderRadius: "6px",
     backgroundColor: "#F7F9FC",
     fontSize: "14px",
     fontWeight: 500,
@@ -139,7 +139,7 @@ const autocompleteStyles = {
 
 const textFieldStyles = {
   "& .MuiOutlinedInput-root": {
-    height: "48px",
+    height: "44px",
     borderRadius: "6px",
     backgroundColor: "#fff",
     fontSize: "14px",

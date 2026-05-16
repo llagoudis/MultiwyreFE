@@ -13,6 +13,8 @@ import {
   GridToolbarDensitySelector,
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
+import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
+import { MdOutlineFileDownload } from "react-icons/md";
 import { ApiHandler } from "~/service/UtilService";
 import toast from "react-hot-toast";
 import { fetchAddressDetails, getInvoices } from "~/service/ApiRequests";
@@ -44,6 +46,164 @@ type InvoicesTableProps = {
   invoiceUpdated: boolean;
 };
 
+function CustomToolbar({ handleExport, handleClear }: any) {
+  return (
+    <GridToolbarContainer className="flex items-center justify-between  bg-white mb-4">
+      <Box sx={{
+        display: "flex",
+        gap: 1,
+        "& .MuiButton-root": {
+          borderRadius: "6px",
+          backgroundColor: "#FFFFFF",
+          color: "#8B8D91",
+          border: "1px solid #E2E8F0",
+          px: 2,
+          py: 1,
+          fontSize: "13px",
+          fontWeight: "500",
+          textTransform: "none",
+          minWidth: "auto",
+          "& svg": {
+            color: "#8B8D91",
+          },
+          "&:hover": {
+            backgroundColor: "#F8F9FA",
+            borderColor: "#CBD5E1",
+          },
+          "& .MuiButton-startIcon": {
+          }
+        }
+      }}>
+        <GridToolbarColumnsButton />
+        <GridToolbarFilterButton />
+        <GridToolbarDensitySelector />
+      </Box>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleExport}
+          className="rounded-md border border-[#E2E8F0] bg-white text-[#8B8D91] px-4 py-3 text-xs font-bold hover:bg-gray-50 transition-colors flex items-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Export
+        </button>
+        <button
+          onClick={handleClear}
+          className="rounded-md border border-[#E2E8F0] bg-white text-[#8B8D91] px-4 py-3 text-xs font-bold hover:bg-gray-50 transition-colors flex items-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Clear
+        </button>
+      </div>
+    </GridToolbarContainer >
+  );
+}
+
+function CustomPagination({ pageCount, pagination, setPagination }: any) {
+  const totalPages = Math.ceil(pageCount / (pagination.pageSize || 10));
+  const currentPage = (pagination.page || 0) + 1;
+
+  const handlePageChange = (page: number) => {
+    setPagination({ ...pagination, page: page - 1 });
+  };
+
+  const renderPageButtons = () => {
+    const buttons = [];
+    let startPage = Math.max(1, currentPage - 1);
+    let endPage = Math.min(totalPages, startPage + 2);
+
+    if (endPage === totalPages) {
+      startPage = Math.max(1, endPage - 2);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold transition-all ${currentPage === i
+            ? "bg-gradient-to-br from-[#4775F2] to-[#B647F2] text-white shadow-md border-none"
+            : "text-[#8B8D91] hover:bg-gray-50 border border-[#E2E8F0]"
+            }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        buttons.push(<span key="dots" className="text-[#8B8D91] px-1">...</span>);
+      }
+      buttons.push(
+        <button
+          key={totalPages}
+          onClick={() => handlePageChange(totalPages)}
+          className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold transition-all ${currentPage === totalPages
+            ? "bg-gradient-to-br from-[#4775F2] to-[#B647F2] text-white shadow-md border-none"
+            : "text-[#8B8D91] hover:bg-gray-50 border border-[#E2E8F0]"
+            }`}
+        >
+          {totalPages}
+        </button>
+      );
+    }
+
+    return buttons;
+  };
+
+  return (
+    <div className="flex items-center justify-center gap-2 p-6 bg-white border-t border-gray-100">
+      <div className="flex items-center gap-1.5">
+        <button
+          onClick={() => handlePageChange(1)}
+          disabled={currentPage === 1}
+          className="w-9 h-9 flex items-center justify-center border border-[#E2E8F0] rounded-lg text-[#8B8D91] disabled:opacity-30 hover:bg-gray-50 transition-all"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+          </svg>
+        </button>
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="w-9 h-9 flex items-center justify-center border border-[#E2E8F0] rounded-lg text-[#8B8D91] disabled:opacity-30 hover:bg-gray-50 transition-all"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <div className="flex items-center gap-1.5 px-1">
+          {renderPageButtons()}
+        </div>
+
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="w-9 h-9 flex items-center justify-center border border-[#E2E8F0] rounded-lg text-[#8B8D91] disabled:opacity-30 hover:bg-gray-50 transition-all"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+        <button
+          onClick={() => handlePageChange(totalPages)}
+          disabled={currentPage === totalPages}
+          className="w-9 h-9 flex items-center justify-center border border-[#E2E8F0] rounded-lg text-[#8B8D91] disabled:opacity-30 hover:bg-gray-50 transition-all"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
   const [transactions, setTransactions] = useState<Invoices[]>([]);
 
@@ -69,7 +229,20 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
   const [bankDetails, setBankDetails] = useState<any>(null);
   const [invoiceImageUrl, setInvoiceImageUrl] = useState<any>(null);
 
-  // console.log("addressDetails", addressDetails);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedRow, setSelectedRow] = useState<Invoices | null>(null);
+  const openMenu = Boolean(anchorEl);
+
+  const handleMenuClick = React.useCallback((event: React.MouseEvent<HTMLElement>, row: Invoices) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRow(row);
+  }, []);
+
+  const handleMenuClose = React.useCallback(() => {
+    setAnchorEl(null);
+    setSelectedRow(null);
+  }, []);
+
   const onFilterChange = Debounce((newFilterModel: GridFilterModel) => {
     setFilterModel(newFilterModel);
   }, 500);
@@ -115,451 +288,120 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
     void getTransactions(paramsQuery);
   }, [pagination, invoiceUpdated, sort, isFilterModelHasValue, showPending]);
 
-  const invoiceRef = useRef<HTMLDivElement>(null);
+  const handleDownload = async (row: Invoices) => {
+    handleMenuClose();
+    const [res, error]: APIResult<{
+      invoiceImg: OnvoiceDetailsProp;
+      bankDetails: bankDetailsProp;
+      fromAddress: addressDetailsProp;
+    }> = await ApiHandler(() => fetchAddressDetails(row?.projectId));
 
-  const [isInvoiceReady, setIsInvoiceReady] = useState(false);
+    const userAgent = window.navigator.userAgent;
+    const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
 
-  useEffect(() => {
-    // Only run PDF generation for non-Safari browsers
-    if (
-      isInvoiceReady &&
-      singleData &&
-      invoiceRef.current &&
-      addressDetails &&
-      bankDetails &&
-      invoiceImageUrl
-    ) {
-      const generatePDF = async () => {
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+    const base64 = await convertImageToBase64(
+      res?.body?.invoiceImg?.invoiceImgLink,
+    );
 
-          const input = invoiceRef.current;
-          if (!input) {
-            throw new Error("Invoice template not found");
-          }
+    const qrBase64 = await QRCode.toDataURL(row.invoiceURL || "", {
+      width: 120,
+    });
 
-          // Wait for images to load
-          const images = input.querySelectorAll("img");
-          await Promise.all(
-            Array.from(images).map((img) => {
-              return new Promise((resolve) => {
-                if (img.complete && img.naturalHeight !== 0) {
-                  resolve(true);
-                } else {
-                  const handleLoad = () => {
-                    img.removeEventListener("load", handleLoad);
-                    img.removeEventListener("error", handleError);
-                    resolve(true);
-                  };
-                  const handleError = () => {
-                    img.removeEventListener("load", handleLoad);
-                    img.removeEventListener("error", handleError);
-                    console.warn("Image failed to load:", img.src);
-                    resolve(true);
-                  };
+    if (!isSafari) {
+      const container = document.createElement("div");
+      container.style.position = "fixed";
+      container.style.top = "-9999px";
+      container.style.left = "-9999px";
+      container.style.pointerEvents = "none";
+      container.style.zIndex = "0";
+      document.body.appendChild(container);
 
-                  img.addEventListener("load", handleLoad);
-                  img.addEventListener("error", handleError);
+      const root = ReactDOM.createRoot(container);
+      await new Promise((resolve) => {
+        root.render(
+          <InvoiceTemplate
+            invoice={row}
+            addressDetails={res?.body?.fromAddress}
+            bankDetails={res?.body?.bankDetails}
+            invoiceImageUrl={res?.body?.invoiceImg}
+            base64={base64}
+            qrImage={qrBase64}
+          />,
+        );
+        setTimeout(resolve, 500);
+      });
 
-                  setTimeout(() => {
-                    img.removeEventListener("load", handleLoad);
-                    img.removeEventListener("error", handleError);
-                    console.warn("Image loading timeout:", img.src);
-                    resolve(true);
-                  }, 5000);
-                }
-              });
-            }),
-          );
+      const canvas = await html2canvas(container, {
+        scale: 2,
+      });
+      const imgData = canvas.toDataURL("image/jpeg", 1.0);
 
-          // Generate canvas
-          const canvas = await html2canvas(input, {
-            scale: 2,
-            useCORS: true,
-            allowTaint: false,
-            backgroundColor: "#ffffff",
-            logging: false,
-            width: input.scrollWidth,
-            height: input.scrollHeight,
-            foreignObjectRendering: true,
-            imageTimeout: 10000,
-          });
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
 
-          const imgData = canvas.toDataURL("image/png", 0.95);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-          const pdf = new jsPDF({
-            orientation: "portrait",
-            unit: "mm",
-            format: "a4",
-            compress: true,
-          });
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
 
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const linkElement = container.querySelector<HTMLAnchorElement>(".pdf-link");
 
-          pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      if (linkElement) {
+        const rect = linkElement.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const pxToMm = (px: number) => px * 0.264583;
 
-          // Handle clickable areas if needed
-          if (singleData?.invoiceURL) {
-            const inputRect = input.getBoundingClientRect();
-            const scale = pdfWidth / input.scrollWidth;
+        const x = pxToMm(rect.left - containerRect.left);
+        const y = pxToMm(rect.top - containerRect.top);
+        const width = pxToMm(rect.width);
+        const height = pxToMm(rect.height);
 
-            // Find and add clickable elements
-            const qrCodeContainer = input.querySelector(".qr-code-container");
-            if (qrCodeContainer) {
-              const rect = qrCodeContainer.getBoundingClientRect();
-              try {
-                pdf.link(
-                  (rect.left - inputRect.left) * scale,
-                  (rect.top - inputRect.top) * scale,
-                  rect.width * scale,
-                  rect.height * scale,
-                  { url: singleData.invoiceURL },
-                );
-              } catch (linkError) {
-                console.warn("Failed to add QR code link:", linkError);
-              }
-            }
+        pdf.link(x, y, width, height, { url: linkElement.href });
+      }
 
-            const payButtonContainer = input.querySelector(
-              ".payment-button-container",
-            );
-            if (payButtonContainer) {
-              const rect = payButtonContainer.getBoundingClientRect();
-              try {
-                pdf.link(
-                  (rect.left - inputRect.left) * scale,
-                  (rect.top - inputRect.top) * scale,
-                  rect.width * scale,
-                  rect.height * scale,
-                  { url: singleData.invoiceURL },
-                );
-              } catch (linkError) {
-                console.warn("Failed to add button link:", linkError);
-              }
-            }
-          }
+      const blob = pdf.output("blob");
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = `Invoice_${row?.id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
 
-          // Manual download with better compatibility
-          const blob = pdf.output("blob");
-          const blobUrl = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = blobUrl;
-          link.download = `invoice-${singleData.id}.pdf`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(blobUrl);
+      root.unmount();
+      document.body.removeChild(container);
+    } else {
+      const htmlTemplate: string = ReactDOMServer.renderToStaticMarkup(
+        <InvoiceTemplateSafari
+          invoice={row}
+          addressDetails={res?.body?.fromAddress}
+          bankDetails={res?.body?.bankDetails}
+          invoiceImageUrl={res?.body?.invoiceImg}
+          base64={base64}
+          qrImage={qrBase64}
+        />,
+      );
 
-          toast.success("Invoice downloaded successfully");
-        } catch (error) {
-          console.error("Error generating PDF:", error);
-          // toast.error(`Failed to generate PDF: ${error.message}`);
-        } finally {
-          // Reset all states
-          setSingleData(null);
-          setIsInvoiceReady(false);
-          setAddressDetails(null);
-          setBankDetails(null);
-          setInvoiceImageUrl(null);
-        }
-      };
-      generatePDF();
-    }
-  }, [
-    isInvoiceReady,
-    singleData,
-    addressDetails,
-    bankDetails,
-    invoiceImageUrl,
-  ]);
-
-  const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", width: 50, hideable: false },
-
-    {
-      minWidth: 140,
-      field: "createdAt",
-      headerName: "DATE",
-      type: "date",
-      filterable: true,
-      valueGetter: (params: { row: any }) => new Date(params?.row?.createdAt),
-      renderCell: ({ row }: TableRow) => formatDate(row?.createdAt) ?? "-",
-    },
-
-    {
-      minWidth: 100,
-      field: "name",
-      headerName: "NAME",
-    },
-
-    {
-      minWidth: 150,
-      field: "recoveryEmail",
-      headerName: "EMAIL",
-      valueGetter: (params: { row: any }) =>
-        new Date(params?.row?.EcomTransaction?.recoveryEmail),
-      renderCell: ({ row }: any) => row?.EcomTransaction?.recoveryEmail ?? "-",
-    },
-
-    {
-      minWidth: 200,
-      field: "billingItems",
-      headerName: "DESCRIPTION",
-      renderCell: ({ row }: TableRow) => {
-        if (
-          !row?.EcomTransaction?.billingItems ||
-          row?.EcomTransaction?.billingItems.length === 0
+      const win = window.open("", "_blank");
+      if (win) {
+        const styles = Array.from(
+          document.querySelectorAll('link[rel="stylesheet"], style'),
         )
-          return "-";
+          .map((node) => node.outerHTML)
+          .join("\n");
 
-        return (
-          <div className=" flex h-full flex-col justify-end pb-0.5  text-xs leading-none">
-            {row?.EcomTransaction?.billingItems.map((item, index) => (
-              <p key={index} className="h-fit">
-                {item.description ? (
-                  <>
-                    {item.description}{" "}
-                    <span className=" text-[10px] font-semibold">
-                      ({row?.currency}
-                    </span>{" "}
-                    <span className=" text-[12px] font-bold">
-                      {item.amount})
-                    </span>
-                  </>
-                ) : (
-                  item.amount
-                )}
-              </p>
-            ))}
-          </div>
-        );
-      },
-    },
-    {
-      minWidth: 100,
-      field: "fiatAmount",
-      headerName: "REQUESTED",
-      renderCell: ({ row }: TableRow) => (
-        <p>{`${row?.amount ?? ""} ${" "} ${
-          row?.amount ? `(${row?.currency})` : "-"
-        } `}</p>
-      ),
-    },
-
-    {
-      flex: 1,
-      minWidth: 125,
-      field: "exactAmount",
-      headerName: "INVOICED",
-      renderCell: ({ row }: TableRow) => (
-        <p>{`${row?.EcomTransaction?.exactAmount ?? ""} ${" "} ${
-          row?.EcomTransaction?.exactAmount
-            ? `(${row?.EcomTransaction?.assetId})`
-            : "-"
-        } `}</p>
-      ),
-    },
-
-    {
-      flex: 1,
-      minWidth: 125,
-      field: "paidAmount",
-      headerName: "PAID",
-      renderCell: ({ row }: TableRow) => (
-        <p>{`${row?.EcomTransaction?.amount ?? ""} ${" "} ${
-          row?.EcomTransaction?.amount
-            ? `(${row?.EcomTransaction?.assetId})`
-            : "-"
-        } `}</p>
-      ),
-    },
-
-    {
-      minWidth: 100,
-      field: "status",
-      type: "singleSelect",
-      valueOptions: ["PENDING", "QUEUED", "COMPLETED", "FAILED"],
-      headerName: "STATUS",
-      renderCell: ({ row }: TableRow) => (
-        <p>{`${row?.EcomTransaction?.status}`}</p>
-      ),
-    },
-
-    {
-      minWidth: 130,
-      field: "invoiceURL",
-      headerName: "INVOICE URL",
-      renderCell: ({ row }: TableRow) => {
-        return (
-          <p>
-            {row.invoiceURL ? (
-              <span className=" flex gap-4">
-                <Link
-                  href={row.invoiceURL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className=" whitespace-nowrap font-normal text-blue-500 underline"
-                >
-                  Link URL
-                </Link>
-
-                <span
-                  className=" flex w-full justify-center"
-                  onClick={() => onCopy(row?.invoiceURL)}
-                >
-                  <Image
-                    className=" cursor-pointer"
-                    src={CopyButton}
-                    alt="copy"
-                  />
-                </span>
-              </span>
-            ) : (
-              "-"
-            )}
-          </p>
-        );
-      },
-    },
-    {
-      field: "actions",
-      type: "actions",
-      headerName: "ACTION",
-      width: 80,
-      getActions: ({ row }: TableRow) => [
-        <GridActionsCellItem
-          key="view"
-          sx={{
-            margin: "0 1rem",
-            padding: "5px 0",
-            width: "7rem",
-            fontSize: "14px",
-          }}
-          label="Download invoice"
-          onClick={async () => {
-            const [res, error]: APIResult<{
-              invoiceImg: OnvoiceDetailsProp;
-              bankDetails: bankDetailsProp;
-              fromAddress: addressDetailsProp;
-            }> = await ApiHandler(() => fetchAddressDetails(row?.projectId));
-
-            const userAgent = window.navigator.userAgent;
-            const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
-
-            const base64 = await convertImageToBase64(
-              res?.body?.invoiceImg?.invoiceImgLink,
-            );
-
-            const qrBase64 = await QRCode.toDataURL(row.invoiceURL || "", {
-              width: 120,
-            });
-
-            if (!isSafari) {
-              const container = document.createElement("div");
-              container.style.position = "fixed";
-              container.style.top = "-9999px"; // Off-screen
-              container.style.left = "-9999px";
-              container.style.pointerEvents = "none";
-              container.style.zIndex = "0";
-              document.body.appendChild(container);
-
-              const root = ReactDOM.createRoot(container);
-              await new Promise((resolve) => {
-                root.render(
-                  <InvoiceTemplate
-                    invoice={row}
-                    addressDetails={res?.body?.fromAddress}
-                    bankDetails={res?.body?.bankDetails}
-                    invoiceImageUrl={res?.body?.invoiceImg}
-                    base64={base64}
-                    qrImage={qrBase64}
-                  />,
-                );
-                setTimeout(resolve, 500); // Wait for render
-              });
-
-              const canvas = await html2canvas(container, {
-                scale: 2,
-              });
-              const imgData = canvas.toDataURL("image/jpeg", 1.0);
-
-              const pdf = new jsPDF({
-                orientation: "portrait",
-                unit: "mm",
-                format: "a4",
-              });
-
-              const pdfWidth = pdf.internal.pageSize.getWidth();
-              const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-              pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
-
-              // 🔹 Find the link element in the off-screen render
-              const linkElement =
-                container.querySelector<HTMLAnchorElement>(".pdf-link");
-
-              if (linkElement) {
-                const rect = linkElement.getBoundingClientRect();
-                const containerRect = container.getBoundingClientRect();
-
-                // px → mm conversion
-                const pxToMm = (px: number) => px * 0.264583;
-
-                const x = pxToMm(rect.left - containerRect.left);
-                const y = pxToMm(rect.top - containerRect.top);
-                const width = pxToMm(rect.width);
-                const height = pxToMm(rect.height);
-
-                pdf.link(x, y, width, height, { url: linkElement.href });
-              }
-
-              //  Manual download (better Safari compatibility)
-              const blob = pdf.output("blob");
-              const blobUrl = URL.createObjectURL(blob);
-              const link = document.createElement("a");
-              link.href = blobUrl;
-              link.download = `Invoice_${row?.id}.pdf`;
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              URL.revokeObjectURL(blobUrl);
-
-              // Cleanup
-              root.unmount();
-              document.body.removeChild(container);
-            } else {
-              // Safari
-              const htmlTemplate: string = ReactDOMServer.renderToStaticMarkup(
-                <InvoiceTemplateSafari
-                  invoice={row}
-                  addressDetails={res?.body?.fromAddress}
-                  bankDetails={res?.body?.bankDetails}
-                  invoiceImageUrl={res?.body?.invoiceImg}
-                  base64={base64}
-                  qrImage={qrBase64} // new prop
-                />,
-              );
-
-              // Create a new window
-              const win = window.open("", "_blank");
-              if (win) {
-                // Get all current CSS links from the main document
-                const styles = Array.from(
-                  document.querySelectorAll('link[rel="stylesheet"], style'),
-                )
-                  .map((node) => node.outerHTML)
-                  .join("\n");
-
-                // Write HTML content to the new window
-                win.document.write(`
+        win.document.write(`
       <!DOCTYPE html>
       <html lang="en">
       <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Invoice_${row?.id}</title>
-          ${styles} <!-- Inject Tailwind + other CSS -->
+          ${styles}
       </head>
       <body>
         ${htmlTemplate}
@@ -567,17 +409,171 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
       </html>
     `);
 
-                win.print();
-              } else {
-                console.error("Unable to open new window");
-              }
-            }
-          }}
-          showInMenu
-        />,
-      ],
+        win.print();
+      }
+    }
+  };
+
+  const columns = React.useMemo<GridColDef[]>(() => [
+    {
+      field: "id",
+      headerName: "ID",
+      width: 100,
+      renderCell: ({ row }: TableRow) => (
+        <span className="font-medium text-[#1A1C1E]">{row.id}</span>
+      )
     },
-  ];
+    {
+      minWidth: 140,
+      field: "createdAt",
+      headerName: "Date",
+      valueGetter: (params: { row: any }) => new Date(params?.row?.createdAt),
+      renderCell: ({ row }: TableRow) => (
+        <div className="flex flex-col text-xs font-medium text-[#8B8D91] leading-tight">
+          <span>{formatDate(row?.createdAt)?.split(' ')[0]}</span>
+          <span className="text-[10px] opacity-70 uppercase">
+            {formatDate(row?.createdAt)?.split(' ')[1]} {formatDate(row?.createdAt)?.split(' ')[2]}
+          </span>
+        </div>
+      ),
+    },
+    {
+      minWidth: 150,
+      field: "name",
+      headerName: "Name",
+      renderCell: ({ row }: TableRow) => (
+        <span className=" text-[#1A1C1E]">{row.name || "-"}</span>
+      )
+    },
+    {
+      minWidth: 180,
+      field: "customerEmail",
+      headerName: "Email",
+      renderCell: ({ row }: any) => (
+        <span className="text-[#8B8D91] font-medium">{row?.EcomTransaction?.customerEmail || "-"}</span>
+      ),
+    },
+    {
+      minWidth: 250,
+      field: "billingItems",
+      headerName: "Description",
+      renderCell: ({ row }: TableRow) => {
+        const items = row?.EcomTransaction?.billingItems;
+        if (!items || items.length === 0) return "-";
+
+        return (
+          <div className="flex flex-col py-1 text-xs text-[#8B8D91] font-medium truncate">
+            {items.map((item, index) => (
+              <p key={index} className="truncate">
+                {item.description} ({row?.currency} {item.amount})
+              </p>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      minWidth: 140,
+      field: "amount",
+      headerName: "Requested",
+      renderCell: ({ row }: TableRow) => (
+        <div className="font-medium text-[#1A1C1E] text-xs">
+          {row?.amount} <span className="text-[10px] text-[#8B8D91]">({row?.currency})</span>
+        </div>
+      ),
+    },
+    {
+      minWidth: 150,
+      field: "exactAmount",
+      headerName: "Invoiced",
+      renderCell: ({ row }: TableRow) => (
+        <div className="flex flex-col text-xs font-medium text-[#1A1C1E] leading-tight">
+          <span>{row?.EcomTransaction?.exactAmount || "-"}</span>
+          {row?.EcomTransaction?.exactAmount && (
+            <span className="text-[10px] text-[#8B8D91]">({row?.EcomTransaction?.assetId})</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      minWidth: 150,
+      field: "paidAmount",
+      headerName: "Paid",
+      renderCell: ({ row }: TableRow) => (
+        <div className="flex flex-col text-xs font-medium text-[#1A1C1E] leading-tight">
+          <span>{row?.EcomTransaction?.amount || "-"}</span>
+          {row?.EcomTransaction?.amount && (
+            <span className="text-[10px] text-[#8B8D91]">({row?.EcomTransaction?.assetId})</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      minWidth: 120,
+      field: "status",
+      headerName: "Status",
+      renderCell: ({ row }: TableRow) => {
+        const status = row?.EcomTransaction?.status?.toUpperCase();
+        let bg = "bg-[#FFF8E6] text-[#FFA800] border-[#FFA80033]"; // PENDING
+        if (status === "COMPLETED") bg = "bg-[#E6F9F1] text-[#00C076] border-[#00C07633]";
+        if (status === "FAILED") bg = "bg-[#FFF2F2] text-[#FF3B3B] border-[#FF3B3B33]";
+
+        return (
+          <span className={`${bg} px-3 py-1.5 rounded-lg text-[11px] font-bold border`}>
+            {status ? status.charAt(0) + status.slice(1).toLowerCase() : "Pending"}
+          </span>
+        );
+      },
+    },
+    {
+      minWidth: 150,
+      field: "invoiceURL",
+      headerName: "Invoice URL",
+      renderCell: ({ row }: TableRow) => (
+        <div className="flex items-center gap-2">
+          {row.invoiceURL ? (
+            <>
+              <Link
+                href={row.invoiceURL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#4775F2] text-xs  underline"
+              >
+                Link Url
+              </Link>
+              <button
+                onClick={() => onCopy(row?.invoiceURL)}
+                className="p-1 hover:bg-gray-100 rounded-md transition-colors"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#8B8D91]">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </button>
+            </>
+          ) : "-"}
+        </div>
+      ),
+    },
+    {
+      field: "actions",
+      headerName: "Action",
+      width: 80,
+      sortable: false,
+      renderCell: ({ row }: TableRow) => (
+        <div
+          onClick={(e) => handleMenuClick(e, row)}
+          className="w-10 h-10 flex items-center justify-center border border-[#E2E8F0] rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
+        >
+          <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="2" cy="2" r="2" fill="#D1D5DB" />
+            <circle cx="2" cy="8" r="2" fill="#D1D5DB" />
+            <circle cx="2" cy="14" r="2" fill="#D1D5DB" />
+          </svg>
+        </div>
+      ),
+    },
+  ], [handleMenuClick]);
 
   function handleClear() {
     setFilterModel({ items: [] });
@@ -610,54 +606,24 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
       return;
     }
 
-    const reportHeaderval: TransactionReport[] = [];
+    const reportHeaderval: any[] = [];
 
     res?.body?.data?.map((row) => {
-      const { id } = row;
-
-      const DATE = `${formatDate(row?.createdAt)}`;
-
       reportHeaderval.push({
-        ID: id,
-        DATE: DATE,
+        ID: row.id,
+        DATE: formatDate(row?.createdAt),
         NAME: row?.name,
-        EMAIL: row?.email,
+        EMAIL: row?.EcomTransaction?.customerEmail,
         DESCRIPTION: row?.description,
-        REQUESTED: `${row?.amount ?? ""} ${" "} ${
-          row?.amount ? `(${row?.currency})` : "-"
-        } `,
-        INVOICED: `${row?.EcomTransaction?.exactAmount ?? ""} ${" "} ${
-          row?.EcomTransaction?.exactAmount
-            ? `(${row?.EcomTransaction?.assetId})`
-            : "-"
-        } `,
-        PAID: `${row?.EcomTransaction?.amount ?? ""} ${" "} ${
-          row?.EcomTransaction?.amount
-            ? `(${row?.EcomTransaction?.assetId})`
-            : "-"
-        }`,
+        REQUESTED: `${row?.amount ?? ""} (${row?.currency})`,
+        INVOICED: `${row?.EcomTransaction?.exactAmount ?? ""} (${row?.EcomTransaction?.assetId})`,
+        PAID: `${row?.EcomTransaction?.amount ?? ""} (${row?.EcomTransaction?.assetId})`,
         STATUS: row?.EcomTransaction?.status,
         "INVOICE URL": row?.invoiceURL,
       });
     });
 
     void ExportCsv(reportHeaderval, "Invoices");
-  }
-
-  function CustomToolbar() {
-    return (
-      <GridToolbarContainer>
-        <GridToolbarColumnsButton />
-        <GridToolbarFilterButton />
-        <GridToolbarDensitySelector />
-        <Button size="small" onClick={handleExport}>
-          Export
-        </Button>
-        <Button size="small" onClick={handleClear}>
-          Clear
-        </Button>
-      </GridToolbarContainer>
-    );
   }
 
   const onSortChange = React.useCallback((sortModel: GridSortModel) => {
@@ -669,11 +635,47 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
     }
   }, []);
 
+
   return (
     <div className="flex flex-col gap-3">
-      {/* datagrid */}
       <div className="tableComponent">
-        <Box sx={{ width: "100%" }}>
+        <Box sx={{
+          width: "100%",
+          "& .MuiDataGrid-root": {
+            border: "none",
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: "#F8F9FA",
+              borderRadius: "0px",
+              borderBottom: "1px solid #E2E8F0",
+              "& .MuiDataGrid-columnHeader": {
+                backgroundColor: "#F8F9FA",
+              },
+              "& .MuiDataGrid-columnHeaderTitle": {
+                color: "#1A1C1E",
+                fontWeight: "600",
+                fontSize: "13px",
+                textTransform: "none",
+              },
+              "& .MuiDataGrid-iconButtonContainer": {
+                visibility: "visible !important",
+              },
+              "& .MuiDataGrid-sortIcon": {
+                opacity: "1 !important",
+              },
+            },
+            "& .MuiDataGrid-cell": {
+              borderBottom: "1px solid #F1F5F9",
+              display: "flex",
+              alignItems: "center",
+            },
+            "& .MuiDataGrid-row:hover": {
+              backgroundColor: "#F8FAFC",
+            },
+            "& .MuiDataGrid-footerContainer": {
+              borderTop: "none",
+            }
+          }
+        }}>
           <MuiDataGrid
             rows={transactions}
             columns={columns}
@@ -681,6 +683,59 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
             rowCount={pageCount}
             slots={{
               toolbar: CustomToolbar,
+              pagination: CustomPagination,
+              columnUnsortedIcon: () => (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 1, color: "#4775F2" }}>
+                  <path d="M7 15l5 5 5-5M7 9l5-5 5 5" />
+                </svg>
+              ),
+              columnSortedAscendingIcon: () => (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "#4775F2" }}>
+                  <path d="M17 15l-5-5-5 5" />
+                </svg>
+              ),
+              columnSortedDescendingIcon: () => (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "#4775F2" }}>
+                  <path d="M7 9l5 5 5-5" />
+                </svg>
+              ),
+            }}
+            slotProps={{
+              toolbar: { handleExport, handleClear } as any,
+              pagination: { pageCount, pagination, setPagination } as any
+            }}
+            getRowHeight={() => "auto"}
+            sx={{
+              "& .MuiDataGrid-columnHeaderTitleContainer": {
+                display: "flex",
+                gap: "4px",
+                overflow: "visible !important",
+                minWidth: 0,
+              },
+              "& .MuiDataGrid-columnHeaderTitle": {
+                overflow: "visible !important",
+                textOverflow: "inherit !important",
+                whiteSpace: "nowrap",
+                fontWeight: "600",
+              },
+              "& .MuiDataGrid-iconButtonContainer": {
+                visibility: "visible !important",
+                width: "auto !important",
+              },
+              "& .MuiDataGrid-columnHeader:not(.MuiDataGrid-columnHeader--sorted) .MuiDataGrid-iconButtonContainer": {
+                visibility: "visible !important",
+              },
+              "& .MuiDataGrid-sortIcon": {
+                opacity: "1 !important",
+                display: "block !important",
+              },
+              "& .MuiDataGrid-menuIcon": {
+                visibility: "visible !important",
+                width: "auto !important",
+                "& .MuiButtonBase-root": {
+                  color: "#D1D5DB !important",
+                }
+              },
             }}
             filterMode="server"
             sortingMode="server"
@@ -694,6 +749,54 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
           />
         </Box>
       </div>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={openMenu}
+        onClose={handleMenuClose}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        PaperProps={{
+          elevation: 0,
+          sx: {
+            overflow: 'visible',
+            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.1))',
+            mt: 1.5,
+            borderRadius: '12px',
+            '& .MuiAvatar-root': {
+              width: 32,
+              height: 32,
+              ml: -0.5,
+              mr: 1,
+            },
+            '&:before': {
+              content: '""',
+              display: 'block',
+              position: 'absolute',
+              top: 0,
+              right: 14,
+              width: 10,
+              height: 10,
+              bgcolor: 'background.paper',
+              transform: 'translateY(-50%) rotate(45deg)',
+              zIndex: 0,
+            },
+          },
+        }}
+      >
+        <MenuItem
+          onClick={() => selectedRow && handleDownload(selectedRow)}
+          sx={{ py: 1.5, px: 2, gap: 1.5 }}
+        >
+          <ListItemIcon sx={{ minWidth: 'auto !important' }}>
+            <MdOutlineFileDownload className="text-xl text-[#4775F2]" />
+          </ListItemIcon>
+          <ListItemText
+            primary="Download"
+            primaryTypographyProps={{ fontSize: '13px', fontWeight: 600, color: '#1A1C1E' }}
+          />
+        </MenuItem>
+      </Menu>
     </div>
   );
 };

@@ -53,7 +53,7 @@ const MuiButton: React.FC<MuiButtonProps> = ({
         borderRadius: borderRadius ? borderRadius : "0.6rem",
          marginLeft: "10px !important", // Pushes button to the righ
       }}
-      className="!font-['Segoe UI'] active:scale-95"
+      className="!font-sans active:scale-95"
       onClick={useLoading ? _onClick : onClick}
     >
       {loading || isLoading ? <LoaderIcon className="mr-4 h-4 w-4" /> : null}

@@ -55,11 +55,11 @@ const WithdrawDrawer: React.FC<WithdrawDrawerProps> = ({ open, onClose, assets, 
             <MdClose size={18} />
           </IconButton>
         </div>
-        <p className="text-[#606060] mb-8 opacity-80 leading-relaxed">
+        <p className="text-[#606060] text-sm mb-4 opacity-80 leading-relaxed">
           Withdraw selected asset to crypto address or withdraw fiat to bank account.
         </p>
 
-        <div className="flex-1 overflow-y-auto space-y-8 pr-1 custom-scroll">
+        <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scroll">
           {/* Balance Selector */}
           <div className="space-y-2">
             <label className="text-sm font-semibold text-[#606060]">Balance</label>
@@ -87,7 +87,7 @@ const WithdrawDrawer: React.FC<WithdrawDrawerProps> = ({ open, onClose, assets, 
               <label className="text-sm font-semibold text-[#606060]">Amount</label>
               <span className="text-[10px] text-[#8B8D91] font-medium">Limit 0.015 - 9.444098 Bitcoin</span>
             </div>
-            <div className="relative flex items-center bg-[#F6F6FB] rounded-md px-4 py-3 border border-[#4C7FFF1F] focus-within:border-[#4775F2] transition-all">
+            <div className="relative flex items-center bg-[#F6F6FB] rounded-md px-4 py-2 border border-[#4C7FFF1F] focus-within:border-[#4775F2] transition-all">
               <input
                 type="number"
                 placeholder="Enter Amount"
@@ -108,7 +108,7 @@ const WithdrawDrawer: React.FC<WithdrawDrawerProps> = ({ open, onClose, assets, 
           </div>
 
           {/* Send To Toggle */}
-          <div className="space-y-3">
+          <div className="">
             <div className="flex justify-between items-center px-1">
               <label className="text-sm font-semibold text-[#606060]">Send to</label>
               <IconButton size="small"><Image src="/assets/general/exclamatory.svg" alt="" width={14} height={14} /></IconButton>
@@ -130,29 +130,29 @@ const WithdrawDrawer: React.FC<WithdrawDrawerProps> = ({ open, onClose, assets, 
           </div>
 
           {/* Empty State */}
-          <div className="py-10 flex flex-col w-full items-center justify-center text-center space-y-1">
+          <div className="py-6 flex flex-col w-full items-center justify-center text-center space-y-1">
             <div className="relative">
-              <Image src={wallet} alt="" width={180} height={180} className="object-contain" />
+              <Image src={wallet} alt="" width={150} height={150} className="object-contain" />
             </div>
             <div className="space-y-1 w-full">
-              <p className="font-bold text-[#1A1C1E] text-lg">There are no whitelist addresses here</p>
-              <p className=" text-[#606060] max-w-[90%]  mx-auto opacity-70 leading-relaxed">
+              <p className="font-bold text-[#1A1C1E] ">There are no whitelist addresses here</p>
+              <p className=" text-[#606060] max-w-[90%] text-sm  mx-auto opacity-70 leading-relaxed">
                 Add trusted address to withdraw assets without confirmation.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="pt-6 space-y-3">
+        <div className="pt-2 space-y-3">
           <button
             onClick={onAddWhitelist}
-            className="w-full border border-[#4F7AF9] text-[#4F7AF9] py-3.5 rounded-md font-bold text-sm transition-all hover:bg-blue-50"
+            className="w-full border border-[#4F7AF9] text-[#4F7AF9] py-3 rounded-md font-bold text-sm transition-all hover:bg-blue-50"
           >
             Add address to whitelist
           </button>
           <button
             disabled
-            className="w-full bg-[#F4F6F9] text-[#8B8D91] py-3.5 rounded-md font-bold text-sm opacity-60"
+            className="w-full bg-[#F4F6F9] text-[#8B8D91] py-3 rounded-md font-bold text-sm opacity-60"
           >
             Create Order
           </button>

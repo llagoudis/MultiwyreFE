@@ -229,9 +229,9 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
             <MdClose size={18} />
           </IconButton>
         </div>
-        <p className="text-[#606060]  mb-4 opacity-80">Transfer any currency inside Inqud without fees.</p>
+        <p className="text-[#606060] text-sm  mb-4 opacity-80">Transfer any currency inside Inqud without fees.</p>
 
-        <div className="flex-1 overflow-y-auto space-y-8 pr-1 custom-scroll">
+        <div className="flex-1 overflow-y-auto space-y-3 pr-1 custom-scroll">
           {/* From / To Selection */}
           <div className="flex items-center gap-2">
             <div className="flex-1 space-y-2">
@@ -287,7 +287,7 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
               <label className="text-sm font-semibold text-[#606060]">Amount</label>
               <span className="text-[10px] text-[#8B8D91] font-medium">Limit 0.015 - 9.444098 Bitcoin</span>
             </div>
-            <div className="relative flex items-center bg-[#F4F6F9] rounded-lg px-4 h-[56px] border border-transparent focus-within:border-[#4775F2] transition-all">
+            <div className="relative flex items-center bg-[#F4F6F9] rounded-lg px-4 h-[44px] border border-transparent focus-within:border-[#4775F2] transition-all">
               <input
                 type="number"
                 placeholder="Enter Amount"
@@ -309,12 +309,12 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
 
           {/* Market Price & Receive Info */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-5 border border-[#E5E7EB] rounded-md bg-[#FCFDFF] space-y-2">
+            <div className="p-4 border border-[#E5E7EB] rounded-md bg-[#FCFDFF] space-y-2">
               <p className="text-sm text-[#606060] font-medium opacity-80">Market Price</p>
               <p className="text-xl font-bold text-[#1A1C1E] tracking-tight">{market || "78258.60000000"}</p>
               <p className="text-xs text-[#8B8D91] font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
             </div>
-            <div className="p-5 border border-[#FFD0DA] rounded-md bg-[#FFF8F9] space-y-2">
+            <div className="p-4 border border-[#FFD0DA] rounded-md bg-[#FFF8F9] space-y-2">
               <p className="text-sm text-[#606060] font-medium opacity-80">You will receive</p>
               <p className="text-xl font-bold text-[#FF3D71] tracking-tight">{receive || "0.1"}</p>
               <p className="text-xs text-[#8B8D91] font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
@@ -322,13 +322,13 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
           </div>
 
           {/* Empty State */}
-          <div className="py-8 flex flex-col items-center justify-center text-center space-y-2">
+          <div className="py-2 flex flex-col items-center justify-center text-center space-y-2">
             <div className="relative">
-              <Image src={wallet} alt="" width={200} height={200} className="object-contain" />
+              <Image src={wallet} alt="" width={150} height={150} className="object-contain" />
             </div>
             <div className="space-y-1">
-              <p className="font-bold text-[#1A1C1E] text-lg">There are no exchange addresses added yet.</p>
-              <p className=" text-[#606060] max-w-[90%] mx-auto opacity-70 leading-relaxed">
+              <p className="font-bold text-[#1A1C1E] ">There are no exchange addresses added yet.</p>
+              <p className=" text-[#606060] text-sm max-w-full mx-auto opacity-70 leading-relaxed">
                 You haven't added any exchange addresses yet. Add an address to start exchanging.
               </p>
             </div>
@@ -339,7 +339,7 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
           <button
             onClick={handleExecute}
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-[#4F7AF9] to-[#D63E97] text-white py-4 rounded-md font-bold text-base shadow-lg hover:opacity-90 transition-all active:scale-[0.98] disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-[#4F7AF9] to-[#D63E97] text-white py-3 rounded-md font-bold text-base shadow-lg hover:opacity-90 transition-all active:scale-[0.98] disabled:opacity-50"
           >
             {isLoading ? "Processing..." : "Execute Trade"}
           </button>
@@ -351,8 +351,8 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
 
 const autocompleteStyles = {
   "& .MuiOutlinedInput-root": {
-    height: "48px",
-    borderRadius: "8px",
+    height: "44px",
+    borderRadius: "6px",
     backgroundColor: "#fff",
     fontSize: "14px",
     fontWeight: 500,

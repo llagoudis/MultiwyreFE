@@ -52,7 +52,7 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
     watch,
     reset,
     setValue,
-    unregister, // Add unregister to clean up form fields
+    unregister,
   } = useForm<InvoiceForm>();
 
   const [loading, setLoading] = useState(false);
@@ -62,10 +62,8 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
     const [response] = await getAllCustomerMerchants();
     if (response?.body) {
       setMerchants(response?.body);
-
       if (response?.body.length === 1) {
         const projectId = response?.body[0]?.projectId;
-
         setValue("projectId", projectId ?? "");
       }
     }
@@ -74,10 +72,11 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
   useEffect(() => {
     void fetchMerchants();
   }, []);
+
   const [billingItems, setBillingItems] = useState<BillingItem[]>([
     { id: Date.now(), description: "", amount: "" },
   ]);
-  const [nextId, setNextId] = useState(Date.now() + 1); // Track next ID
+  const [nextId, setNextId] = useState(Date.now() + 1);
 
   const currencyWatch = watch("currency");
   const totalAmount = billingItems.reduce(
@@ -99,17 +98,10 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
   };
 
   const removeBillingItem = (idToRemove: number) => {
-    // Find the index of the item to remove
-    const indexToRemove = billingItems.findIndex(
-      (item) => item.id === idToRemove,
-    );
-
+    const indexToRemove = billingItems.findIndex((item) => item.id === idToRemove);
     if (indexToRemove !== -1) {
-      // Unregister the form fields for this item
       unregister(`billingItems.${indexToRemove}.description`);
       unregister(`billingItems.${indexToRemove}.amount`);
-
-      // Remove the item from the array
       setBillingItems(billingItems.filter((item) => item.id !== idToRemove));
     }
   };
@@ -142,7 +134,7 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
     EUR: { symbol: "€", code: "EUR" },
   };
 
-  const currencyData = currencyMap[currencyWatch] ?? { symbol: "", code: "" };
+  const currencyData = currencyMap[currencyWatch] ?? { symbol: "$", code: "" };
 
   useEffect(() => {
     reset({
@@ -173,271 +165,268 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
       open={Boolean(openAdd)}
       onClose={() => onClose()}
       fullWidth
-      className="ml-auto max-w-2xl"
+      maxWidth="sm"
+      PaperProps={{
+        sx: {
+          borderRadius: "20px",
+          padding: "0px",
+          maxWidth: "640px",
+        }
+      }}
     >
-      <div className="p-4">
-        <DialogTitle className="fontFamily !pb-0 text-start text-3xl font-semibold">
-          Enter invoice details
-        </DialogTitle>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent>
-            <ExchangeInput
-              control={control}
-              placeholder="Enter Bill To"
-              label="Bill To"
-              name="name"
-              rules={{ required: "Bill To is required" }}
-              type="text"
-              textColor="text-[#18181A]"
-            />
-            <ExchangeInput
-              control={control}
-              placeholder="Enter Billing Address"
-              label="Billing Address"
-              name="billingAddress"
-              rules={{ required: "Billing Address is required" }}
-              type="text"
-              textColor="text-[#18181A]"
-            />
-            {merchants.length > 1 ? (
-              <div className=" my-2 space-y-1 ">
-                <p>
-                  Project <span className="text-red-500">*</span>
-                </p>
-                <SelectComponent
-                  control={control}
-                  options={merchants}
-                  valueKey="projectId"
-                  labelKey="projectName"
-                  label="projectId"
-                  name="projectId"
-                  rules={{ required: "Project is required" }}
-                />
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1">
-                <p className="mb-1">
-                  Project <span className="text-red-500">*</span>
-                </p>
+      <div className="flex flex-col">
+        <div className="p-4 border-b border-gray-100">
+          <h2 className="text-xl font-bold text-[#1A1C1E]">
+            Enter invoice details
+          </h2>
+        </div>
 
-                <Controller
-                  control={control}
-                  name="projectId"
-                  defaultValue={merchants[0]?.projectId || ""}
-                  render={({ field }) => (
+        <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-2">
+
+          <div className="flex items-center gap-3 w-full">
+            <div className="space-y-1.5 w-full">
+              <label className="text-sm font-bold text-[#1A1C1E]">
+                Bill to<span className="text-red-500">*</span>
+              </label>
+              <Controller
+                name="name"
+                control={control}
+                rules={{ required: "Bill to is required" }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    size="small"
+                    placeholder="Enter bill to"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "6px",
+                        backgroundColor: "#FFFFFF",
+                        "& fieldset": { borderColor: "#E2E8F0" },
+                      }
+                    }}
+                  />
+                )}
+              />
+            </div>
+
+            <div className="space-y-1.5 w-full">
+              <label className="text-sm font-bold text-[#1A1C1E]">
+                Billing Address<span className="text-red-500">*</span>
+              </label>
+              <Controller
+                name="billingAddress"
+                control={control}
+                rules={{ required: "Billing Address is required" }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    size="small"
+                    placeholder="Enter billing Address"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "6px",
+                        backgroundColor: "#FFFFFF",
+                        "& fieldset": { borderColor: "#E2E8F0" },
+                      }
+                    }}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-bold text-[#1A1C1E]">
+              Project<span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="projectId"
+              control={control}
+              rules={{ required: "Project is required" }}
+              render={({ field }) => (
+                <Autocomplete
+                  {...field}
+                  options={merchants}
+                  getOptionLabel={(option) => option.projectName || ""}
+                  onChange={(_, value) => field.onChange(value?.projectId || "")}
+                  value={merchants.find((m: any) => m.projectId === field.value) || null}
+                  renderInput={(params) => (
                     <TextField
+                      {...params}
+                      placeholder="Select or type proect"
                       size="small"
-                      variant="outlined"
-                      {...field}
-                      value={merchants[0]?.projectName || ""}
-                      disabled
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "6px",
+                          backgroundColor: "#FFFFFF",
+                          "& fieldset": { borderColor: "#E2E8F0" },
+                        }
+                      }}
                     />
                   )}
                 />
-              </div>
-            )}
-            <div className="my-3">
-              <label className="mb-1 block">
-                Currency <span className="text-red-500">*</span>
-              </label>
-              <Controller
-                control={control}
-                name="currency"
-                rules={{ required: "Please select a currency" }}
-                render={({
-                  field: { value, onChange },
-                  fieldState: { error },
-                }) => (
-                  <Fragment>
-                    <Autocomplete
+              )}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-bold text-[#1A1C1E]">
+              Currency<span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="currency"
+              control={control}
+              rules={{ required: "Currency is required" }}
+              render={({ field }) => (
+                <Autocomplete
+                  {...field}
+                  options={currencyList}
+                  getOptionLabel={(option) => option.name || ""}
+                  onChange={(_, value) => field.onChange(value?.fireblockAssetId || "")}
+                  value={currencyList.find((c) => c.fireblockAssetId === field.value) || null}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Select currency"
                       size="small"
-                      options={currencyList}
-                      getOptionLabel={(option) => option.name || value}
-                      onChange={(_, nextValue) => {
-                        onChange(nextValue?.fireblockAssetId ?? "");
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "6px",
+                          backgroundColor: "#FFFFFF",
+                          "& fieldset": { borderColor: "#E2E8F0" },
+                        }
                       }}
-                      value={assetValue ?? null}
-                      renderOption={(props, option) => (
-                        <li {...props} className="flex items-center gap-2 p-2">
-                          <Image
-                            src={option.icon}
-                            alt={option.name}
-                            width={30}
-                            height={30}
-                          />
-                          {option.name}
-                        </li>
-                      )}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          placeholder="Select currency"
-                          variant="outlined"
-                          error={!!error}
-                          helperText={error?.message}
-                          InputProps={{
-                            ...params.InputProps,
-                            startAdornment: (
-                              <>
-                                {assetValue && (
-                                  <Image
-                                    src={assetValue.icon}
-                                    alt={assetValue.name}
-                                    width={24}
-                                    height={24}
-                                    style={{ marginLeft: 8 }}
-                                  />
-                                )}
-                                {params.InputProps.startAdornment}
-                              </>
-                            ),
-                          }}
-                        />
-                      )}
                     />
-                  </Fragment>
-                )}
-              />
-            </div>
-            <div className="as">
-              <p className=" text-sm font-semibold text-[#18181A]">
-                Billing Description
-              </p>
-              <div className="mt-2 rounded border border-[#E8E8E8] px-2 ">
+                  )}
+                />
+              )}
+            />
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-sm font-bold text-[#1A1C1E]">Billing Description</p>
+            <div className="border border-[#E2E8F0] rounded-xl overflow-hidden">
+              <div className="flex bg-[#F8F9FA] px-4 py-2 border-b border-[#E2E8F0]">
+                <span className="flex-1 text-[10px] font-bold text-[#8B8D91]">DESCRIPTION</span>
+                <span className="w-40 text-[10px] font-bold text-[#8B8D91] pl-4">AMOUNT</span>
+                <span className="w-8"></span>
+              </div>
+              <div className="divide-y divide-[#E2E8F0]">
                 {billingItems.map((item, index) => (
-                  <div
-                    key={item.id} // Use unique ID as key instead of index
-                    className="relative  flex items-center gap-2 border-b border-[#E8E8E8] last:border-b-0"
-                  >
-                    <div className="mt-[6px] flex-1">
-                      <ExchangeInput
-                        control={control}
-                        placeholder="Enter Description"
-                        label=""
+                  <div key={item.id} className="flex items-center px-4 py-3 gap-3">
+                    <div className="flex-1">
+                      <Controller
                         name={`billingItems.${index}.description`}
-                        type="text"
-                        textColor="text-[#18181A]"
-                        rules={{ required: "Description is required" }}
-                        ruleDisabled
-                        invoiceOutline
-                        onChangeExtra={(value) => {
-                          setBillingItems((prev) =>
-                            prev.map((prevItem) =>
-                              prevItem.id === item.id
-                                ? { ...prevItem, description: value }
-                                : prevItem,
-                            ),
-                          );
-                        }}
-                      />
-                    </div>
-                    <div className="flex w-32 items-center gap-1">
-                      <p className=" mt-1">
-                        {{ EUR: "€", USD: "$" }[currencyWatch] ?? ""}
-                      </p>
-                      <ExchangeInput
                         control={control}
-                        placeholder="Amount"
-                        label=""
-                        name={`billingItems.${index}.amount`}
-                        type="number"
-                        textColor="text-[#18181A]"
-                        ruleDisabled
-                        invoiceOutline
-                        rules={{
-                          required: "Amount is required",
-                          validate: {
-                            min: (v: number) =>
-                              v > 0 || "Amount must be greater than zero",
-                          },
-                        }}
-                        onChangeExtra={(value) => {
-                          setBillingItems((prev) =>
-                            prev.map((prevItem) =>
-                              prevItem.id === item.id
-                                ? { ...prevItem, amount: value }
-                                : prevItem,
-                            ),
-                          );
-                        }}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            fullWidth
+                            size="small"
+                            placeholder="Enter Description"
+                            sx={{
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: "6px",
+                                backgroundColor: "#FFFFFF",
+                                "& fieldset": { borderColor: "#E2E8F0" },
+                              }
+                            }}
+                          />
+                        )}
                       />
                     </div>
-                    {billingItems.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeBillingItem(item.id)} // Pass the unique ID
-                        className="absolute right-[-2rem] top-[1.5rem]"
-                      >
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 14 14"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M6.38011 7L4.06445 9.31566L4.68317 9.9344L6.99885 7.61874L9.31451 9.9344L9.93325 9.31566L7.61759 7L9.93319 4.68439L9.31445 4.06567L6.99885 6.38126L4.68324 4.06567L4.06452 4.68439L6.38011 7Z"
-                            fill="#080341"
+                    <div className="w-40 flex items-center">
+                      <div className="h-10 px-3 flex items-center bg-[#F8F9FA] border border-r-0 border-[#E2E8F0] rounded-l-lg text-sm text-[#1A1C1E]">
+                        {currencyData.symbol}
+                      </div>
+                      <Controller
+                        name={`billingItems.${index}.amount`}
+                        control={control}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            fullWidth
+                            type="number"
+                            size="small"
+                            placeholder="0.00"
+                            onChange={(e) => {
+                              field.onChange(e.target.value);
+                              setBillingItems(prev => prev.map(bi => bi.id === item.id ? { ...bi, amount: e.target.value } : bi));
+                            }}
+                            sx={{
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: "0 8px 8px 0",
+                                backgroundColor: "#FFFFFF",
+                                "& fieldset": { borderColor: "#E2E8F0" },
+                              }
+                            }}
                           />
-                        </svg>
-                      </button>
-                    )}
+                        )}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeBillingItem(item.id)}
+                      className="w-8 h-8 flex items-center justify-center text-[#FF3B3B] hover:bg-red-50 rounded-md transition-colors"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
+                      </svg>
+                    </button>
                   </div>
                 ))}
               </div>
-              <button type="button" onClick={addBillingItem} className="my-2">
-                + Add new
-              </button>
             </div>
 
-            <div className="mb-4 mt-3">
-              <label className="mb-1.5 block font-medium text-[#18181A]">
-                Total Amount
-              </label>
-              <div className="flex items-center rounded-md border border-[#c4c4c4] bg-gray-50 px-4 py-2">
-                {currencyData.symbol} {totalAmount || 0}
-                {currencyData.code && ` ${currencyData.code}`}
-              </div>
-              <Controller
-                name="amount"
-                control={control}
-                render={({ field }) => (
-                  <input type="hidden" {...field} value={totalAmount} />
-                )}
-              />
-            </div>
-
-            {/* <ExchangeInput
-              control={control}
-              placeholder="Enter Email"
-              label="Email"
-              name="email"
-              type="text"
-              textColor="text-[#18181A]"
-            /> */}
-          </DialogContent>
-          <Box className="flex w-full items-center justify-around gap-4 pb-4">
-            <MuiButton
-              width="10rem"
-              borderRadius="4px"
-              name="Cancel"
+            <button
               type="button"
-              variant="outlined"
-              background="white"
-              borderColor="black"
-              color="black"
+              onClick={addBillingItem}
+              className="px-4 py-2 bg-[#FFF8F1] text-[#FFA800] text-xs font-bold rounded-lg border border-[#FFA80033] hover:bg-[#FFF2E6] transition-colors"
+            >
+              + Add new item
+            </button>
+          </div>
+
+          <div className="flex items-center">
+            <div className="h-12 px-4 flex items-center bg-[#F8F9FA] border border-r-0 border-[#E2E8F0] rounded-l-lg text-sm text-[#1A1C1E]">
+              {currencyData.symbol}
+            </div>
+            <TextField
+              fullWidth
+              disabled
+              value={totalAmount.toFixed(2)}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  height: "48px",
+                  borderRadius: "0 8px 8px 0",
+                  backgroundColor: "#FFFFFF",
+                  "& fieldset": { borderColor: "#E2E8F0" },
+                  "&.Mui-disabled": {
+                    "-webkit-text-fill-color": "#1A1C1E",
+                  }
+                }
+              }}
+            />
+          </div>
+
+          <div className="flex gap-4 pt-2">
+            <button
+              type="button"
               onClick={() => onClose()}
-            />
-            <MuiButton
-              width="10rem"
-              borderRadius="4px"
-              name="Create"
+              className="flex-1 py-3 border border-[#E2E8F0] rounded-md text-sm font-bold text-[#8B8D91] hover:bg-gray-50 transition-colors"
+            >
+              Create New Invoice
+            </button>
+            <button
               type="submit"
-              loading={loading}
-            />
-          </Box>
+              disabled={loading}
+              className="flex-1 py-3 bg-gradient-to-r from-[#4775F2] to-[#B647F2] rounded-md text-sm font-bold text-white shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-70"
+            >
+              {loading ? "Creating..." : "Create New Invoice"}
+            </button>
+          </div>
         </form>
       </div>
     </Dialog>

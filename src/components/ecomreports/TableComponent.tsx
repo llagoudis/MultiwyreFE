@@ -907,7 +907,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
   };
 
   return (
-    <div className="">
+    <div className="w-full">
       <div className="  flex items-center justify-between">
         <div className="text-lg font-bold">Recent activity</div>
 

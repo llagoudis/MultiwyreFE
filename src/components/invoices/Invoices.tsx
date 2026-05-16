@@ -12,12 +12,13 @@ const Invoices = () => {
   const [openAdd, setOpenAdd] = useState<string>("");
   const [invoiceUpdated, setInvoiceUpdated] = useState<boolean>(false);
   const [veiwer, setVeiwer] = useState<any>("");
+
   useEffect(() => {
-    const authBody = localStorageService.decodeAuthBody()
-    if(authBody?.roles === "ex_user_viewer"){
-      setVeiwer(authBody?.roles)
+    const authBody = localStorageService.decodeAuthBody();
+    if (authBody?.roles === "ex_user_viewer") {
+      setVeiwer(authBody?.roles);
     }
-  }, [])
+  }, []);
 
   const handleInvoiceCreated = (value: any) => {
     if (value === "success") {
@@ -29,33 +30,51 @@ const Invoices = () => {
   };
 
   return (
-    <div className="mt-10 flex flex-col justify-center gap-10 px-10">
-      <div className="flex items-center justify-between">
-        <p className="text-3xl font-medium">Invoices</p>
+    <div className="w-full mx-auto ">
+      <div className="w-full bg-white rounded-3xl  shadow-sm border border-gray-100 min-h-[800px]">
+        <div className="flex items-center border-b p-4 justify-between ">
+          <h1 className="text-2xl font-bold text-[#1A1C1E]">Invoices</h1>
 
-        <div className="flex items-center gap-4">
-          <TextField
-            placeholder="Search"
-            size="small"
-            sx={{ width: "40vw" }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="start">
-                  <Image src={SearchIcon} alt="search" />
-                </InputAdornment>
-              ),
-            }}
-          />
-          {!veiwer && (
-          <MuiButton
-            onClick={() => setOpenAdd("addNew")}
-            name="+ New Invoices"
-          />
-          )}
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <TextField
+                placeholder="Search"
+                size="small"
+                sx={{
+                  width: "400px",
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "4px",
+                    height: "45px",
+                    backgroundColor: "#FFFFFF",
+                    "& fieldset": { borderColor: "#E2E8F0" },
+                    "&:hover fieldset": { borderColor: "#4775F2" },
+                    "&.Mui-focused fieldset": { borderColor: "#4775F2" },
+                  },
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Image src={SearchIcon} alt="search" className="opacity-50" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </div>
+            {!veiwer && (
+              <button
+                onClick={() => setOpenAdd("addNew")}
+                className="bg-primary-gradient text-white px-6 py-2 rounded-md font-bold text-sm shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center gap-2"
+              >
+                <span className="text-lg">+</span> New Invoices
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="p-4">
+          <InvoicesTable invoiceUpdated={invoiceUpdated} />
         </div>
       </div>
-
-      <InvoicesTable invoiceUpdated={invoiceUpdated} />
 
       {openAdd === "addNew" && (
         <AddInvoice
