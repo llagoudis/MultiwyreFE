@@ -105,7 +105,7 @@ const Topbar: React.FC<HeaderProps> = ({ title }) => {
   }
 
   return (
-    <div className="relative bg-primary-gradient sm:h-20 h-14 flex items-center shadow-md">
+    <div className="relative bg-primary-gradient sm:h-[70px] h-14 flex items-center shadow-md">
       <Dialog
         open={openSwitchAccounts}
         onClose={() => setopenSwitchAccounts(false)}
@@ -166,7 +166,7 @@ const Topbar: React.FC<HeaderProps> = ({ title }) => {
             className="cursor-pointer"
           >
             <div className="flex items-center sm:gap-4 gap-2 rounded-md bg-white/15 sm:bg-[#F8F8F840] p-2 sm:pr-4 pr-2 transition-all border border-[#7E7E7E14]">
-              <div className="relative sm:h-10 h-8 sm:w-10 w-8">
+              <div className="relative  h-8 w-8">
                 <Image
                   alt="Profile"
                   className="h-full w-full rounded-lg object-cover"

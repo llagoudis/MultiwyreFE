@@ -56,7 +56,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ walletDetails, currency }) => {
       />
       {!!walletDetails.qrImage && (
         <Dialog open={openqr} onClose={closeQR} fullWidth>
-          <div className=" h-full w-full rounded p-8 md:h-[35vh]">
+          <div className=" h-full w-full rounded p-8 ">
             <div className="flex h-full w-full flex-col items-center md:flex-row gap-6">
               <Image className=" aspect-square w-40" alt="qr code" src={walletDetails.qrImage ?? ""} width={160} height={160} />
               <div className="flex flex-col items-center justify-center gap-2 md:items-start md:justify-start ">
@@ -75,15 +75,15 @@ const WalletCard: React.FC<WalletCardProps> = ({ walletDetails, currency }) => {
       <div
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`relative rounded-lg bg-white p-4 transition-all duration-300 border h-[80px] flex items-center ${isHovered ? 'border-[#4775F2] shadow-[0px_4px_12px_rgba(71,117,242,0.1)]' : 'border-gray-200'}`}
+        className={`relative rounded-lg bg-white px-3 py-2 transition-all duration-300 border  flex items-center ${isHovered ? 'border-[#4775F2] shadow-[0px_4px_12px_rgba(71,117,242,0.1)]' : 'border-gray-200'}`}
       >
         <div className="flex items-center  justify-between w-full">
           <div className="flex items-center gap-4  flex-1">
             {/* Square icon background with network badge */}
             <div className="relative flex-shrink-0">
-              <div className={`flex h-12 w-12 items-center justify-center rounded-lg shadow-sm ${getBgColor()}`}>
+              <div className={`flex h-10 w-10 items-center justify-center rounded-lg shadow-sm ${getBgColor()}`}>
                 {/* Removed filters to fix icon visibility */}
-                <Image className="h-7 w-7 object-contain" src={walletDetails.icon ?? ""} width={28} height={28} alt={walletDetails.name} />
+                <Image className="h-6 w-6 object-contain" src={walletDetails.icon ?? ""} width={28} height={28} alt={walletDetails.name} />
               </div>
 
               {/* {isTRC && (

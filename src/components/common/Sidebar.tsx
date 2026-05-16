@@ -41,7 +41,7 @@ const Sidebar = () => {
 
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className="flex h-full flex-col bg-white">
-      <div className="logo relative flex h-20 items-center justify-center bg-[#4775F2] text-white overflow-hidden flex-shrink-0">
+      <div className="logo relative flex h-[70px] items-center justify-center bg-[#4775F2] text-white overflow-hidden flex-shrink-0">
         <Image
           alt="Logo"
           className={`transition-all duration-300 ${(!isCollapsed || isMobile) ? "w-36" : "w-10"} h-auto object-cover`}

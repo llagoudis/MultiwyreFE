@@ -91,7 +91,7 @@ const Dashboard = () => {
 
   const [authBody, setAuthBody] = useState<AuthBody | null>(null);
   const [merchantsAvailable, setMerchantsAvailable] = useState<boolean>(false);
-  
+
   const [depositOpen, setDepositOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [exchangeOpen, setExchangeOpen] = useState(false);
@@ -206,32 +206,32 @@ const Dashboard = () => {
           />
         )}
       {/* Section 1: Welcome Board */}
-      <div className="welcomeBoard mt-4 flex flex-col rounded-xl bg-primary-gradient p-6 text-white shadow-lg">
+      <div className="welcomeBoard  flex flex-col rounded-xl bg-primary-gradient p-4 text-white shadow-lg">
         <div>
-          <p className="text-2xl">
+          <p className="text-xl">
             Welcome, {`${dashboard.firstname ?? ""} ${dashboard?.lastname ?? ""}`} 👋
           </p>
-          <p className="mt-2">
+          <p className="mt-2 text-sm">
             Your dashboard is all set and ready for you to explore now.
           </p>
         </div>
       </div>
 
       {/* Combined Section: Total Balance + Assets Area */}
-      <div className="mt-6 rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
+      <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
         {/* Total Balance Area */}
-        <div className="bg-[#FBFBFB] p-4 rounded-xl flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+        <div className="bg-[#FBFBFB] p-4 rounded-xl flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-2">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-black">
-              <div className="border border-[#7E7E7E57] rounded-md p-2.5">
+              <div className="border border-[#7E7E7E57] rounded-md p-2">
                 <WalletIcon />
               </div>
-              <span className="text-lg font-bold uppercase tracking-wider">Total Balance</span>
+              <span className=" font-bold uppercase tracking-wider">Total Balance</span>
             </div>
 
             <div className="flex items-baseline gap-1 md:gap-2">
-              <span className="text-2xl md:text-4xl font-bold text-black">€ 1,05,068</span>
-              <span className="text-2xl md:text-4xl font-bold text-[#8B8D91]">.00</span>
+              <span className="text-xl md:text-3xl font-bold text-black">€ 1,05,068</span>
+              <span className="text-xl md:text-3xl font-bold text-[#8B8D91]">.00</span>
             </div>
             <p className="text-sm font-medium text-[#8B8D91]">
               All accounts balance in {dashboard.currency}
@@ -239,23 +239,23 @@ const Dashboard = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 md:gap-3">
-            <button 
+            <button
               onClick={() => setDepositOpen(true)}
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-3 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
             >
               <DownloadIcon />
               Deposit
             </button>
-            <button 
+            <button
               onClick={() => setWithdrawOpen(true)}
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-3 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
             >
               <UploadIcon />
               Withdraw
             </button>
-            <button 
+            <button
               onClick={() => setExchangeOpen(true)}
-              className="w-full md:w-auto flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-3 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
+              className="w-full md:w-auto flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
             >
               <ExchangeIcon />
               Exchange
@@ -265,7 +265,7 @@ const Dashboard = () => {
 
         {/* Assets Area */}
         <div ref={divReference}>
-          <p className="text-2xl font-bold text-[#1A1C1E] mb-6">Assets</p>
+          <p className="text-2xl font-bold text-[#1A1C1E] mb-2">Assets</p>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
             {assetChunks.flat().map((item: any, itemIndex: any) => (
               <WalletCard
@@ -291,9 +291,9 @@ const Dashboard = () => {
           <CompanyVerification close={() => handleCompanyVerifyScreen(false)} />
         )}
 
-      <DepositDrawer 
-        open={depositOpen} 
-        onClose={() => setDepositOpen(false)} 
+      <DepositDrawer
+        open={depositOpen}
+        onClose={() => setDepositOpen(false)}
         assets={dashboard.assets}
       />
 
