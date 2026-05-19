@@ -230,8 +230,7 @@ const Dashboard = () => {
             </div>
 
             <div className="flex items-baseline gap-1 md:gap-2">
-              <span className="text-xl md:text-3xl font-bold text-black">€ 1,05,068</span>
-              <span className="text-xl md:text-3xl font-bold text-[#8B8D91]">.00</span>
+              <span className="text-xl md:text-3xl font-bold text-black"> {euroFormat.format(sum ?? 0).replace("€", "")}</span>
             </div>
             <p className="text-sm font-medium text-[#8B8D91]">
               All accounts balance in {dashboard.currency}
