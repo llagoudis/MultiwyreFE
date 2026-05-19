@@ -1,7 +1,6 @@
 import { Fragment, useState } from "react";
-import Image, { type StaticImageData } from "next/image";
+import Image from "next/image";
 import Link from "next/link";
-import Copy from "~/assets/general/copy.svg";
 import { Dialog, Snackbar } from "@mui/material";
 import { DownloadIcon, ExchangeIcon, UploadIcon } from "~/assets/svgs";
 
@@ -55,18 +54,44 @@ const WalletCard: React.FC<WalletCardProps> = ({ walletDetails, currency }) => {
         message="Copied to clipboard"
       />
       {!!walletDetails.qrImage && (
-        <Dialog open={openqr} onClose={closeQR} fullWidth>
-          <div className=" h-full w-full rounded p-8 ">
-            <div className="flex h-full w-full flex-col items-center md:flex-row gap-6">
-              <Image className=" aspect-square w-40" alt="qr code" src={walletDetails.qrImage ?? ""} width={160} height={160} />
-              <div className="flex flex-col items-center justify-center gap-2 md:items-start md:justify-start ">
-                <p className=" text-xl font-bold">Wallet address</p>
-                <div className="flex items-center gap-2">
-                  <p className=" break-all font-medium">{walletDetails.assetAddress}</p>
-                  <Image onClick={onCopy} className="cursor-pointer" src={Copy as StaticImageData} alt="Copy" />
-                </div>
-                <button onClick={closeQR} className=" mt-4 text-[#4775F2] font-bold">Go back</button>
-              </div>
+        <Dialog open={openqr} onClose={closeQR} fullWidth maxWidth="xs" PaperProps={{ style: { borderRadius: 16 } }}>
+          <div className="flex flex-col items-center px-6 py-6 gap-5">
+            {/* Header */}
+            <div className="flex w-full items-center justify-between">
+              <p className="text-lg font-semibold text-[#1A1C1E]">Wallet Address</p>
+              <button
+                onClick={closeQR}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-gray-500 hover:bg-gray-100 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+
+            {/* QR Code with blue border */}
+            <div className="rounded-xl border-2 border-[#4775F2] p-3">
+              <Image className="aspect-square" alt="qr code" src={walletDetails.qrImage ?? ""} width={180} height={180} />
+            </div>
+
+            {/* Wallet address */}
+            <p className="break-all text-center text-sm text-[#424242]">{walletDetails.assetAddress}</p>
+
+            {/* Buttons */}
+            <div className="flex w-full flex-col gap-3">
+              <button
+                onClick={onCopy}
+                className="w-full rounded-lg py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                style={{ background: "linear-gradient(90deg, #4775F2 0%, #C850C0 100%)" }}
+              >
+                Copy Wallet Address
+              </button>
+              <button
+                onClick={closeQR}
+                className="w-full rounded-lg border border-gray-300 py-3 text-sm font-semibold text-[#1A1C1E] hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </Dialog>
