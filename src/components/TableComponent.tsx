@@ -24,6 +24,7 @@ import ReconciliationReportOTCsafari from "./table-html-templates/Reconciliation
 import StatementReport from "./table-html-templates/StatementReport";
 import StatementReport_Trade from "./table-html-templates/StatementReport_Trade";
 import StatementReport_Trade_Safari from "./table-html-templates/StatementReport_Trade_Safari";
+import ProcessingHistoryTable from "./ProcessingHistoryTable";
 import TradeHistoryTableTable from "./TradeHistoryTable";
 import TransactionHistoryTable from "./TransactionHistoryTable";
 
@@ -90,7 +91,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
   // onDownloadClick,
   // onFiltersReady,
 }) => {
-  const Tabs = ["Transaction History", "Trading History"];
+  const Tabs = ["Transaction History", "Trading History", "Processing History"];
   const walletId = useDashboard()?.assets?.[0]?.walletId;
   const admin = useGlobalStore((state) => state.admin);
   const router = useRouter();
@@ -1108,6 +1109,9 @@ const TableComponent: React.FC<TableComponentProps> = ({
                 }}
                 onFiltersReady={handleFiltersReady(1)}
               />
+            </Tab.Panel>
+            <Tab.Panel>
+              <ProcessingHistoryTable />
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>
