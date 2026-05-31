@@ -18,7 +18,10 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+button {
+    background: var(--primary-gradient) !important;
 
+}
 /* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
