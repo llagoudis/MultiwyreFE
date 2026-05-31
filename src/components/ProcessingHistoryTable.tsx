@@ -141,23 +141,23 @@ const ProcessingHistoryTable = () => {
 
       {/* Table */}
       <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white">
-        <table className="w-full min-w-[1600px] text-left text-sm">
+        <table className="w-full min-w-max text-left text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-slate-600">
-              <th className="px-4 py-3 font-medium">Date and Time</th>
-              <th className="px-4 py-3 font-medium">Client ID</th>
-              <th className="px-4 py-3 font-medium">Customer E-mail</th>
-              <th className="px-4 py-3 font-medium">Merchant Name</th>
-              <th className="px-4 py-3 font-medium">Unique ID</th>
-              <th className="px-4 py-3 font-medium">Order ID</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Requested Amount</th>
-              <th className="px-4 py-3 font-medium">Fee</th>
-              <th className="px-4 py-3 font-medium">Received Amount</th>
-              <th className="px-4 py-3 font-medium">Transaction Type</th>
-              <th className="px-4 py-3 font-medium">Sender Account</th>
-              <th className="px-4 py-3 font-medium">Receiver Account</th>
-              <th className="px-4 py-3 font-medium">Transaction ID</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Date and Time</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Client ID</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Customer E-mail</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Merchant Name</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Unique ID</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Order ID</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Status</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Requested Amount</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Fee</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Received Amount</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Transaction Type</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Sender Account</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Receiver Account</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Transaction ID</th>
             </tr>
           </thead>
           <tbody>
@@ -166,30 +166,30 @@ const ProcessingHistoryTable = () => {
                 key={i}
                 className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
               >
-                <td className="px-4 py-4 text-slate-700">{row.dateTime}</td>
-                <td className="px-4 py-4 text-slate-700">{row.clientId}</td>
-                <td className="px-4 py-4 text-slate-700">
+                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.dateTime}</td>
+                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.clientId}</td>
+                <td className="whitespace-nowrap px-4 py-4 text-slate-700">
                   {row.customerEmail}
                 </td>
-                <td className="px-4 py-4 text-slate-700">
+                <td className="whitespace-nowrap px-4 py-4 text-slate-700">
                   {row.merchantName}
                 </td>
-                <td className="px-4 py-4 text-slate-700">{row.uniqueId}</td>
-                <td className="px-4 py-4 text-slate-700">{row.orderId}</td>
-                <td className="px-4 py-4">
+                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.uniqueId}</td>
+                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.orderId}</td>
+                <td className="whitespace-nowrap px-4 py-4">
                   <StatusBadge status={row.status} />
                 </td>
-                <td className="px-4 py-4 text-slate-700">
+                <td className="whitespace-nowrap px-4 py-4 text-slate-700">
                   {row.requestedAmount}
                 </td>
-                <td className="px-4 py-4 text-slate-700">{row.fee}</td>
-                <td className="px-4 py-4 font-medium text-slate-800">
+                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.fee}</td>
+                <td className="whitespace-nowrap px-4 py-4 font-medium text-slate-800">
                   {row.receivedAmount}
                 </td>
-                <td className="px-4 py-4 text-slate-700">
+                <td className="whitespace-nowrap px-4 py-4 text-slate-700">
                   {row.transactionType}
                 </td>
-                <td className="px-4 py-4">
+                <td className="whitespace-nowrap px-4 py-4">
                   <div className="flex items-center gap-2">
                     <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
                       $
@@ -204,7 +204,7 @@ const ProcessingHistoryTable = () => {
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-4">
+                <td className="whitespace-nowrap px-4 py-4">
                   <div className="flex items-center gap-2">
                     <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
                       $
@@ -219,7 +219,7 @@ const ProcessingHistoryTable = () => {
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-4 text-blue-500">{row.transactionId}</td>
+                <td className="whitespace-nowrap px-4 py-4 text-blue-500">{row.transactionId}</td>
               </tr>
             ))}
           </tbody>
