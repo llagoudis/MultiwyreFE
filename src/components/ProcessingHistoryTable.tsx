@@ -1,5 +1,6 @@
 import { MenuItem, Select } from "@mui/material";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface ProcessingRow {
   dateTime: string;
@@ -13,10 +14,10 @@ interface ProcessingRow {
   fee: string;
   receivedAmount: string;
   transactionType: string;
-  senderAsset: string;
-  senderAddress: string;
-  receiverAsset: string;
-  receiverAddress: string;
+  walletAsset: string;
+  fromAddress: string;
+  toAddress: string;
+  asset: string;
   transactionId: string;
 }
 
@@ -32,12 +33,47 @@ const mockRows: ProcessingRow[] = Array.from({ length: 6 }).map(() => ({
   fee: "0",
   receivedAmount: "$1300.00",
   transactionType: "Outgoing Transfer",
-  senderAsset: "USDT (ERC20)",
-  senderAddress: "0NGDJFHG54665XXXCC4555FDDFF",
-  receiverAsset: "USDT (ERC20)",
-  receiverAddress: "0NGDJFHG54665XXXCC4555FDDFF",
+  walletAsset: "USDT (ERC20)",
+  fromAddress: "0Z56DJFHG54665XXXCC4555F76GH",
+  toAddress: "0Z56DJFHG54665XXXCC4555F76GH",
+  asset: "USDT (Polygon)",
   transactionId: "HFhgh8.......JKHJ778",
 }));
+
+const shortAddress = (addr: string) =>
+  addr.length > 10 ? `${addr.slice(0, 4)}...${addr.slice(-4)}` : addr;
+
+const CopyText = ({
+  display,
+  value,
+  className = "",
+}: {
+  display: string;
+  value: string;
+  className?: string;
+}) => {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      toast.success("Copied to clipboard");
+      setTimeout(() => setCopied(false), 1200);
+    } catch {
+      toast.error("Failed to copy");
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      title={copied ? "Copied!" : value}
+      className={`cursor-pointer hover:underline ${className}`}
+    >
+      {copied ? "Copied!" : display}
+    </button>
+  );
+};
 
 const StatusBadge = ({ status }: { status: ProcessingRow["status"] }) => {
   const styles =
@@ -155,8 +191,8 @@ const ProcessingHistoryTable = () => {
               <th className="whitespace-nowrap px-4 py-3 font-medium">Fee</th>
               <th className="whitespace-nowrap px-4 py-3 font-medium">Received Amount</th>
               <th className="whitespace-nowrap px-4 py-3 font-medium">Transaction Type</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Sender Account</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Receiver Account</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Wallet</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Asset</th>
               <th className="whitespace-nowrap px-4 py-3 font-medium">Transaction ID</th>
             </tr>
           </thead>
@@ -190,36 +226,41 @@ const ProcessingHistoryTable = () => {
                   {row.transactionType}
                 </td>
                 <td className="whitespace-nowrap px-4 py-4">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
                       $
                     </div>
                     <div className="leading-tight">
                       <div className="font-medium text-slate-800">
-                        {row.senderAsset}
+                        {row.walletAsset}
                       </div>
-                      <div className="text-xs text-blue-500">
-                        {row.senderAddress}
+                      <div className="text-xs text-slate-600">
+                        From{" "}
+                        <CopyText
+                          display={shortAddress(row.fromAddress)}
+                          value={row.fromAddress}
+                          className="text-blue-500"
+                        />{" "}
+                        To{" "}
+                        <CopyText
+                          display={shortAddress(row.toAddress)}
+                          value={row.toAddress}
+                          className="text-blue-500"
+                        />
                       </div>
                     </div>
                   </div>
+                </td>
+                <td className="whitespace-nowrap px-4 py-4 text-slate-700">
+                  {row.asset}
                 </td>
                 <td className="whitespace-nowrap px-4 py-4">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
-                      $
-                    </div>
-                    <div className="leading-tight">
-                      <div className="font-medium text-slate-800">
-                        {row.receiverAsset}
-                      </div>
-                      <div className="text-xs text-blue-500">
-                        {row.receiverAddress}
-                      </div>
-                    </div>
-                  </div>
+                  <CopyText
+                    display={row.transactionId}
+                    value={row.transactionId}
+                    className="text-blue-500"
+                  />
                 </td>
-                <td className="whitespace-nowrap px-4 py-4 text-blue-500">{row.transactionId}</td>
               </tr>
             ))}
           </tbody>
