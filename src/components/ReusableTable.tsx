@@ -213,9 +213,42 @@ function ReusableTable<T extends { id?: string | number }>({
                     <td
                       colSpan={displayColumns.length + (getRowActions ? 1 : 0)}
                     >
-                      <span className="color-black flex justify-center py-4 text-center text-lg font-semibold">
-                        {emptyMessage}
-                      </span>
+                      <div className="flex flex-col items-center justify-center px-4 py-16">
+                        <svg
+                          width="120"
+                          height="120"
+                          viewBox="0 0 120 120"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M22 14a4 4 0 0 1 4-4h44l24 24v62a4 4 0 0 1-4 4H26a4 4 0 0 1-4-4V14Z"
+                            fill="#FFFFFF"
+                            stroke="#E2E8F0"
+                            strokeWidth="2"
+                          />
+                          <path
+                            d="M70 10v20a4 4 0 0 0 4 4h20"
+                            fill="#F8FAFC"
+                            stroke="#E2E8F0"
+                            strokeWidth="2"
+                          />
+                          <rect x="34" y="46" width="40" height="4" rx="2" fill="#E2E8F0" />
+                          <rect x="34" y="56" width="50" height="4" rx="2" fill="#E2E8F0" />
+                          <rect x="34" y="66" width="32" height="4" rx="2" fill="#E2E8F0" />
+                          <circle cx="78" cy="86" r="14" fill="#FFFFFF" stroke="#F5B544" strokeWidth="3" />
+                          <line x1="89" y1="97" x2="100" y2="108" stroke="#F5B544" strokeWidth="4" strokeLinecap="round" />
+                          <path d="M14 26 l2 4 4 2 -4 2 -2 4 -2 -4 -4 -2 4 -2 z" fill="#FBBF24" />
+                          <path d="M104 18 l1.5 3 3 1.5 -3 1.5 -1.5 3 -1.5 -3 -3 -1.5 3 -1.5 z" fill="#FBBF24" />
+                          <path d="M100 60 l1 2 2 1 -2 1 -1 2 -1 -2 -2 -1 2 -1 z" fill="#FBBF24" />
+                        </svg>
+                        <p className="mt-4 text-lg font-semibold text-black">
+                          {emptyMessage}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-500">
+                          There are no transaction to display for the selected filters.
+                        </p>
+                      </div>
                     </td>
                   </tr>
                 )}

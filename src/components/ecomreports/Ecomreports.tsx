@@ -3,13 +3,11 @@ import React, { Fragment, useEffect, useState } from "react";
 import cancel from "~/assets/general/cancel_icon.svg";
 import filtericon from "~/assets/general/filter.svg";
 import Image, { type StaticImageData } from "next/image";
-import Button from "~/components/common/Button";
 import { Controller, useForm } from "react-hook-form";
 // import ExchangeDropdown from "../common/ExchangeDropdown";
 import TableComponent from "./TableComponent";
 import { getOperationTypeUserpanel } from "../../service/api/pricelists";
 import { getAllAssets } from "../../service/api/accounts";
-import MuiButton from "../MuiButton";
 import { MenuItem, Select, TextField } from "@mui/material";
 import localStorageService from "~/service/LocalstorageService";
 
@@ -77,39 +75,41 @@ const Ecomreports = () => {
 
   return (
     <div className=" dashboardContainer relative m-auto w-[95%]">
-      <div>
-        <div className=" mt-8 flex justify-between">
-          <div className="flex items-center gap-2">
-            <Image
-              src={
-                showFilter
-                  ? (cancel as StaticImageData)
-                  : (filtericon as StaticImageData)
-              }
-              alt=""
-              className="cursor-pointer"
-              onClick={filterHandleChange}
-            />
-            <p
-              className="cursor-pointer text-sm font-bold"
-              onClick={filterHandleChange}
-            >
-              {!showFilter ? "View filters" : "Hide Filter"}
-            </p>
+      <div className="mt-8 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-50">
+              <Image
+                src={filtericon as StaticImageData}
+                alt=""
+                className="h-5 w-5"
+              />
+            </div>
+            <div>
+              <p className="text-base font-bold text-black">Filters</p>
+              <p className="text-xs text-slate-500">
+                Refine your transactions history
+              </p>
+            </div>
           </div>
-          {/* <Image
-            src={download as StaticImageData}
-            alt=""
-            className="cursor-pointer"
-          /> */}
+          <button
+            type="button"
+            onClick={filterHandleChange}
+            className="flex items-center gap-2 rounded-md border border-pink-500 px-4 py-2 text-sm font-semibold text-pink-600 transition hover:bg-pink-50"
+          >
+            {showFilter ? "Hide Filters" : "View Filters"}
+            <Image
+              src={(showFilter ? cancel : filtericon) as StaticImageData}
+              alt=""
+              className="h-3 w-3"
+            />
+          </button>
         </div>
-
-        <br />
 
         {/* dropdowns  */}
         {showFilter && (
           <form onSubmit={handleSubmit(handleApplyFilters)}>
-            <div className="mb-8 grid grid-cols-1 items-center gap-5 rounded-lg border border-slate-200 p-5 shadow md:grid-cols-2  lg:grid-cols-3 xl:grid-cols-6">
+            <div className="mt-5 grid grid-cols-1 items-end gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
               {/* <ExchangeDropdown
                 name="currency"
                 label="Currency"
@@ -238,26 +238,21 @@ const Ecomreports = () => {
                 />
               </div>
 
-              <div className="mt-4 flex justify-end gap-4">
-                <MuiButton
-                  className="flex justify-center bg-gradient-to-r from-blue-500 to-purple-700"
-                  name={"Apply Filters"}
+              <div className="flex gap-3">
+                <button
                   type="submit"
-                   sx={{
-    background: 'linear-gradient(to right, #3b82f6, #9333ea)',
-    '&:hover': {
-      background: 'linear-gradient(to right, #2563eb, #7e22ce)',
-    }
-  }}
-                />
-                <MuiButton
-                  className="flex justify-center"
-                  name={"Reset Filters"}
-                  background="#ffffff"
-                  color="#C1922E"
-                  // padding="0.4rem 0.75rem"
+                  className="flex-1 rounded-md bg-gradient-to-r from-blue-500 to-purple-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
+                >
+                  Apply Filters
+                </button>
+                <button
+                  type="button"
                   onClick={handleResetFilters}
-                />
+                  className="flex flex-1 items-center justify-center gap-2 rounded-md border border-pink-500 px-4 py-2.5 text-sm font-semibold text-pink-600 transition hover:bg-pink-50"
+                >
+                  <span className="text-base">&#x21bb;</span>
+                  Reset Filters
+                </button>
               </div>
             </div>
           </form>

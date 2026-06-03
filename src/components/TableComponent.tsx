@@ -19,12 +19,12 @@ import useGlobalStore from "~/store/useGlobalStore";
 
 import { getAllAssets } from "~/service/api/accounts";
 import ModalWindow from "./common/ModalWindow";
-import MuiButton from "./MuiButton";
 import ReconciliationReportOTC from "./table-html-templates/ReconciliationReportOTC";
 import ReconciliationReportOTCsafari from "./table-html-templates/ReconciliationReportOTCsafari";
 import StatementReport from "./table-html-templates/StatementReport";
 import StatementReport_Trade from "./table-html-templates/StatementReport_Trade";
 import StatementReport_Trade_Safari from "./table-html-templates/StatementReport_Trade_Safari";
+import ProcessingHistoryTable from "./ProcessingHistoryTable";
 import TradeHistoryTableTable from "./TradeHistoryTable";
 import TransactionHistoryTable from "./TransactionHistoryTable";
 
@@ -91,7 +91,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
   // onDownloadClick,
   // onFiltersReady,
 }) => {
-  const Tabs = ["Transaction History", "Trading History"];
+  const Tabs = ["Transaction History", "Trading History", "Processing History"];
   const walletId = useDashboard()?.assets?.[0]?.walletId;
   const admin = useGlobalStore((state) => state.admin);
   const router = useRouter();
@@ -1018,8 +1018,8 @@ const TableComponent: React.FC<TableComponentProps> = ({
   };
 
   return (
-    <div className="">
-      <div className="mb-4 pl-2 text-lg font-bold">Recent activity</div>
+    <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="mb-4 text-lg font-bold">Recent activity</div>
       <div>
         <Tab.Group
           defaultIndex={
@@ -1040,12 +1040,12 @@ const TableComponent: React.FC<TableComponentProps> = ({
                   key={item}
                   className={({ selected }) =>
                     classNames(
-                      " px-2 pb-5 pt-2.5 text-sm leading-5 text-black",
+                      " px-2 pb-5 pt-2.5 text-sm leading-5",
                       " focus:outline-none",
 
                       selected
-                        ? "border-b-[3px] border-[blue] pb-4  font-bold text-black"
-                        : " font-medium text-black hover:text-black",
+                        ? "border-b-[3px] border-pink-500 pb-4 font-bold text-pink-600"
+                        : " font-medium text-slate-600 hover:text-black",
                     )
                   }
                 >
@@ -1053,29 +1053,36 @@ const TableComponent: React.FC<TableComponentProps> = ({
                 </Tab>
               ))}
             </Tab.List>
-            <div className="flex gap-4 ">
+            <div className="flex gap-3 ">
               {isDashboard ? null : (
-                <MuiButton
-                  name="Download"
-                  background="linear-gradient(to right, #3B82F6, #8B5CF6) !important"
-                  color="white"
+                <button
+                  type="button"
                   onClick={handleClickDownloadMenu}
                   disabled={loadingUserData}
+                  className="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-4 py-2 text-sm  text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  <span className="text-md pl-2 font-semibold">&#9013;</span>
-                </MuiButton>
+                 <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12.4565 7.55273C12.3317 7.55273 12.212 7.60231 12.1237 7.69057C12.0355 7.77882 11.9859 7.89851 11.9859 8.02332V9.63038C11.9859 10.0092 11.8354 10.3725 11.5676 10.6403C11.2997 10.9081 10.9364 11.0586 10.5576 11.0586H2.36941C1.99062 11.0586 1.62734 10.9081 1.3595 10.6403C1.09165 10.3725 0.941176 10.0092 0.941176 9.63038V8.02332C0.941176 7.89851 0.891597 7.77882 0.803344 7.69057C0.715092 7.60231 0.595396 7.55273 0.470588 7.55273C0.34578 7.55273 0.226084 7.60231 0.137832 7.69057C0.0495797 7.77882 0 7.89851 0 8.02332V9.63038C0.000622922 10.2586 0.250457 10.8609 0.694673 11.3051C1.13889 11.7493 1.7412 11.9992 2.36941 11.9998H10.5576C11.1859 11.9992 11.7882 11.7493 12.2324 11.3051C12.6766 10.8609 12.9264 10.2586 12.9271 9.63038V8.02332C12.9271 7.89851 12.8775 7.77882 12.7892 7.69057C12.701 7.60231 12.5813 7.55273 12.4565 7.55273Z" fill="black"/>
+<path d="M6.12926 8.92706C6.173 8.97117 6.22505 9.00618 6.2824 9.03007C6.33974 9.05396 6.40125 9.06626 6.46337 9.06626C6.5255 9.06626 6.587 9.05396 6.64435 9.03007C6.7017 9.00618 6.75374 8.97117 6.79749 8.92706L9.47514 6.24941C9.54985 6.15951 9.58843 6.04503 9.58336 5.92825C9.5783 5.81147 9.52995 5.70075 9.44774 5.61766C9.36553 5.53456 9.25533 5.48504 9.13861 5.47873C9.02189 5.47242 8.907 5.50978 8.81631 5.58353L6.93396 7.46588V0.470588C6.93396 0.34578 6.88438 0.226084 6.79613 0.137832C6.70788 0.0495797 6.58818 0 6.46337 0C6.33857 0 6.21887 0.0495797 6.13062 0.137832C6.04236 0.226084 5.99278 0.34578 5.99278 0.470588V7.45882L4.11043 5.57647C4.02213 5.48817 3.90237 5.43856 3.77749 5.43856C3.65261 5.43856 3.53285 5.48817 3.44455 5.57647C3.35625 5.66477 3.30664 5.78453 3.30664 5.90941C3.30664 6.03429 3.35625 6.15405 3.44455 6.24235L6.12926 8.92706Z" fill="black"/>
+</svg>
+
+                  Download
+                </button>
               )}
-              <MuiButton
-                name="Display"
-                background="linear-gradient(to right, #3B82F6, #8B5CF6) !important"
-                color="white"
+              <button
+                type="button"
                 onClick={handleClick}
+                className="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-4 py-2 text-sm  text-slate-700 shadow-sm transition hover:bg-slate-50"
               >
-                <span className="text-md pl-2 font-semibold">&#9013;</span>
-              </MuiButton>
+               <svg width="15" height="13" viewBox="0 0 15 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M13.185 0H1.815C1.33404 0.001337 0.873152 0.195523 0.533059 0.540122C0.192966 0.884721 0.00131952 1.35171 0 1.83905V9.19525C0.00131952 9.68258 0.192966 10.1496 0.533059 10.4942C0.873152 10.8388 1.33404 11.033 1.815 11.0343H7V11.9868H5.5C5.36739 11.9868 5.24021 12.0401 5.14645 12.1351C5.05268 12.2301 5 12.359 5 12.4934C5 12.6277 5.05268 12.7566 5.14645 12.8516C5.24021 12.9466 5.36739 13 5.5 13L9.5 12.9544C9.63261 12.9544 9.75979 12.901 9.85355 12.806C9.94732 12.711 10 12.5821 10 12.4478C10 12.3134 9.94732 12.1846 9.85355 12.0895C9.75979 11.9945 9.63261 11.9412 9.5 11.9412H8V11.0343H13.185C13.666 11.033 14.1268 10.8388 14.4669 10.4942C14.807 10.1496 14.9987 9.68258 15 9.19525V1.83905C14.9987 1.35171 14.807 0.884721 14.4669 0.540122C14.1268 0.195523 13.666 0.001337 13.185 0ZM14 9.19525C14 9.41426 13.9141 9.62431 13.7613 9.77917C13.6084 9.93404 13.4012 10.021 13.185 10.021H1.815C1.59885 10.021 1.39155 9.93404 1.23871 9.77917C1.08587 9.62431 1 9.41426 1 9.19525V1.83905C1 1.62003 1.08587 1.40999 1.23871 1.25512C1.39155 1.10025 1.59885 1.01325 1.815 1.01325H13.185C13.4012 1.01325 13.6084 1.10025 13.7613 1.25512C13.9141 1.40999 14 1.62003 14 1.83905V9.19525Z" fill="black"/>
+</svg>
+
+                Display
+              </button>
             </div>
           </div>
-          <Tab.Panels className="mt-2">
+          <Tab.Panels className="">
             <Tab.Panel>
               {" "}
               <TransactionHistoryTable
@@ -1102,6 +1109,9 @@ const TableComponent: React.FC<TableComponentProps> = ({
                 }}
                 onFiltersReady={handleFiltersReady(1)}
               />
+            </Tab.Panel>
+            <Tab.Panel>
+              <ProcessingHistoryTable />
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>
