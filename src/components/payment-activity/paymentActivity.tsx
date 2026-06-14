@@ -25,7 +25,7 @@ export default function PaymentActivity() {
                   "ring-white ring-opacity-60 ring-offset-2 focus:outline-none",
                   selected
                     ? "bg-primary-gradient text-white shadow"
-                    : "text-[#8B8D91] hover:bg-white/[0.12] hover:text-[#1A1C1E]"
+                    : "text-[#ccc] hover:bg-white/[0.12] hover:text-white"
                 )
               }
             >

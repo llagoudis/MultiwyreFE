@@ -87,7 +87,7 @@ const Ecomreports = () => {
             </div>
             <div>
               <p className="text-base font-bold text-black">Filters</p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-white">
                 Refine your transactions history
               </p>
             </div>
@@ -95,7 +95,7 @@ const Ecomreports = () => {
           <button
             type="button"
             onClick={filterHandleChange}
-            className="flex items-center gap-2 rounded-md border border-pink-500 px-4 py-2 text-sm font-semibold text-pink-600 transition hover:bg-pink-50"
+            className="flex items-center gap-2 rounded-md border border-pink-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-pink-50"
           >
             {showFilter ? "Hide Filters" : "View Filters"}
             <Image
@@ -248,7 +248,7 @@ const Ecomreports = () => {
                 <button
                   type="button"
                   onClick={handleResetFilters}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-md border border-pink-500 px-4 py-2.5 text-sm font-semibold text-pink-600 transition hover:bg-pink-50"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-md border border-pink-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-pink-50"
                 >
                   <span className="text-base">&#x21bb;</span>
                   Reset Filters

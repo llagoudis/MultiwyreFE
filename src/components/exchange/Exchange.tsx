@@ -1071,7 +1071,7 @@ const Exchange = () => {
                     className={`rounded-none rounded-l-md border border-r-0 px-4 py-2 hover:bg-none    ${
                       type === "buy"
                         ? "bg-black text-white hover:bg-black"
-                        : " bg-white text-slate-950  hover:bg-white"
+                        : " bg-white text-white  hover:bg-white"
                     }`}
                   ></Button>
                   <Button
@@ -1082,7 +1082,7 @@ const Exchange = () => {
                     className={`rounded-none rounded-r-md border border-l-0 px-4  py-2 hover:bg-none  ${
                       type === "sell"
                         ? "bg-black text-white hover:bg-black"
-                        : "bg-white text-slate-950 hover:bg-white"
+                        : "bg-white text-white hover:bg-white"
                     }`}
                   ></Button>
                 </div>
@@ -1118,7 +1118,7 @@ const Exchange = () => {
                     className="w-full"
                     size="small"
                   />
-                  <p className="text-slate-400">
+                  <p className="text-white">
                     {selectedCurrency === from
                       ? type === "buy"
                         ? `Amount of ${from} to buy`
@@ -1252,7 +1252,7 @@ const Exchange = () => {
                     ),
                   }}
                 />
-                <p className="text-slate-400">
+                <p className="text-white">
                   {selectedCurrency === from
                     ? type === "buy"
                       ? `Amount of ${to} to spend`

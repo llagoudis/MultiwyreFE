@@ -381,14 +381,14 @@ const TransferBetweenUsers = () => {
                   <button
                     type="button"
                     onClick={() => onChange("ONETIME")}
-                    className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${value === "ONETIME" ? "bg-white text-[#FF3D71] shadow-sm" : "text-[#8B8D91] hover:text-[#1A1C1E]"}`}
+                    className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${value === "ONETIME" ? "bg-white text-[#FF3D71] shadow-sm" : "text-[#8B8D91] hover:text-white"}`}
                   >
                     Internal Address
                   </button>
                   <button
                     type="button"
                     onClick={() => onChange("WHITELIST")}
-                    className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${value === "WHITELIST" ? "bg-white text-[#4775F2] shadow-sm" : "text-[#8B8D91] hover:text-[#1A1C1E]"}`}
+                    className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${value === "WHITELIST" ? "bg-white text-[#4775F2] shadow-sm" : "text-[#8B8D91] hover:text-white"}`}
                   >
                     Whitelisted
                   </button>

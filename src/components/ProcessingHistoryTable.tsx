@@ -65,7 +65,7 @@ const FilterSelect = ({
   options: string[];
 }) => (
   <div className="flex-1">
-    <p className="mb-1 text-sm text-slate-700">{label}</p>
+    <p className="mb-1 text-sm text-white">{label}</p>
     <Select
       sx={{
         "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e5e7eb" },
@@ -77,7 +77,7 @@ const FilterSelect = ({
       className="w-full rounded-lg bg-white"
     >
       <MenuItem value="">
-        <span className="text-slate-400">&nbsp;</span>
+        <span className="text-white">&nbsp;</span>
       </MenuItem>
       {options.map((o) => (
         <MenuItem key={o} value={o}>
@@ -119,7 +119,7 @@ const ProcessingHistoryTable = () => {
             options={["Merchant A", "Merchant B"]}
           />
           <div className="flex-1">
-            <p className="mb-1 text-sm text-slate-700">Start Date</p>
+            <p className="mb-1 text-sm text-white">Start Date</p>
             <input
               type="date"
               value={startDate}
@@ -128,7 +128,7 @@ const ProcessingHistoryTable = () => {
             />
           </div>
           <div className="flex-1">
-            <p className="mb-1 text-sm text-slate-700">End Date</p>
+            <p className="mb-1 text-sm text-white">End Date</p>
             <input
               type="date"
               value={endDate}
@@ -143,7 +143,7 @@ const ProcessingHistoryTable = () => {
       <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full min-w-max text-left text-sm">
           <thead>
-            <tr className="border-b border-slate-100 bg-slate-50 text-slate-600">
+            <tr className="border-b border-slate-100 bg-slate-50 text-white">
               <th className="whitespace-nowrap px-4 py-3 font-medium">Date and Time</th>
               <th className="whitespace-nowrap px-4 py-3 font-medium">Client ID</th>
               <th className="whitespace-nowrap px-4 py-3 font-medium">Customer E-mail</th>
@@ -166,27 +166,27 @@ const ProcessingHistoryTable = () => {
                 key={i}
                 className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
               >
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.dateTime}</td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.clientId}</td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">
+                <td className="whitespace-nowrap px-4 py-4 text-white">{row.dateTime}</td>
+                <td className="whitespace-nowrap px-4 py-4 text-white">{row.clientId}</td>
+                <td className="whitespace-nowrap px-4 py-4 text-white">
                   {row.customerEmail}
                 </td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">
+                <td className="whitespace-nowrap px-4 py-4 text-white">
                   {row.merchantName}
                 </td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.uniqueId}</td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.orderId}</td>
+                <td className="whitespace-nowrap px-4 py-4 text-white">{row.uniqueId}</td>
+                <td className="whitespace-nowrap px-4 py-4 text-white">{row.orderId}</td>
                 <td className="whitespace-nowrap px-4 py-4">
                   <StatusBadge status={row.status} />
                 </td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">
+                <td className="whitespace-nowrap px-4 py-4 text-white">
                   {row.requestedAmount}
                 </td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.fee}</td>
-                <td className="whitespace-nowrap px-4 py-4 font-medium text-slate-800">
+                <td className="whitespace-nowrap px-4 py-4 text-white">{row.fee}</td>
+                <td className="whitespace-nowrap px-4 py-4 font-medium text-white">
                   {row.receivedAmount}
                 </td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">
+                <td className="whitespace-nowrap px-4 py-4 text-white">
                   {row.transactionType}
                 </td>
                 <td className="whitespace-nowrap px-4 py-4">
@@ -195,7 +195,7 @@ const ProcessingHistoryTable = () => {
                       $
                     </div>
                     <div className="leading-tight">
-                      <div className="font-medium text-slate-800">
+                      <div className="font-medium text-white">
                         {row.senderAsset}
                       </div>
                       <div className="text-xs text-blue-500">
@@ -210,7 +210,7 @@ const ProcessingHistoryTable = () => {
                       $
                     </div>
                     <div className="leading-tight">
-                      <div className="font-medium text-slate-800">
+                      <div className="font-medium text-white">
                         {row.receiverAsset}
                       </div>
                       <div className="text-xs text-blue-500">
