@@ -53,7 +53,7 @@ const TwoFA: FC<TwoFAProps> = ({ onClose, onSubmit }) => {
   return (
     <div className="rounded-2xl bg-white p-6">
       <p className="text-lg font-bold text-black">Authorise action with 2FA</p>
-      <p className="mt-1 text-sm text-white">
+      <p className="mt-1 text-sm text-slate-500">
         For your security, please verify this action two-factor authentication.
       </p>
 
@@ -64,9 +64,9 @@ const TwoFA: FC<TwoFAProps> = ({ onClose, onSubmit }) => {
         <div className="flex-1">
           <p className="text-sm font-semibold text-black">
             Enter you{" "}
-            <span className="font-bold text-white">2FA code</span>
+            <span className="font-bold text-pink-500">2FA code</span>
           </p>
-          <p className="text-xs text-white">
+          <p className="text-xs text-slate-500">
             Enter the 6-digit code from your authenticator app to authorise
             this action.
           </p>
@@ -90,7 +90,7 @@ const TwoFA: FC<TwoFAProps> = ({ onClose, onSubmit }) => {
             ))}
           </div>
 
-          <div className="mt-4 flex items-center gap-2 rounded-md border border-blue-100 bg-blue-50/40 px-3 py-2 text-xs text-white">
+          <div className="mt-4 flex items-center gap-2 rounded-md border border-blue-100 bg-blue-50/40 px-3 py-2 text-xs text-slate-600">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="9" stroke="#3B82F6" strokeWidth="2" />
               <path
@@ -110,7 +110,7 @@ const TwoFA: FC<TwoFAProps> = ({ onClose, onSubmit }) => {
         <button
           type="button"
           onClick={onClose}
-          className="rounded-md border border-slate-200 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-50"
+          className="rounded-md border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
         >
           Cancel
         </button>

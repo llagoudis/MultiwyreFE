@@ -407,8 +407,8 @@ const ExchangeNew = () => {
                   className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-gray-100 bg-white hover:bg-gray-50 transition-all shadow-sm rotate-90 md:rotate-0"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M17 1L21 5M21 5L17 9M21 5H7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M7 23L3 19M3 19L7 15M3 19H17" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M17 1L21 5M21 5L17 9M21 5H7" stroke="#606060" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M7 23L3 19M3 19L7 15M3 19H17" stroke="#606060" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </button>
               </div>
@@ -485,7 +485,7 @@ const ExchangeNew = () => {
                     <button
                       type="button"
                       onClick={() => setValue("volume", parseFloat(assetBalance?.balance ?? "0"))}
-                      className="h-8  px-2 sm:px-4 border border-[#4775f2b1] text-white rounded-md text-[10px] sm:text-sm font-semibold bg-white hover:bg-blue-50 transition-colors whitespace-nowrap"
+                      className="h-8  px-2 sm:px-4 border border-[#4775f2b1] text-[#4775F2] rounded-md text-[10px] sm:text-sm font-semibold bg-white hover:bg-blue-50 transition-colors whitespace-nowrap"
                     >
                       Max <span className="hidden md:inline">({Number(assetBalance?.balance || 0).toFixed(6)} {fromAssetValue?.name || ""})</span>
                     </button>

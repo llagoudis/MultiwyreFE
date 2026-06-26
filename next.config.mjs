@@ -31,7 +31,7 @@ const config = {
   },
   output: "standalone",
   images: {
-    domains: ["image.zil.ink", "i.ibb.co", "cdn.jsdelivr.net", "assets-cdn.trustwallet.com", "backend.multiwyre.com"],
+    domains: ["image.zil.ink", "i.ibb.co", "cdn.jsdelivr.net", "assets-cdn.trustwallet.com"],
   },
 };
 

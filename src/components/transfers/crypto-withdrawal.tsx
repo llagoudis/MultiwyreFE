@@ -940,17 +940,14 @@ const CryptoWithdrawal = () => {
                     <button
                       type="button"
                       onClick={() => onChange("ONETIME")}
-                      className={`flex-1 py-3 text-sm font-bold border border-[#C9C9C9] rounded-sm border-r-0 transition-all ${value === "ONETIME" ? "bg-[#FFF6FC] border-r-[1px] text-white border-[#DB33A142] shadow-sm" : "text-[#8B8D91] `hover:text-white`"}`}
+                      className={`flex-1 py-3 text-sm font-bold border border-[#C9C9C9] rounded-sm border-r-0 transition-all ${value === "ONETIME" ? "bg-[#FFF6FC] border-r-[1px] text-[#FF3D71] border-[#DB33A142] shadow-sm" : "text-[#8B8D91] hover:text-[#1A1C1E]"}`}
                     >
                       One time address
                     </button>
                     <button
                       type="button"
-                      sx={{
-                        marginLeft:"5px !important"
-                      }}
                       onClick={() => onChange("WHITELIST")}
-                      className={`flex-1 py-3 text-sm font-bold border border-[#C9C9C9] rounded-sm border-l-0 transition-all ${value === "WHITELIST" ? "bg-[#FFF6FC] border-l-[1px] text-white border-[#DB33A142] shadow-sm" : "text-[#8B8D91] hover:text-white"}`}
+                      className={`flex-1 py-3 text-sm font-bold border border-[#C9C9C9] rounded-sm border-l-0 transition-all ${value === "WHITELIST" ? "bg-[#FFF6FC] border-l-[1px] text-[#FF3D71] border-[#DB33A142] shadow-sm" : "text-[#8B8D91] hover:text-[#1A1C1E]"}`}
                     >
                       White listed address
                     </button>

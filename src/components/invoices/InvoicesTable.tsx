@@ -55,7 +55,7 @@ function CustomToolbar({ handleExport, handleClear }: any) {
         "& .MuiButton-root": {
           borderRadius: "6px",
           backgroundColor: "#FFFFFF",
-          color: "white",
+          color: "#8B8D91",
           border: "1px solid #E2E8F0",
           px: 2,
           py: 1,
@@ -64,7 +64,7 @@ function CustomToolbar({ handleExport, handleClear }: any) {
           textTransform: "none",
           minWidth: "auto",
           "& svg": {
-            color: "white",
+            color: "#8B8D91",
           },
           "&:hover": {
             backgroundColor: "#F8F9FA",
@@ -81,7 +81,7 @@ function CustomToolbar({ handleExport, handleClear }: any) {
       <div className="flex items-center gap-2">
         <button
           onClick={handleExport}
-          className="rounded-md border border-[#E2E8F0] bg-white text-white px-4 py-3 text-xs font-bold hover:bg-gray-50 transition-colors flex items-center gap-2"
+          className="rounded-md border border-[#E2E8F0] bg-white text-[#8B8D91] px-4 py-3 text-xs font-bold hover:bg-gray-50 transition-colors flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -90,7 +90,7 @@ function CustomToolbar({ handleExport, handleClear }: any) {
         </button>
         <button
           onClick={handleClear}
-          className="rounded-md border border-[#E2E8F0] bg-white text-white px-4 py-3 text-xs font-bold hover:bg-gray-50 transition-colors flex items-center gap-2"
+          className="rounded-md border border-[#E2E8F0] bg-white text-[#8B8D91] px-4 py-3 text-xs font-bold hover:bg-gray-50 transition-colors flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -126,7 +126,7 @@ function CustomPagination({ pageCount, pagination, setPagination }: any) {
           onClick={() => handlePageChange(i)}
           className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold transition-all ${currentPage === i
             ? "bg-gradient-to-br from-[#4775F2] to-[#B647F2] text-white shadow-md border-none"
-            : "text-white hover:bg-gray-50 border border-[#E2E8F0]"
+            : "text-[#8B8D91] hover:bg-gray-50 border border-[#E2E8F0]"
             }`}
         >
           {i}
@@ -136,7 +136,7 @@ function CustomPagination({ pageCount, pagination, setPagination }: any) {
 
     if (endPage < totalPages) {
       if (endPage < totalPages - 1) {
-        buttons.push(<span key="dots" className="text-white px-1">...</span>);
+        buttons.push(<span key="dots" className="text-[#8B8D91] px-1">...</span>);
       }
       buttons.push(
         <button
@@ -144,7 +144,7 @@ function CustomPagination({ pageCount, pagination, setPagination }: any) {
           onClick={() => handlePageChange(totalPages)}
           className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold transition-all ${currentPage === totalPages
             ? "bg-gradient-to-br from-[#4775F2] to-[#B647F2] text-white shadow-md border-none"
-            : "text-white hover:bg-gray-50 border border-[#E2E8F0]"
+            : "text-[#8B8D91] hover:bg-gray-50 border border-[#E2E8F0]"
             }`}
         >
           {totalPages}
@@ -161,7 +161,7 @@ function CustomPagination({ pageCount, pagination, setPagination }: any) {
         <button
           onClick={() => handlePageChange(1)}
           disabled={currentPage === 1}
-          className="w-9 h-9 flex items-center justify-center border border-[#E2E8F0] rounded-lg text-white disabled:opacity-30 hover:bg-gray-50 transition-all"
+          className="w-9 h-9 flex items-center justify-center border border-[#E2E8F0] rounded-lg text-[#8B8D91] disabled:opacity-30 hover:bg-gray-50 transition-all"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
@@ -170,7 +170,7 @@ function CustomPagination({ pageCount, pagination, setPagination }: any) {
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="w-9 h-9 flex items-center justify-center border border-[#E2E8F0] rounded-lg text-white disabled:opacity-30 hover:bg-gray-50 transition-all"
+          className="w-9 h-9 flex items-center justify-center border border-[#E2E8F0] rounded-lg text-[#8B8D91] disabled:opacity-30 hover:bg-gray-50 transition-all"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -184,7 +184,7 @@ function CustomPagination({ pageCount, pagination, setPagination }: any) {
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="w-9 h-9 flex items-center justify-center border border-[#E2E8F0] rounded-lg text-white disabled:opacity-30 hover:bg-gray-50 transition-all"
+          className="w-9 h-9 flex items-center justify-center border border-[#E2E8F0] rounded-lg text-[#8B8D91] disabled:opacity-30 hover:bg-gray-50 transition-all"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -193,7 +193,7 @@ function CustomPagination({ pageCount, pagination, setPagination }: any) {
         <button
           onClick={() => handlePageChange(totalPages)}
           disabled={currentPage === totalPages}
-          className="w-9 h-9 flex items-center justify-center border border-[#E2E8F0] rounded-lg text-white disabled:opacity-30 hover:bg-gray-50 transition-all"
+          className="w-9 h-9 flex items-center justify-center border border-[#E2E8F0] rounded-lg text-[#8B8D91] disabled:opacity-30 hover:bg-gray-50 transition-all"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
@@ -429,7 +429,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
       headerName: "Date",
       valueGetter: (params: { row: any }) => new Date(params?.row?.createdAt),
       renderCell: ({ row }: TableRow) => (
-        <div className="flex flex-col text-xs font-medium text-white leading-tight">
+        <div className="flex flex-col text-xs font-medium text-[#8B8D91] leading-tight">
           <span>{formatDate(row?.createdAt)?.split(' ')[0]}</span>
           <span className="text-[10px] opacity-70 uppercase">
             {formatDate(row?.createdAt)?.split(' ')[1]} {formatDate(row?.createdAt)?.split(' ')[2]}
@@ -450,7 +450,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
       field: "customerEmail",
       headerName: "Email",
       renderCell: ({ row }: any) => (
-        <span className="text-white font-medium">{row?.EcomTransaction?.customerEmail || "-"}</span>
+        <span className="text-[#8B8D91] font-medium">{row?.EcomTransaction?.customerEmail || "-"}</span>
       ),
     },
     {
@@ -462,7 +462,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
         if (!items || items.length === 0) return "-";
 
         return (
-          <div className="flex flex-col py-1 text-xs text-white font-medium truncate">
+          <div className="flex flex-col py-1 text-xs text-[#8B8D91] font-medium truncate">
             {items.map((item, index) => (
               <p key={index} className="truncate">
                 {item.description} ({row?.currency} {item.amount})
@@ -478,7 +478,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
       headerName: "Requested",
       renderCell: ({ row }: TableRow) => (
         <div className="font-medium text-[#1A1C1E] text-xs">
-          {row?.amount} <span className="text-[10px] text-white">({row?.currency})</span>
+          {row?.amount} <span className="text-[10px] text-[#8B8D91]">({row?.currency})</span>
         </div>
       ),
     },
@@ -490,7 +490,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
         <div className="flex flex-col text-xs font-medium text-[#1A1C1E] leading-tight">
           <span>{row?.EcomTransaction?.exactAmount || "-"}</span>
           {row?.EcomTransaction?.exactAmount && (
-            <span className="text-[10px] text-white">({row?.EcomTransaction?.assetId})</span>
+            <span className="text-[10px] text-[#8B8D91]">({row?.EcomTransaction?.assetId})</span>
           )}
         </div>
       ),
@@ -503,7 +503,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
         <div className="flex flex-col text-xs font-medium text-[#1A1C1E] leading-tight">
           <span>{row?.EcomTransaction?.amount || "-"}</span>
           {row?.EcomTransaction?.amount && (
-            <span className="text-[10px] text-white">({row?.EcomTransaction?.assetId})</span>
+            <span className="text-[10px] text-[#8B8D91]">({row?.EcomTransaction?.assetId})</span>
           )}
         </div>
       ),
@@ -545,7 +545,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
                 onClick={() => onCopy(row?.invoiceURL)}
                 className="p-1 hover:bg-gray-100 rounded-md transition-colors"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#8B8D91]">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>

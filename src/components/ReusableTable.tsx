@@ -245,7 +245,7 @@ function ReusableTable<T extends { id?: string | number }>({
                         <p className="mt-4 text-lg font-semibold text-black">
                           {emptyMessage}
                         </p>
-                        <p className="mt-1 text-sm text-white">
+                        <p className="mt-1 text-sm text-slate-500">
                           There are no transaction to display for the selected filters.
                         </p>
                       </div>

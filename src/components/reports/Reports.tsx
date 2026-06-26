@@ -122,7 +122,7 @@ const Reports = () => {
             </div>
             <div>
               <p className="text-base font-medium text-black">Filters</p>
-              <p className="text-xs text-white">
+              <p className="text-xs text-slate-500">
                 Refine your transactions history
               </p>
             </div>
@@ -274,7 +274,7 @@ const Reports = () => {
                 <button
                   type="button"
                   onClick={handleResetFilters}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-md border border-brand-pink px-4 py-2 text-sm font-semibold text-brand-pink transition hover:bg-pink-50 text-white"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-md border border-brand-pink px-4 py-2 text-sm font-semibold text-brand-pink transition hover:bg-pink-50"
                 >
                   <span className="text-base">&#x21bb;</span>
                   Reset Filters

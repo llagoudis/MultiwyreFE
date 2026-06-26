@@ -240,21 +240,21 @@ const Dashboard = () => {
           <div className="flex flex-wrap items-center gap-2 md:gap-3">
             <button
               onClick={() => setDepositOpen(true)}
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#E2E8FF]"
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
             >
               <DownloadIcon />
               Deposit
             </button>
             <button
               onClick={() => setWithdrawOpen(true)}
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#E2E8FF]"
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
             >
               <UploadIcon />
               Withdraw
             </button>
             <button
               onClick={() => setExchangeOpen(true)}
-              className="w-full md:w-auto flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#E2E8FF]"
+              className="w-full md:w-auto flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
             >
               <ExchangeIcon />
               Exchange

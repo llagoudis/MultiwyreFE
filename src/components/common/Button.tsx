@@ -30,7 +30,7 @@ const Button: FC<ButtonProps> = ({
       className={`
         ${
           variant === "solid"
-            ? "rounded-md bg-[#217EFD] text-sm text-white transition delay-75 ease-in-out hover:bg-blue-900"
+            ? "rounded-md bg-[#217EFD] text-sm text-slate-100 transition delay-75 ease-in-out hover:bg-blue-900"
             : "border-solid border-zinc-900 text-zinc-700 hover:text-zinc-900"
         }
         ${

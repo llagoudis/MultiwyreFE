@@ -126,7 +126,7 @@ function PaymentHistory() {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-100 text-left text-white">
+            <tr className="border-b border-slate-100 text-left text-slate-500">
               <th className="py-3 font-medium">File Name</th>
               <th className="py-3 font-medium">Status</th>
               <th className="py-3 font-medium">Progress</th>
@@ -158,7 +158,7 @@ function PaymentHistory() {
                           <p className="font-semibold text-black break-all">
                             {csvFile?.fileName}
                           </p>
-                          <p className="text-xs text-white">
+                          <p className="text-xs text-slate-500">
                             {csvFile?.fileSize ?? "—"}
                           </p>
                         </div>
@@ -179,7 +179,7 @@ function PaymentHistory() {
                             style={{ width: `${percent}%` }}
                           />
                         </div>
-                        <div className="mt-1 flex items-center justify-between text-xs text-white">
+                        <div className="mt-1 flex items-center justify-between text-xs text-slate-500">
                           <span>
                             {done}/{total} records
                           </span>
@@ -187,7 +187,7 @@ function PaymentHistory() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 text-sm text-white">
+                    <td className="py-4 text-sm text-slate-600">
                       <div className="flex items-center gap-1.5">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                           <rect x="3" y="5" width="18" height="16" rx="2" stroke="#64748B" strokeWidth="2" />
@@ -196,13 +196,13 @@ function PaymentHistory() {
                         {formatDate(csvFile?.dateTime)}
                       </div>
                     </td>
-                    <td className="py-4 text-sm text-white">{total}</td>
+                    <td className="py-4 text-sm text-slate-700">{total}</td>
                     <td className="py-4">
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
                           onClick={() => handleDownloadCSV(csvFile)}
-                          className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-white transition hover:bg-slate-50"
+                          className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-slate-600 transition hover:bg-slate-50"
                           aria-label="Download"
                         >
                           <Image
@@ -214,7 +214,7 @@ function PaymentHistory() {
                         <button
                           type="button"
                           onClick={() => toggleDropdown(index)}
-                          className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-white transition hover:bg-slate-50"
+                          className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-slate-600 transition hover:bg-slate-50"
                           aria-label="Toggle"
                         >
                           {isOpen ? (
@@ -232,7 +232,7 @@ function PaymentHistory() {
                         <div className="px-4 py-3">
                           <table className="w-full text-sm">
                             <thead>
-                              <tr className="border-b border-slate-200 text-left text-white">
+                              <tr className="border-b border-slate-200 text-left text-slate-500">
                                 <th className="py-2 font-medium">S.NO</th>
                                 <th className="py-2 font-medium">Asset</th>
                                 <th className="py-2 font-medium">Address</th>
@@ -245,7 +245,7 @@ function PaymentHistory() {
                                   key={row.id}
                                   className="border-b border-slate-100"
                                 >
-                                  <td className="py-3 text-white">
+                                  <td className="py-3 text-slate-700">
                                     {String(rowIndex + 1).padStart(2, "0")}
                                   </td>
                                   <td className="py-3">
@@ -260,7 +260,7 @@ function PaymentHistory() {
                                       <span>{row.assetId}</span>
                                     </div>
                                   </td>
-                                  <td className="py-3 break-all text-white">
+                                  <td className="py-3 break-all text-slate-700">
                                     {row.toAddress}
                                   </td>
                                   <td className="py-3">

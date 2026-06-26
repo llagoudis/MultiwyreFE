@@ -303,10 +303,10 @@ const Profile = () => {
         </div>
         <div>
           <p className="text-base font-bold text-black">{title}</p>
-          <p className="text-xs text-white">{description}</p>
+          <p className="text-xs text-slate-500">{description}</p>
         </div>
       </div>
-      <div className="mt-4 flex items-center justify-between border-b border-slate-100 pb-2 text-sm text-white">
+      <div className="mt-4 flex items-center justify-between border-b border-slate-100 pb-2 text-sm text-slate-500">
         <span>Description</span>
         <span>Fees</span>
       </div>
@@ -326,7 +326,7 @@ const Profile = () => {
           </div>
         ))
       ) : (
-        <p className="mt-6 text-center text-sm text-white">
+        <p className="mt-6 text-center text-sm text-slate-400">
           No fees configured yet.
         </p>
       )}
@@ -351,7 +351,7 @@ const Profile = () => {
             className={`rounded-md px-5 py-3 text-sm font-semibold transition ${
               activeTab === "settings"
                 ? "bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 text-white shadow"
-                : "text-white hover:bg-slate-50"
+                : "text-slate-700 hover:bg-slate-50"
             }`}
           >
             Account Settings
@@ -362,7 +362,7 @@ const Profile = () => {
             className={`rounded-md px-5 py-2.5 text-sm font-semibold transition ${
               activeTab === "fees"
                 ? "bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 text-white shadow"
-                : "text-white hover:bg-slate-50"
+                : "text-slate-700 hover:bg-slate-50"
             }`}
           >
             Fees
@@ -389,7 +389,7 @@ const Profile = () => {
                 </div>
                 <div>
                   <p className="text-base font-bold text-black">{fullname}</p>
-                  <p className="text-xs text-white">
+                  <p className="text-xs text-slate-500">
                     This photo will be displayed on your profile.
                   </p>
                 </div>
@@ -408,7 +408,7 @@ const Profile = () => {
                   type="button"
                   onClick={() => fileInputRef.current.click()}
                   disabled={loading === "profileImgLink"}
-                  className="flex items-center gap-2 rounded-md border border-blue-500 px-4 py-2 text-sm font-semibold whitetext-white transition hover:bg-blue-50 disabled:opacity-60"
+                  className="flex items-center gap-2 rounded-md border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 disabled:opacity-60"
                 >
                   {loading === "profileImgLink" ? (
                     <ImSpinner2 className="h-4 w-4 animate-spin" />
@@ -432,7 +432,7 @@ const Profile = () => {
                       type="button"
                       onClick={() => invoiceInputRef.current.click()}
                       disabled={loading === "invoiceImgLink"}
-                      className="flex items-center gap-2 rounded-md border border-blue-500 px-4 py-2 text-sm font-semibold whitetext-white transition hover:bg-blue-50 disabled:opacity-60"
+                      className="flex items-center gap-2 rounded-md border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 disabled:opacity-60"
                     >
                       {loading === "invoiceImgLink" ? (
                         <ImSpinner2 className="h-4 w-4 animate-spin" />
@@ -478,7 +478,7 @@ const Profile = () => {
                       Email Authentication
                     </p>
                     <p className="text-sm font-medium text-black">{email}</p>
-                    <p className="mt-1 text-xs text-white">
+                    <p className="mt-1 text-xs text-slate-500">
                       Used for login, password recovery and security
                       notification.
                     </p>
@@ -487,7 +487,7 @@ const Profile = () => {
                 <button
                   type="button"
                   onClick={() => handleOpen("email")}
-                  className="rounded-md border border-blue-500 px-5 py-2 text-sm font-semibold whitetext-white transition hover:bg-blue-50"
+                  className="rounded-md border border-blue-500 px-5 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50"
                 >
                   Change
                 </button>
@@ -511,7 +511,7 @@ const Profile = () => {
                     <p className="text-sm font-medium text-black">
                       {`${countryCode ?? ""} ${phone ?? ""}`}
                     </p>
-                    <p className="mt-1 text-xs text-white">
+                    <p className="mt-1 text-xs text-slate-500">
                       Used for login, password recovery and security
                       notification.
                     </p>
@@ -520,7 +520,7 @@ const Profile = () => {
                 <button
                   type="button"
                   onClick={() => handleOpen("sms")}
-                  className="rounded-md border border-blue-500 px-5 py-2 text-sm font-semibold  text-white transition hover:bg-blue-50"
+                  className="rounded-md border border-blue-500 px-5 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50"
                 >
                   Change
                 </button>
@@ -548,7 +548,7 @@ const Profile = () => {
                     Identity Verification
                   </p>
                 </div>
-                <p className="mt-2 text-xs text-white">
+                <p className="mt-2 text-xs text-slate-500">
                   Complete verification to increase daily withdrawl limit and
                   secure your account.
                 </p>
@@ -557,7 +557,7 @@ const Profile = () => {
                 {statusBadge(isUserVerified)}
                 <button
                   type="button"
-                  className="rounded-md border border-blue-500 px-4 py-1.5 text-sm font-semibold whitetext-white transition hover:bg-blue-50"
+                  className="rounded-md border border-blue-500 px-4 py-1.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-50"
                 >
                   View/ Update
                 </button>
@@ -569,13 +569,13 @@ const Profile = () => {
               <div className="flex items-start justify-between border-b border-slate-100 pb-4">
                 <div>
                   <p className="text-base font-bold text-black">Password</p>
-                  <p className="mt-1 text-xs text-white">
+                  <p className="mt-1 text-xs text-slate-500">
                     Change password in settings
                   </p>
                 </div>
                 <Button
                   type="submit"
-                  className="ml-auto rounded-md border border-blue-500 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-50"
+                  className="ml-auto rounded-md border border-blue-500 px-5 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50"
                   title="Change"
                   onClick={() => setChangePasswordModal(true)}
                 />
@@ -585,13 +585,13 @@ const Profile = () => {
                   <p className="text-base font-bold text-black">
                     Google authenticator
                   </p>
-                  <p className="mt-1 text-xs text-white">
+                  <p className="mt-1 text-xs text-slate-500">
                     Enable 2FA for additional account security.
                   </p>
                 </div>
                 <Button
                   type="submit"
-                  className="ml-auto rounded-md border border-blue-500 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-50"
+                  className="ml-auto rounded-md border border-blue-500 px-5 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50"
                   title={tfaEnabled || otpValidated ? "Verified" : "Enable"}
                   onClick={() => get2FAQR()}
                   disabled={tfaEnabled || otpValidated}

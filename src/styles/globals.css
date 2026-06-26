@@ -16,13 +16,9 @@
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
-  margin: 5px;
+  margin: 0;
 }
-button {
-    background: var(--primary-gradient) !important;
-  margin-left: 5px !important;
 
-}
 /* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;

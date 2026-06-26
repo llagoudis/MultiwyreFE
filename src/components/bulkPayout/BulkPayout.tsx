@@ -34,7 +34,7 @@ const BulkPayout = () => {
                     "rounded-md px-5 py-2.5 text-sm font-semibold transition focus:outline-none",
                     selected
                       ? "bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 text-white shadow"
-                      : "text-white hover:bg-slate-50",
+                      : "text-slate-700 hover:bg-slate-50",
                   )
                 }
               >
@@ -46,7 +46,7 @@ const BulkPayout = () => {
           <button
             type="button"
             onClick={downloadTemplate}
-            className="flex items-center gap-2 rounded-md border border-pink-500 px-4 py-2 text-sm font-semibold text-whitetransition hover:bg-pink-50"
+            className="flex items-center gap-2 rounded-md border border-pink-500 px-4 py-2 text-sm font-semibold text-pink-600 transition hover:bg-pink-50"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path

@@ -233,7 +233,7 @@ const LoginForm: React.FC = () => {
             <div className="grid grid-flow-col ">
               {!showEmailField && (
                 <button
-                  className="w-full text-sm text-white"
+                  className="w-full text-sm"
                   type="button"
                   onClick={() => {
                     setShowEmailField(true);

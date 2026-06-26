@@ -128,7 +128,7 @@ const UploadCSV = () => {
       >
         <div className="border-b border-slate-100 pb-4">
           <p className="text-lg font-bold text-black">Upload CSV</p>
-          <p className="mt-1 text-sm text-white">
+          <p className="mt-1 text-sm text-slate-500">
             Upload a CSV to start bulk payout.
           </p>
         </div>
@@ -168,7 +168,7 @@ const UploadCSV = () => {
                         <span className="text-sm font-semibold">
                           {option.fireblockAssetId}
                         </span>
-                        <span className="text-xs text-white">
+                        <span className="text-xs text-slate-500">
                           {option.name}
                         </span>
                       </div>
@@ -220,7 +220,7 @@ const UploadCSV = () => {
           </div>
           <div>
             <p className="text-sm font-bold text-black">Upload Files</p>
-            <p className="text-xs text-white">
+            <p className="text-xs text-slate-500">
               Select and upload the files of your choice.
             </p>
           </div>
@@ -255,10 +255,10 @@ const UploadCSV = () => {
           <p className="mt-4 text-base font-bold text-black">
             Choose a file or drag &amp; drop it here
           </p>
-          <p className="mt-1 text-sm text-white">
+          <p className="mt-1 text-sm text-slate-500">
             Please upload only one CSV file (up to 5MB)
           </p>
-          <span className="mt-4 flex items-center gap-2 rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-white shadow-sm">
+          <span className="mt-4 flex items-center gap-2 rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
               <path
                 d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z"
@@ -294,7 +294,7 @@ const UploadCSV = () => {
                     onClick={() => setSelectedFile(null)}
                   />
                 </p>
-                <p className="text-xs text-white">
+                <p className="text-xs text-slate-500">
                   {(selectedFile.size / 1024).toFixed(2)} KB
                 </p>
               </div>
@@ -319,7 +319,7 @@ const UploadCSV = () => {
           </button>
         </div>
 
-        <div className="mt-5 flex items-center gap-2 rounded-md border border-blue-100 bg-blue-50/40 px-3 py-2 text-sm text-white">
+        <div className="mt-5 flex items-center gap-2 rounded-md border border-blue-100 bg-blue-50/40 px-3 py-2 text-sm text-slate-600">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="9" stroke="#3B82F6" strokeWidth="2" />
             <path
@@ -360,9 +360,9 @@ const UploadCSV = () => {
             </div>
             <div className="flex-1">
               <p className="text-lg font-bold text-black">
-                Insufficient <span className="text-white">Balance</span>
+                Insufficient <span className="text-pink-500">Balance</span>
               </p>
-              <p className="mt-1 text-sm text-white">
+              <p className="mt-1 text-sm text-slate-500">
                 You don&apos;t have enough {assetId} to complete this
                 transaction.
               </p>
@@ -375,7 +375,7 @@ const UploadCSV = () => {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase text-white">
+                    <p className="text-[10px] uppercase text-slate-500">
                       Current Balance
                     </p>
                     <p className="text-sm font-bold text-black">
@@ -390,7 +390,7 @@ const UploadCSV = () => {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase text-white">
+                    <p className="text-[10px] uppercase text-slate-500">
                       Required Amount
                     </p>
                     <p className="text-sm font-bold text-black">
@@ -404,7 +404,7 @@ const UploadCSV = () => {
 
           <button
             onClick={() => setPopupState("")}
-            className="mt-6 w-full rounded-md border border-slate-200 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-50"
+            className="mt-6 w-full rounded-md border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
           >
             Cancel
           </button>

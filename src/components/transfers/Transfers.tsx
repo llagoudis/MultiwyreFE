@@ -17,15 +17,12 @@ export default function Transfers() {
             {tabs.map((tab) => (
               <Tab
                 key={tab}
-                sx={{
-                  marginLeft: "5px !important"
-                }}
                 className={({ selected }) =>
                   classNames(
                     "flex-1 px-8 py-3 text-sm font-bold rounded-lg transition-all duration-300 outline-none",
                     selected
                       ? "bg-primary-gradient text-white shadow-md scale-[1.02]"
-                      : "text-white hover:text-white hover:bg-gray-50"
+                      : "text-[#8B8D91] hover:text-[#1A1C1E] hover:bg-gray-50"
                   )
                 }
               >
@@ -43,7 +40,7 @@ export default function Transfers() {
             </div>
             <p className="text-[#1A1C1E] font-medium text-sm">Please enable two factor authentication to secure your account.</p>
           </div>
-          <button className="text-white text-sm whitespace-nowrap font-bold hover:underline">Enable Now</button>
+          <button className="text-[#4775F2] text-sm whitespace-nowrap font-bold hover:underline">Enable Now</button>
         </div>
 
         <TabPanels>
