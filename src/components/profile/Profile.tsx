@@ -594,7 +594,6 @@ const Profile = () => {
                   className="ml-auto rounded-md border border-blue-500 px-5 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50"
                   title={tfaEnabled || otpValidated ? "Verified" : "Enable"}
                   onClick={() => get2FAQR()}
-                  disabled={tfaEnabled || otpValidated}
                   loading={loading === "qr"}
                 />
               </div>
