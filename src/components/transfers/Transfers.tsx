@@ -1,6 +1,7 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import Templates from "~/components/transfers/templates";
 import CryptoWithdrawal from "~/components/transfers/crypto-withdrawal";
+import { useRouter } from "next/router";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -8,6 +9,12 @@ function classNames(...classes: string[]) {
 
 export default function Transfers() {
   const tabs = ["Transfer", "Whitelist Addresses"];
+  const router = useRouter();
+
+
+   const handleNavigate = (path: string) => {
+     void router.push(path);
+   }
 
   return (
     <div className="w-full mx-auto ">
@@ -40,7 +47,8 @@ export default function Transfers() {
             </div>
             <p className="text-[#1A1C1E] font-medium text-sm">Please enable two factor authentication to secure your account.</p>
           </div>
-          <button className="text-[#4775F2] text-sm whitespace-nowrap font-bold hover:underline">Enable Now</button>
+          <button onClick={  () => handleNavigate("/app/profile")}
+             className="text-[#4775F2] text-sm whitespace-nowrap font-bold hover:underline">Enable Now</button>
         </div>
 
         <TabPanels>
