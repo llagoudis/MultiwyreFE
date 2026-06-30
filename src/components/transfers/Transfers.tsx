@@ -15,6 +15,7 @@ export default function Transfers() {
   const [userDetails, setUserDetails] = useState<any>({
     tfaEnabled: "",
   });
+  const [otpValidated, setOtpValidated] = useState<boolean>(false);
 
   const {tfaEnabled} = userDetails || {};
 
@@ -52,7 +53,7 @@ export default function Transfers() {
         {console.log(tfaEnabled)}
         {/* 2FA Alert */}
        {
-         !tfaEnabled && (
+         !tfaEnabled && !otpValidated && (
           <div className="mb-0 flex items-center justify-between bg-[#FFF8F9] border border-[#FFD0DA] rounded-md px-4 py-2">
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-[#FF3D71] text-[#FF3D71]">

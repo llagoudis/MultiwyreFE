@@ -7,7 +7,6 @@ const ApiHandler = async <T,>(
 ): Promise<[APIResponse<T> | null, string | null]> => {
   try {
     const response = data ? await promise(data) : await promise();
-    console.log(response);
     const res = decryptResponse(response.data);
 
     return [res, null];
