@@ -13,10 +13,10 @@ export default function Transfers() {
   const tabs = ["Transfer", "Whitelist Addresses"];
   const router = useRouter();
   const [userDetails, setUserDetails] = useState<any>({
-    tfaEnabled: false,
+    tfaEnabled: "",
   });
 
-  const {tfaEnabled} = userDetails;
+  const {tfaEnabled} = userDetails || {};
 
   useEffect(() => {
     const data = localStorageService.decodeAuthBody();
