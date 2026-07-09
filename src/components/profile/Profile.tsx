@@ -380,7 +380,7 @@ const Profile = () => {
                     className="aspect-square w-full rounded-full object-cover"
                     src={
                       profileImgLink
-                        ? `${profileImgLink}?t=${new Date().getTime()}`
+                        ? `${profileImgLink}`
                         : DefaultProfile
                     }
                     width={64}

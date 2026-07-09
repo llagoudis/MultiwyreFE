@@ -30,8 +30,46 @@ const config = {
     defaultLocale: "en",
   },
   output: "standalone",
+
   images: {
-    domains: ["image.zil.ink", "i.ibb.co", "cdn.jsdelivr.net", "assets-cdn.trustwallet.com", "backend.multiwyre.com"],
+    // Replace the deprecated `domains` with `remotePatterns`
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'image.zil.ink',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.ibb.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.jsdelivr.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'assets-cdn.trustwallet.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'backend.multiwyre.com',
+        port: '',
+        pathname: '/api/v1/file/files/**', // More specific path pattern
+      },
+    ],
+    // Optional: Set a minimum cache time for optimized images
+    minimumCacheTTL: 60,
+    // Optional: Configure device sizes for responsive images
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 };
 
