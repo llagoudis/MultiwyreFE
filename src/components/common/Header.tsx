@@ -170,7 +170,7 @@ const Topbar: React.FC<HeaderProps> = ({ title }) => {
                 <Image
                   alt="Profile"
                   className="h-full w-full rounded-lg object-cover"
-                  src={profileImgLink ? `${profileImgLink}?t=${new Date().getTime()}` : DefaultProfileYellow}
+                  src={profileImgLink ? `${profileImgLink}` : DefaultProfileYellow}
                   width={44}
                   height={44}
                 />
