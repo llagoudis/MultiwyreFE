@@ -63,22 +63,34 @@ const WithdrawDrawer: React.FC<WithdrawDrawerProps> = ({ open, onClose, assets, 
           {/* Balance Selector */}
           <div className="space-y-2">
             <label className="text-sm font-semibold text-[#606060]">Balance</label>
-            <Autocomplete
-              options={assets}
-              getOptionLabel={(o) => o.icon || " " || o.name || ""}
-              value={selectedAsset || null}
-              onChange={(_, v) => setSelectedAsset(v)}
-              disableClearable
-              renderInput={(params) => (
-                <TextField {...params} sx={autocompleteStyles}
-                  InputProps={{
-                    ...params.InputProps, startAdornment: selectedAsset && (
-                      <InputAdornment position="start"><Image src={selectedAsset.icon || ""} alt="" width={20} height={20} /></InputAdornment>
-                    )
-                  }}
-                />
-              )}
-            />
+              <Autocomplete
+                  options={assets}
+                  getOptionLabel={(option) => option.name || ""}
+                  value={selectedAsset}
+                  onChange={(_, newValue) => setSelectedAsset(newValue)}
+                  disableClearable
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          height: "44px",
+                          borderRadius: "8px",
+                          backgroundColor: "#fff",
+                          "& fieldset": { borderColor: "#E5E7EB" },
+                          "&:hover fieldset": { borderColor: "#4775F2" },
+                          "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
+                        }
+                      }}
+                      InputProps={{
+                        ...params.InputProps,
+                        startAdornment: selectedAsset && (
+                          <InputAdornment position="start">
+                            <Image src={selectedAsset.icon || ""} alt="" width={24} height={24} />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
           </div>
 
           {/* Amount Section */}
