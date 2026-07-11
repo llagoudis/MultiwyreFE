@@ -91,6 +91,14 @@ const WithdrawDrawer: React.FC<WithdrawDrawerProps> = ({ open, onClose, assets, 
                         ),
                       }}
                     />
+                  )}
+                  renderOption={(props, option) => (
+                    <li {...props} className="flex items-center gap-3 p-3">
+                      <Image src={option.icon || ""} alt="" width={24} height={24} />
+                      <span className="font-medium">{option.name}</span>
+                    </li>
+                  )}
+                />
           </div>
 
           {/* Amount Section */}
