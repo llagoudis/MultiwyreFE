@@ -93,10 +93,6 @@ const ExchangeNew = () => {
 
   const dashboard = useGlobalStore((state) => state.dashboard);
   const [otcConfirmData, setOtcConfirmData] = useState<any>();
-  const [selectedAssetA, setSelectedAssetA] = useState<any>(null);
-  const [selectedAssetB, setSelectedAssetB] = useState<any>(null);
-  const [selectedAssetC, setSelectedAssetC] = useState<any>(null);
-
   const [isLoading, setLoading] = useState(false);
   const [open, setOpen] = useState<string>("");
   const assets =
@@ -361,42 +357,45 @@ const ExchangeNew = () => {
                   control={control}
                   name="from"
                   render={({ field: { value, onChange } }) => (
-                  <Autocomplete
-                  options={assets}
-                  getOptionLabel={(option) => option.name || ""}
-                  value={selectedAssetA}
-                  onChange={(_, newValue) => setSelectedAssetA(newValue)}
-                  disableClearable
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          height: "44px",
-                          borderRadius: "8px",
-                          backgroundColor: "#fff",
-                          "& fieldset": { borderColor: "#E5E7EB" },
-                          "&:hover fieldset": { borderColor: "#4775F2" },
-                          "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
-                        }
-                      }}
-                      InputProps={{
-                        ...params.InputProps,
-                        startAdornment: selectedAsset && (
-                          <InputAdornment position="start">
-                            <Image src={selectedAsset.icon || ""} alt="" width={24} height={24} />
-                          </InputAdornment>
-                        ),
-                      }}
+                    <Autocomplete
+                      options={assets}
+                      getOptionLabel={(option) => option.name || ""}
+                      value={assets.find(a => a.assetId === value) || null}
+                      onChange={(_, v) => onChange(v?.assetId)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Select"
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              height: "50px",
+                              borderRadius: "8px",
+                              backgroundColor: "white",
+                              fontSize: "18px",
+                              fontWeight: 500,
+                              paddingLeft: "12px",
+                              "& fieldset": { borderColor: "#E5E7EB" },
+                              "&:hover fieldset": { borderColor: "#4775F2" },
+                              "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
+                            }
+                          }}
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: fromAssetValue && (
+                              <InputAdornment position="start">
+                                <Image src={fromAssetValue.icon || ""} alt="" width={28} height={28} />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      )}
+                      renderOption={(props, option) => (
+                        <li {...props} className="flex items-center gap-3 p-4">
+                          <Image src={option.icon || ""} alt="" width={28} height={28} />
+                          <span className="font-medium text-lg">{option.name}</span>
+                        </li>
+                      )}
                     />
-                  )}
-                  renderOption={(props, option) => (
-                    <li {...props} className="flex items-center gap-3 p-3">
-                      <Image src={option.icon || ""} alt="" width={24} height={24} />
-                      <span className="font-medium">{option.name}</span>
-                    </li>
-                  )}
-                />
                   )}
                 />
               </div>
@@ -420,42 +419,45 @@ const ExchangeNew = () => {
                   control={control}
                   name="to"
                   render={({ field: { value, onChange } }) => (
-                 <Autocomplete
-                  options={assets}
-                  getOptionLabel={(option) => option.name || ""}
-                  value={selectedAssetB}
-                  onChange={(_, newValue) => setSelectedAssetB(newValue)}
-                  disableClearable
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          height: "44px",
-                          borderRadius: "8px",
-                          backgroundColor: "#fff",
-                          "& fieldset": { borderColor: "#E5E7EB" },
-                          "&:hover fieldset": { borderColor: "#4775F2" },
-                          "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
-                        }
-                      }}
-                      InputProps={{
-                        ...params.InputProps,
-                        startAdornment: selectedAsset && (
-                          <InputAdornment position="start">
-                            <Image src={selectedAsset.icon || ""} alt="" width={24} height={24} />
-                          </InputAdornment>
-                        ),
-                      }}
+                    <Autocomplete
+                      options={assets}
+                      getOptionLabel={(option) => option.name || ""}
+                      value={assets.find(a => a.assetId === value) || null}
+                      onChange={(_, v) => onChange(v?.assetId)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Select"
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              height: "50px",
+                              borderRadius: "8px",
+                              backgroundColor: "white",
+                              fontSize: "18px",
+                              fontWeight: 500,
+                              paddingLeft: "12px",
+                              "& fieldset": { borderColor: "#E5E7EB" },
+                              "&:hover fieldset": { borderColor: "#4775F2" },
+                              "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
+                            }
+                          }}
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: toAssetValue && (
+                              <InputAdornment position="start">
+                                <Image src={toAssetValue.icon || ""} alt="" width={28} height={28} />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      )}
+                      renderOption={(props, option) => (
+                        <li {...props} className="flex items-center gap-3 p-4">
+                          <Image src={option.icon || ""} alt="" width={28} height={28} />
+                          <span className="font-medium text-lg">{option.name}</span>
+                        </li>
+                      )}
                     />
-                  )}
-                  renderOption={(props, option) => (
-                    <li {...props} className="flex items-center gap-3 p-3">
-                      <Image src={option.icon || ""} alt="" width={24} height={24} />
-                      <span className="font-medium">{option.name}</span>
-                    </li>
-                  )}
-                />
                   )}
                 />
               </div>
@@ -498,42 +500,27 @@ const ExchangeNew = () => {
                   control={control}
                   name="orderType"
                   render={({ field: { value, onChange } }) => (
-                   <Autocomplete
-                  options={assets}
-                  getOptionLabel={(option) => option.name || ""}
-                  value={selectedAssetC}
-                  onChange={(_, newValue) => setSelectedAssetC(newValue)}
-                  disableClearable
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          height: "44px",
-                          borderRadius: "8px",
-                          backgroundColor: "#fff",
-                          "& fieldset": { borderColor: "#E5E7EB" },
-                          "&:hover fieldset": { borderColor: "#4775F2" },
-                          "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
-                        }
-                      }}
-                      InputProps={{
-                        ...params.InputProps,
-                        startAdornment: selectedAsset && (
-                          <InputAdornment position="start">
-                            <Image src={selectedAsset.icon || ""} alt="" width={24} height={24} />
-                          </InputAdornment>
-                        ),
-                      }}
+                    <Autocomplete
+                      options={["market", "limit"]}
+                      getOptionLabel={(v) => v === "market" ? "Market" : "Limit"}
+                      value={value}
+                      onChange={(_, v) => onChange(v)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              height: "50px",
+                              borderRadius: "8px",
+                              backgroundColor: "white",
+                              fontSize: "18px",
+                              fontWeight: 500,
+                              "& fieldset": { borderColor: "#E5E7EB" },
+                            }
+                          }}
+                        />
+                      )}
                     />
-                  )}
-                  renderOption={(props, option) => (
-                    <li {...props} className="flex items-center gap-3 p-3">
-                      <Image src={option.icon || ""} alt="" width={24} height={24} />
-                      <span className="font-medium">{option.name}</span>
-                    </li>
-                  )}
-                />
                   )}
                 />
               </div>

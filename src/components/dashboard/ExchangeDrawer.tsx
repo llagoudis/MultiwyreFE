@@ -242,15 +242,39 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
                 value={fromAsset || null}
                 onChange={(_, v) => v && setValue("from", v.assetId)}
                 disableClearable
-                renderInput={(params) => (
-                  <TextField {...params} sx={autocompleteStyles}
-                    InputProps={{
-                      ...params.InputProps, startAdornment: fromAsset && (
-                        <InputAdornment position="start"><Image src={fromAsset.icon || ""} alt="" width={20} height={20} /></InputAdornment>
-                      )
-                    }}
-                  />
-                )}
+                  renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Select"
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              height: "50px",
+                              borderRadius: "8px",
+                              backgroundColor: "white",
+                              fontSize: "18px",
+                              fontWeight: 500,
+                              paddingLeft: "12px",
+                              "& fieldset": { borderColor: "#E5E7EB" },
+                              "&:hover fieldset": { borderColor: "#4775F2" },
+                              "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
+                            }
+                          }}
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: fromAssetValue && (
+                              <InputAdornment position="start">
+                                <Image src={fromAssetValue.icon || ""} alt="" width={28} height={28} />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      )}
+                      renderOption={(props, option) => (
+                        <li {...props} className="flex items-center gap-3 p-4">
+                          <Image src={option.icon || ""} alt="" width={28} height={28} />
+                          <span className="font-medium text-lg">{option.name}</span>
+                        </li>
+                      )}
               />
             </div>
 
@@ -268,15 +292,39 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
                 value={toAsset || null}
                 onChange={(_, v) => v && setValue("to", v.assetId)}
                 disableClearable
-                renderInput={(params) => (
-                  <TextField {...params} sx={autocompleteStyles}
-                    InputProps={{
-                      ...params.InputProps, startAdornment: toAsset && (
-                        <InputAdornment position="start"><Image src={toAsset.icon || ""} alt="" width={20} height={20} /></InputAdornment>
-                      )
-                    }}
-                  />
-                )}
+                 renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Select"
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              height: "50px",
+                              borderRadius: "8px",
+                              backgroundColor: "white",
+                              fontSize: "18px",
+                              fontWeight: 500,
+                              paddingLeft: "12px",
+                              "& fieldset": { borderColor: "#E5E7EB" },
+                              "&:hover fieldset": { borderColor: "#4775F2" },
+                              "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
+                            }
+                          }}
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: fromAssetValue && (
+                              <InputAdornment position="start">
+                                <Image src={fromAssetValue.icon || ""} alt="" width={28} height={28} />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      )}
+                      renderOption={(props, option) => (
+                        <li {...props} className="flex items-center gap-3 p-4">
+                          <Image src={option.icon || ""} alt="" width={28} height={28} />
+                          <span className="font-medium text-lg">{option.name}</span>
+                        </li>
+                      )}
               />
             </div>
           </div>
