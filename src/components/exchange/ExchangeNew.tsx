@@ -93,6 +93,10 @@ const ExchangeNew = () => {
 
   const dashboard = useGlobalStore((state) => state.dashboard);
   const [otcConfirmData, setOtcConfirmData] = useState<any>();
+  const [selectedAssetA, setSelectedAssetA] = useState<any>(null);
+  const [selectedAssetB, setSelectedAssetB] = useState<any>(null);
+  const [selectedAssetC, setSelectedAssetC] = useState<any>(null);
+
   const [isLoading, setLoading] = useState(false);
   const [open, setOpen] = useState<string>("");
   const assets =
@@ -360,8 +364,8 @@ const ExchangeNew = () => {
                   <Autocomplete
                   options={assets}
                   getOptionLabel={(option) => option.name || ""}
-                  value={selectedAsset}
-                  onChange={(_, newValue) => setSelectedAsset(newValue)}
+                  value={selectedAssetA}
+                  onChange={(_, newValue) => setSelectedAssetA(newValue)}
                   disableClearable
                   renderInput={(params) => (
                     <TextField
@@ -419,8 +423,8 @@ const ExchangeNew = () => {
                  <Autocomplete
                   options={assets}
                   getOptionLabel={(option) => option.name || ""}
-                  value={selectedAsset}
-                  onChange={(_, newValue) => setSelectedAsset(newValue)}
+                  value={selectedAssetB}
+                  onChange={(_, newValue) => setSelectedAssetB(newValue)}
                   disableClearable
                   renderInput={(params) => (
                     <TextField
@@ -497,8 +501,8 @@ const ExchangeNew = () => {
                    <Autocomplete
                   options={assets}
                   getOptionLabel={(option) => option.name || ""}
-                  value={selectedAsset}
-                  onChange={(_, newValue) => setSelectedAsset(newValue)}
+                  value={selectedAssetC}
+                  onChange={(_, newValue) => setSelectedAssetC(newValue)}
                   disableClearable
                   renderInput={(params) => (
                     <TextField
