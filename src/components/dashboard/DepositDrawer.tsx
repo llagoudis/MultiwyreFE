@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import {
   Drawer,
   IconButton,
@@ -7,9 +7,9 @@ import {
   InputAdornment,
   Snackbar
 } from "@mui/material";
-import { MdClose, MdContentCopy } from "react-icons/md";
+import {MdClose, MdContentCopy} from "react-icons/md";
 import Image from "next/image";
-import { coinForKrakenName } from "~/helpers/helper";
+import {coinForKrakenName} from "~/helpers/helper";
 
 interface DepositDrawerProps {
   open: boolean;
@@ -17,7 +17,7 @@ interface DepositDrawerProps {
   assets: any[];
 }
 
-const DepositDrawer: React.FC<DepositDrawerProps> = ({ open, onClose, assets }) => {
+const DepositDrawer: React.FC<DepositDrawerProps> = ({open, onClose, assets}) => {
   const [selectedAsset, setSelectedAsset] = useState<any>(null);
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -43,7 +43,7 @@ const DepositDrawer: React.FC<DepositDrawerProps> = ({ open, onClose, assets }) 
         onClose={onClose}
         PaperProps={{
           sx: {
-            width: { xs: "100%", sm: "650px" },
+            width: {xs: "100%", sm: "650px"},
             padding: "20px",
             backgroundColor: "#fff",
             boxShadow: "-10px 0 30px rgba(0,0,0,0.05)"
@@ -61,8 +61,8 @@ const DepositDrawer: React.FC<DepositDrawerProps> = ({ open, onClose, assets }) 
         <div className="flex flex-col h-full relative">
           <div className="flex justify-between items-start mb-2">
             <h2 className="text-2xl  md:text-3xl font-bold text-[#1A1C1E]">Deposit</h2>
-            <IconButton onClick={onClose} size="small" sx={{ color: "#8B8D91", border: "1px solid #E5E7EB" }}>
-              <MdClose size={20} />
+            <IconButton onClick={onClose} size="small" sx={{color: "#8B8D91", border: "1px solid #E5E7EB"}}>
+              <MdClose size={20}/>
             </IconButton>
           </div>
 
@@ -92,16 +92,16 @@ const DepositDrawer: React.FC<DepositDrawerProps> = ({ open, onClose, assets }) 
                           height: "44px",
                           borderRadius: "8px",
                           backgroundColor: "#fff",
-                          "& fieldset": { borderColor: "#E5E7EB" },
-                          "&:hover fieldset": { borderColor: "#4775F2" },
-                          "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
+                          "& fieldset": {borderColor: "#E5E7EB"},
+                          "&:hover fieldset": {borderColor: "#4775F2"},
+                          "&.Mui-focused fieldset": {borderColor: "#4775F2", borderWidth: "1px"},
                         }
                       }}
                       InputProps={{
                         ...params.InputProps,
                         startAdornment: selectedAsset && (
                           <InputAdornment position="start">
-                            <Image src={selectedAsset.icon || ""} alt="" width={24} height={24} />
+                            <Image src={selectedAsset.icon || ""} alt="" width={24} height={24}/>
                           </InputAdornment>
                         ),
                       }}
@@ -109,7 +109,7 @@ const DepositDrawer: React.FC<DepositDrawerProps> = ({ open, onClose, assets }) 
                   )}
                   renderOption={(props, option) => (
                     <li {...props} className="flex items-center gap-3 p-3">
-                      <Image src={option.icon || ""} alt="" width={24} height={24} />
+                      <Image src={option.icon || ""} alt="" width={24} height={24}/>
                       <span className="font-medium">{option.name}</span>
                     </li>
                   )}
@@ -131,7 +131,8 @@ const DepositDrawer: React.FC<DepositDrawerProps> = ({ open, onClose, assets }) 
                         />
                       </div>
                     ) : (
-                      <div className="w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] bg-gray-50 flex items-center justify-center text-gray-400 text-[10px] sm:text-xs">
+                      <div
+                        className="w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] bg-gray-50 flex items-center justify-center text-gray-400 text-[10px] sm:text-xs">
                         No QR Code available
                       </div>
                     )}
@@ -150,18 +151,18 @@ const DepositDrawer: React.FC<DepositDrawerProps> = ({ open, onClose, assets }) 
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton onClick={handleCopy} size="small">
-                          <MdContentCopy size={18} />
+                          <MdContentCopy size={18}/>
                         </IconButton>
                       </InputAdornment>
                     ),
                   }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      height: { xs: "48px", sm: "44px" },
+                      height: {xs: "48px", sm: "44px"},
                       borderRadius: "8px",
                       backgroundColor: "#fff",
-                      fontSize: { xs: "12px", sm: "14px" },
-                      "& fieldset": { borderColor: "#E5E7EB" },
+                      fontSize: {xs: "12px", sm: "14px"},
+                      "& fieldset": {borderColor: "#E5E7EB"},
                     }
                   }}
                 />
@@ -171,7 +172,8 @@ const DepositDrawer: React.FC<DepositDrawerProps> = ({ open, onClose, assets }) 
               <div className="mt-8 p-3 rounded-lg border border-[#C9C9C9] bg-white">
                 <div className="flex gap-2 items-start">
                   <div className="flex-shrink-0 mt-1">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B8D91" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B8D91" strokeWidth="2"
+                         strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="10"></circle>
                       <line x1="12" y1="16" x2="12" y2="12"></line>
                       <line x1="12" y1="8" x2="12.01" y2="8"></line>
@@ -179,7 +181,9 @@ const DepositDrawer: React.FC<DepositDrawerProps> = ({ open, onClose, assets }) 
                   </div>
                   <div className="space-y-1">
                     <p className="text-[10px] sm:text-xs leading-relaxed text-[#606060]">
-                      Send only <span className="font-bold text-[#606060] uppercase">{coinForKrakenName(selectedAsset?.assetId || "")}</span> to this deposit address.
+                      Send only <span
+                      className="font-bold text-[#606060] uppercase">{coinForKrakenName(selectedAsset?.assetId || "")}</span> to
+                      this deposit address.
                     </p>
                     <p className="text-[10px] sm:text-xs leading-relaxed text-[#606060]">
                       This address does not support deposit of any other coins.
@@ -197,7 +201,7 @@ const DepositDrawer: React.FC<DepositDrawerProps> = ({ open, onClose, assets }) 
         autoHideDuration={2000}
         onClose={() => setCopySuccess(false)}
         message="Address copied to clipboard"
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{vertical: "bottom", horizontal: "center"}}
       />
     </>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, {useState, useEffect, useMemo} from "react";
 import {
   Drawer,
   IconButton,
@@ -7,9 +7,9 @@ import {
   InputAdornment,
   Box
 } from "@mui/material";
-import { MdClose, MdSwapHoriz } from "react-icons/md";
+import {MdClose, MdSwapHoriz} from "react-icons/md";
 import Image from "next/image";
-import { Controller, useForm } from "react-hook-form";
+import {Controller, useForm} from "react-hook-form";
 import useGlobalStore from "~/store/useGlobalStore";
 import {
   coinForKrakenName,
@@ -17,13 +17,13 @@ import {
   dateValidation,
   changeName
 } from "~/helpers/helper";
-import { ApiHandler } from "~/service/UtilService";
+import {ApiHandler} from "~/service/UtilService";
 import {
   createExchangeTransaction,
   fetchTransaferFeesApi,
   getFxMarkup
 } from "~/service/ApiRequests";
-import { getLimits } from "~/service/api/transaction";
+import {getLimits} from "~/service/api/transaction";
 import toast from "react-hot-toast";
 import useDashboard from "~/hooks/useDashboard";
 import wallet from '../../assets/images/wallet-image.png'
@@ -41,11 +41,14 @@ const pairs = [
   "USDC/USDT.t", "USDT.t/EUR", "BTC/USDT.t"
 ];
 
-const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: allAssets }) => {
+const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({open, onClose, assets: allAssets}) => {
   const dashboard = useGlobalStore((state) => state.dashboard);
   const dashboardAssets = useDashboard()?.assets;
   const [isLoading, setLoading] = useState(false);
   const [limits, setLimits] = useState<Limits[]>();
+  const [fromSelectedAsset, setFromSelectedAsset] = useState<any>(null);
+  const [toSelectedAsset, setToSelectedAsset] = useState<any>(null);
+
 
   const assets = useMemo(() =>
     allAssets.filter((item) =>
@@ -60,7 +63,7 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
     watch,
     handleSubmit,
     getValues,
-    formState: { errors },
+    formState: {errors},
   } = useForm<ExchangeForm>({
     defaultValues: {
       from: assets[0]?.assetId || coinName("BTC"),
@@ -80,7 +83,7 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
     },
   });
 
-  const { from, to, volume, market, receive, type, pair, fxMarkUp, reversed } = watch();
+  const {from, to, volume, market, receive, type, pair, fxMarkUp, reversed} = watch();
 
   const fromAsset = useMemo(() => assets.find(a => a.assetId === from), [assets, from]);
   const toAsset = useMemo(() => assets.find(a => a.assetId === to), [assets, to]);
@@ -119,7 +122,8 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
           setValue("receive", calculateReceivedAmount(currentVol));
         }
       }
-    } catch (e) { }
+    } catch (e) {
+    }
   };
 
   useEffect(() => {
@@ -211,22 +215,22 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
       onClose={onClose}
       PaperProps={{
         sx: {
-          width: { xs: "100%", sm: "500px", md: "650px" },
-          padding: { xs: "20px", sm: "20px" },
+          width: {xs: "100%", sm: "500px", md: "650px"},
+          padding: {xs: "20px", sm: "20px"},
           backgroundColor: "#fff",
           boxShadow: "-10px 0 30px rgba(0,0,0,0.05)"
         }
       }}
       ModalProps={{
-        sx: { "& .MuiBackdrop-root": { backdropFilter: "blur(4px)", backgroundColor: "rgba(0,0,0,0.15)" } }
+        sx: {"& .MuiBackdrop-root": {backdropFilter: "blur(4px)", backgroundColor: "rgba(0,0,0,0.15)"}}
       }}
     >
       <div className="flex flex-col h-full font-sans">
         {/* Header */}
         <div className="flex justify-between items-start mb-1">
           <h2 className="text-3xl font-bold text-[#1A1C1E]">Exchange</h2>
-          <IconButton onClick={onClose} size="small" sx={{ border: "1px solid #E5E7EB", color: "#606060" }}>
-            <MdClose size={18} />
+          <IconButton onClick={onClose} size="small" sx={{border: "1px solid #E5E7EB", color: "#606060"}}>
+            <MdClose size={18}/>
           </IconButton>
         </div>
         <p className="text-[#606060] text-sm  mb-4 opacity-80">Transfer any currency inside Inqud without fees.</p>
@@ -236,96 +240,88 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
           <div className="flex items-center gap-2">
             <div className="flex-1 space-y-2">
               <label className="text-sm font-semibold text-[#606060]">From</label>
-              <Autocomplete
-                options={assets}
-                getOptionLabel={(o) => o.name || ""}
-                value={fromAsset || null}
-                onChange={(_, v) => v && setValue("from", v.assetId)}
-                disableClearable
+             <Autocomplete
+                  options={assets}
+                  getOptionLabel={(option) => option.name || ""}
+                  value={fromSelectedAsset}
+                  onChange={(_, newValue) => setFromSelectedAsset(newValue)}
+                  disableClearable
                   renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          placeholder="Select"
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              height: "50px",
-                              borderRadius: "8px",
-                              backgroundColor: "white",
-                              fontSize: "18px",
-                              fontWeight: 500,
-                              paddingLeft: "12px",
-                              "& fieldset": { borderColor: "#E5E7EB" },
-                              "&:hover fieldset": { borderColor: "#4775F2" },
-                              "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
-                            }
-                          }}
-                          InputProps={{
-                            ...params.InputProps,
-                            startAdornment: fromAssetValue && (
-                              <InputAdornment position="start">
-                                <Image src={fromAssetValue.icon || ""} alt="" width={28} height={28} />
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      )}
-                      renderOption={(props, option) => (
-                        <li {...props} className="flex items-center gap-3 p-4">
-                          <Image src={option.icon || ""} alt="" width={28} height={28} />
-                          <span className="font-medium text-lg">{option.name}</span>
-                        </li>
-                      )}
-              />
+                    <TextField
+                      {...params}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          height: "44px",
+                          borderRadius: "8px",
+                          backgroundColor: "#fff",
+                          "& fieldset": { borderColor: "#E5E7EB" },
+                          "&:hover fieldset": { borderColor: "#4775F2" },
+                          "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
+                        }
+                      }}
+                      InputProps={{
+                        ...params.InputProps,
+                        startAdornment: fromSelectedAsset && (
+                          <InputAdornment position="start">
+                            <Image src={fromSelectedAsset.icon || ""} alt="" width={24} height={24} />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                  renderOption={(props, option) => (
+                    <li {...props} className="flex items-center gap-3 p-3">
+                      <Image src={option.icon || ""} alt="" width={24} height={24} />
+                      <span className="font-medium">{option.name}</span>
+                    </li>
+                  )}
+                />
             </div>
 
             <div className="mt-8">
               <div className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-100 bg-white">
-                <MdSwapHoriz size={20} color="#606060" />
+                <MdSwapHoriz size={20} color="#606060"/>
               </div>
             </div>
 
             <div className="flex-1 space-y-2">
               <label className="text-sm font-semibold text-[#606060]">To</label>
-              <Autocomplete
-                options={assets}
-                getOptionLabel={(o) => o.name || ""}
-                value={toAsset || null}
-                onChange={(_, v) => v && setValue("to", v.assetId)}
-                disableClearable
-                 renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          placeholder="Select"
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              height: "50px",
-                              borderRadius: "8px",
-                              backgroundColor: "white",
-                              fontSize: "18px",
-                              fontWeight: 500,
-                              paddingLeft: "12px",
-                              "& fieldset": { borderColor: "#E5E7EB" },
-                              "&:hover fieldset": { borderColor: "#4775F2" },
-                              "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
-                            }
-                          }}
-                          InputProps={{
-                            ...params.InputProps,
-                            startAdornment: fromAssetValue && (
-                              <InputAdornment position="start">
-                                <Image src={fromAssetValue.icon || ""} alt="" width={28} height={28} />
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      )}
-                      renderOption={(props, option) => (
-                        <li {...props} className="flex items-center gap-3 p-4">
-                          <Image src={option.icon || ""} alt="" width={28} height={28} />
-                          <span className="font-medium text-lg">{option.name}</span>
-                        </li>
-                      )}
-              />
+               <Autocomplete
+                  options={assets}
+                  getOptionLabel={(option) => option.name || ""}
+                  value={toSelectedAsset}
+                  onChange={(_, newValue) => setToSelectedAsset(newValue)}
+                  disableClearable
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          height: "44px",
+                          borderRadius: "8px",
+                          backgroundColor: "#fff",
+                          "& fieldset": { borderColor: "#E5E7EB" },
+                          "&:hover fieldset": { borderColor: "#4775F2" },
+                          "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
+                        }
+                      }}
+                      InputProps={{
+                        ...params.InputProps,
+                        startAdornment: toSelectedAsset && (
+                          <InputAdornment position="start">
+                            <Image src={toSelectedAsset.icon || ""} alt="" width={24} height={24} />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                  renderOption={(props, option) => (
+                    <li {...props} className="flex items-center gap-3 p-3">
+                      <Image src={option.icon || ""} alt="" width={24} height={24} />
+                      <span className="font-medium">{option.name}</span>
+                    </li>
+                  )}
+                />
             </div>
           </div>
 
@@ -335,7 +331,8 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
               <label className="text-sm font-semibold text-[#606060]">Amount</label>
               <span className="text-[10px] text-[#8B8D91] font-medium">Limit 0.015 - 9.444098 Bitcoin</span>
             </div>
-            <div className="relative flex items-center bg-[#F4F6F9] rounded-lg px-4 h-[44px] border border-transparent focus-within:border-[#4775F2] transition-all">
+            <div
+              className="relative flex items-center bg-[#F4F6F9] rounded-lg px-4 h-[44px] border border-transparent focus-within:border-[#4775F2] transition-all">
               <input
                 type="number"
                 placeholder="Enter Amount"
@@ -360,19 +357,21 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({ open, onClose, assets: 
             <div className="p-4 border border-[#E5E7EB] rounded-md bg-[#FCFDFF] space-y-2">
               <p className="text-sm text-[#606060] font-medium opacity-80">Market Price</p>
               <p className="text-xl font-bold text-[#1A1C1E] tracking-tight">{market || "78258.60000000"}</p>
-              <p className="text-xs text-[#8B8D91] font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
+              <p
+                className="text-xs text-[#8B8D91] font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
             </div>
             <div className="p-4 border border-[#FFD0DA] rounded-md bg-[#FFF8F9] space-y-2">
               <p className="text-sm text-[#606060] font-medium opacity-80">You will receive</p>
               <p className="text-xl font-bold text-[#FF3D71] tracking-tight">{receive || "0.1"}</p>
-              <p className="text-xs text-[#8B8D91] font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
+              <p
+                className="text-xs text-[#8B8D91] font-medium">{coinForKrakenName(to)} per {coinForKrakenName(from)}</p>
             </div>
           </div>
 
           {/* Empty State */}
           <div className="py-2 flex flex-col items-center justify-center text-center space-y-2">
             <div className="relative">
-              <Image src={wallet} alt="" width={150} height={150} className="object-contain" />
+              <Image src={wallet} alt="" width={150} height={150} className="object-contain"/>
             </div>
             <div className="space-y-1">
               <p className="font-bold text-[#1A1C1E] ">There are no exchange addresses added yet.</p>
@@ -404,12 +403,12 @@ const autocompleteStyles = {
     backgroundColor: "#fff",
     fontSize: "14px",
     fontWeight: 500,
-    "& fieldset": { borderColor: "#E5E7EB" },
-    "&:hover fieldset": { borderColor: "#4775F2" },
-    "&.Mui-focused fieldset": { borderColor: "#4775F2", borderWidth: "1px" },
-    "& .MuiAutocomplete-input": { padding: "0 4px !important" }
+    "& fieldset": {borderColor: "#E5E7EB"},
+    "&:hover fieldset": {borderColor: "#4775F2"},
+    "&.Mui-focused fieldset": {borderColor: "#4775F2", borderWidth: "1px"},
+    "& .MuiAutocomplete-input": {padding: "0 4px !important"}
   },
-  "& .MuiInputAdornment-root": { marginRight: "4px" }
+  "& .MuiInputAdornment-root": {marginRight: "4px"}
 };
 
 export default ExchangeDrawer;
