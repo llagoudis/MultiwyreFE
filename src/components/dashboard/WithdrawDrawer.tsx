@@ -63,20 +63,21 @@ const WithdrawDrawer: React.FC<WithdrawDrawerProps> = ({ open, onClose, assets, 
           {/* Balance Selector */}
           <div className="space-y-2">
             <label className="text-sm font-semibold text-[#606060]">Balance</label>
-            <Autocomplete
+           <Autocomplete
               options={assets}
-              getOptionLabel={(o) => o.name || ""}
-              value={selectedAsset || null}
-              onChange={(_, v) => setSelectedAsset(v)}
-              disableClearable
-              renderInput={(params) => (
-                <TextField {...params} sx={autocompleteStyles}
-                  InputProps={{
-                    ...params.InputProps, startAdornment: selectedAsset && (
-                      <InputAdornment position="start"><Image src={selectedAsset.icon || ""} alt="" width={20} height={20} /></InputAdornment>
-                    )
-                  }}
-                />
+              getOptionLabel={(option) => option.name}
+              renderOption={(props, option) => (
+                <li {...props}>
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={option.icon}
+                      alt={option.name}
+                      width={20}
+                      height={20}
+                    />
+                    <span>{option.name}</span>
+                  </div>
+                </li>
               )}
             />
           </div>
