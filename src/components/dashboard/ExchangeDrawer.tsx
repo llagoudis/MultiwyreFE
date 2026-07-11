@@ -46,8 +46,6 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({open, onClose, assets: a
   const dashboardAssets = useDashboard()?.assets;
   const [isLoading, setLoading] = useState(false);
   const [limits, setLimits] = useState<Limits[]>();
-  const [fromSelectedAsset, setFromSelectedAsset] = useState<any>(null);
-  const [toSelectedAsset, setToSelectedAsset] = useState<any>(null);
 
 
   const assets = useMemo(() =>
