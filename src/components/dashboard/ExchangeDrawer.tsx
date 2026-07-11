@@ -243,8 +243,8 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({open, onClose, assets: a
              <Autocomplete
                   options={assets}
                   getOptionLabel={(option) => option.name || ""}
-                  value={fromSelectedAsset}
-                  onChange={(_, newValue) => setFromSelectedAsset(newValue)}
+                 value={fromAsset || null}
+                onChange={(_, v) => v && setValue("from", v.assetId)}
                   disableClearable
                   renderInput={(params) => (
                     <TextField
@@ -261,9 +261,9 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({open, onClose, assets: a
                       }}
                       InputProps={{
                         ...params.InputProps,
-                        startAdornment: fromSelectedAsset && (
+                        startAdornment: fromAsset && (
                           <InputAdornment position="start">
-                            <Image src={fromSelectedAsset.icon || ""} alt="" width={24} height={24} />
+                            <Image src={fromAsset.icon || ""} alt="" width={24} height={24} />
                           </InputAdornment>
                         ),
                       }}
@@ -289,8 +289,8 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({open, onClose, assets: a
                <Autocomplete
                   options={assets}
                   getOptionLabel={(option) => option.name || ""}
-                  value={toSelectedAsset}
-                  onChange={(_, newValue) => setToSelectedAsset(newValue)}
+                   value={toAsset || null}
+                onChange={(_, v) => v && setValue("to", v.assetId)}
                   disableClearable
                   renderInput={(params) => (
                     <TextField
@@ -307,9 +307,9 @@ const ExchangeDrawer: React.FC<ExchangeDrawerProps> = ({open, onClose, assets: a
                       }}
                       InputProps={{
                         ...params.InputProps,
-                        startAdornment: toSelectedAsset && (
+                        startAdornment: toAsset && (
                           <InputAdornment position="start">
-                            <Image src={toSelectedAsset.icon || ""} alt="" width={24} height={24} />
+                            <Image src={toAsset.icon || ""} alt="" width={24} height={24} />
                           </InputAdornment>
                         ),
                       }}
