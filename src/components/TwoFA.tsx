@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import { verify2FAOTP } from "~/service/api/auth";
 import toast from "react-hot-toast";
 import Image from "next/image";
+import Sheld from "~/assets/general/sheld.svg";
+
 
 interface TwoFAProps {
   onClose: () => void;
@@ -59,7 +61,7 @@ const TwoFA: FC<TwoFAProps> = ({ onClose, onSubmit }) => {
 
       <div className="mt-6 flex items-start gap-5">
         <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
-          <Image src={'/assets/icons/ChatGPT Image Apr 28, 2026, 09_56_37 PM 1.svg'} alt="" width={100} height={100} className="h-12 w-12 object-contain" />
+          <Image src={Sheld} alt="" width={100} height={100} className="h-12 w-12 object-contain" />
         </div>
         <div className="flex-1">
           <p className="text-sm font-semibold text-black">
