@@ -37,7 +37,7 @@ const getEuroTemplates = async (): APIFunction<EuroMail[]> =>
 
 const getExchangeTxns = (params: FilterType) => {
   return ProtectedAxiosInstance.get(
-    `transaction/exchange/reports?${convertUrlParams(params)}`,
+    `transaction/exchange/reportsPDF?${convertUrlParams(params)}`,
   );
 };
 
