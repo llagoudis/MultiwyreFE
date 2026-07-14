@@ -15,7 +15,7 @@ const createInternalTransaction = (data: CryptoTransferForm) =>
 
 const getTransactions = (params: FilterType) => {
   return ProtectedAxiosInstance.get(
-    `transaction/reports?${convertUrlParams(params)}`,
+    `transaction/reportsPDF?${convertUrlParams(params)}`,
   );
 };
 
@@ -37,7 +37,7 @@ const getEuroTemplates = async (): APIFunction<EuroMail[]> =>
 
 const getExchangeTxns = (params: FilterType) => {
   return ProtectedAxiosInstance.get(
-    `transaction/exchange/reportsPDF?${convertUrlParams(params)}`,
+    `transaction/exchange/reports?${convertUrlParams(params)}`,
   );
 };
 
