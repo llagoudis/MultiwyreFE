@@ -156,9 +156,6 @@ const ProcessingHistoryTable = () => {
             <th className="whitespace-nowrap px-4 py-3 font-medium">Received Amount</th>
             <th className="whitespace-nowrap px-4 py-3 font-medium">Transaction Type</th>
             <th className="whitespace-nowrap px-4 py-3 font-medium">Wallet</th>
-            <th className="whitespace-nowrap px-4 py-3 font-medium">Wallet</th>
-
-            <th className="whitespace-nowrap px-4 py-3 font-medium">Wallet</th>
             <th className="whitespace-nowrap px-4 py-3 font-medium">Transaction ID</th>
           </tr>
           </thead>
@@ -234,38 +231,7 @@ const ProcessingHistoryTable = () => {
                   </div>
                 </div>
               </td>
-              <td className="whitespace-nowrap px-4 py-4">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
-                    $
-                  </div>
-                  <div className="leading-tight">
-                    <div className="font-medium text-slate-800">
-                      {row.senderAsset}
-                    </div>
-                    <div className="text-xs text-blue-500">
-                      {row.senderAddress}
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td className="whitespace-nowrap px-4 py-4">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
-                    $
-                  </div>
-                  <div className="leading-tight">
-                    <div className="font-medium text-slate-800">
-                      {row.receiverAsset}
-                    </div>
-                    <div className="text-xs text-blue-500">
-                      {row.receiverAddress}
-                    </div>
-                  </div>
-                </div>
-              </td>
+
               <td className="whitespace-nowrap px-4 py-4 text-blue-500">{row.transactionId}</td>
             </tr>
           ))}
