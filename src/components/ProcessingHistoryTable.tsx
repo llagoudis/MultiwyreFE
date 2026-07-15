@@ -157,6 +157,7 @@ const ProcessingHistoryTable = () => {
             <th className="whitespace-nowrap px-4 py-3 font-medium">Transaction Type</th>
             <th className="whitespace-nowrap px-4 py-3 font-medium">Wallet</th>
             <th className="whitespace-nowrap px-4 py-3 font-medium">Wallet</th>
+
             <th className="whitespace-nowrap px-4 py-3 font-medium">Wallet</th>
             <th className="whitespace-nowrap px-4 py-3 font-medium">Transaction ID</th>
           </tr>
