@@ -190,7 +190,7 @@ const ProcessingHistoryTable = () => {
               </td>
               <td className="whitespace-nowrap px-4 py-4">
                 <div className="flex items-center gap-2">
-                  {/* Asset Icon - using sender asset as primary */}
+                  {/* Asset Icon */}
                   <div
                     className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white flex-shrink-0">
                     {row.senderAsset?.charAt(0) || "$"}
@@ -201,21 +201,19 @@ const ProcessingHistoryTable = () => {
                       {row.senderAsset}
                     </div>
 
-                    {/* From/To Addresses */}
+                    {/* From/To Addresses - No separator */}
                     <div className="flex items-center gap-2 text-xs">
                       {/* From Address */}
                       {row.senderAddress && (
                         <div className="flex items-center gap-1">
                           <span className="text-[#a3a3a3]">From:</span>
                           <span className="font-medium text-blue-500">
-              {row.senderAddress}
+              {row.senderAddress.length > 8
+                ? `${row.senderAddress.substring(0, 4)}...${row.senderAddress.substring(row.senderAddress.length - 4)}`
+                : row.senderAddress
+              }
             </span>
                         </div>
-                      )}
-
-                      {/* Separator */}
-                      {row.senderAddress && row.receiverAddress && (
-                        <span className="text-[#a3a3a3]">→</span>
                       )}
 
                       {/* To Address */}
@@ -223,7 +221,10 @@ const ProcessingHistoryTable = () => {
                         <div className="flex items-center gap-1">
                           <span className="text-[#a3a3a3]">To:</span>
                           <span className="font-medium text-blue-500">
-              {row.receiverAddress}
+              {row.receiverAddress.length > 8
+                ? `${row.receiverAddress.substring(0, 4)}...${row.receiverAddress.substring(row.receiverAddress.length - 4)}`
+                : row.receiverAddress
+              }
             </span>
                         </div>
                       )}
