@@ -1,5 +1,5 @@
-import { MenuItem, Select } from "@mui/material";
-import { useState } from "react";
+import {MenuItem, Select} from "@mui/material";
+import {useState} from "react";
 
 interface ProcessingRow {
   dateTime: string;
@@ -20,7 +20,7 @@ interface ProcessingRow {
   transactionId: string;
 }
 
-const mockRows: ProcessingRow[] = Array.from({ length: 6 }).map(() => ({
+const mockRows: ProcessingRow[] = Array.from({length: 6}).map(() => ({
   dateTime: "13-05-2026 3:56 PM",
   clientId: "566",
   customerEmail: "customer@example.com",
@@ -39,7 +39,7 @@ const mockRows: ProcessingRow[] = Array.from({ length: 6 }).map(() => ({
   transactionId: "HFhgh8.......JKHJ778",
 }));
 
-const StatusBadge = ({ status }: { status: ProcessingRow["status"] }) => {
+const StatusBadge = ({status}: { status: ProcessingRow["status"] }) => {
   const styles =
     status === "Completed"
       ? "bg-emerald-500 text-white"
@@ -54,11 +54,11 @@ const StatusBadge = ({ status }: { status: ProcessingRow["status"] }) => {
 };
 
 const FilterSelect = ({
-  label,
-  value,
-  onChange,
-  options,
-}: {
+                        label,
+                        value,
+                        onChange,
+                        options,
+                      }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
@@ -68,7 +68,7 @@ const FilterSelect = ({
     <p className="mb-1 text-sm text-slate-700">{label}</p>
     <Select
       sx={{
-        "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e5e7eb" },
+        "& .MuiOutlinedInput-notchedOutline": {borderColor: "#e5e7eb"},
       }}
       value={value}
       size="small"
@@ -143,85 +143,131 @@ const ProcessingHistoryTable = () => {
       <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full min-w-max text-left text-sm">
           <thead>
-            <tr className="border-b border-slate-100 bg-slate-50 text-slate-600">
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Date and Time</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Client ID</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Customer E-mail</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Merchant Name</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Unique ID</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Order ID</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Status</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Requested Amount</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Fee</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Received Amount</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Transaction Type</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Sender Account</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Receiver Account</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">Transaction ID</th>
-            </tr>
+          <tr className="border-b border-slate-100 bg-slate-50 text-slate-600">
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Date and Time</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Client ID</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Customer E-mail</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Merchant Name</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Unique ID</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Order ID</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Status</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Requested Amount</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Fee</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Received Amount</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Transaction Type</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Wallet</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Wallet</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Wallet</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Transaction ID</th>
+          </tr>
           </thead>
           <tbody>
-            {mockRows.map((row, i) => (
-              <tr
-                key={i}
-                className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
-              >
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.dateTime}</td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.clientId}</td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">
-                  {row.customerEmail}
-                </td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">
-                  {row.merchantName}
-                </td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.uniqueId}</td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.orderId}</td>
-                <td className="whitespace-nowrap px-4 py-4">
-                  <StatusBadge status={row.status} />
-                </td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">
-                  {row.requestedAmount}
-                </td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.fee}</td>
-                <td className="whitespace-nowrap px-4 py-4 font-medium text-slate-800">
-                  {row.receivedAmount}
-                </td>
-                <td className="whitespace-nowrap px-4 py-4 text-slate-700">
-                  {row.transactionType}
-                </td>
-                <td className="whitespace-nowrap px-4 py-4">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
-                      $
+          {mockRows.map((row, i) => (
+            <tr
+              key={i}
+              className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
+            >
+              <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.dateTime}</td>
+              <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.clientId}</td>
+              <td className="whitespace-nowrap px-4 py-4 text-slate-700">
+                {row.customerEmail}
+              </td>
+              <td className="whitespace-nowrap px-4 py-4 text-slate-700">
+                {row.merchantName}
+              </td>
+              <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.uniqueId}</td>
+              <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.orderId}</td>
+              <td className="whitespace-nowrap px-4 py-4">
+                <StatusBadge status={row.status}/>
+              </td>
+              <td className="whitespace-nowrap px-4 py-4 text-slate-700">
+                {row.requestedAmount}
+              </td>
+              <td className="whitespace-nowrap px-4 py-4 text-slate-700">{row.fee}</td>
+              <td className="whitespace-nowrap px-4 py-4 font-medium text-slate-800">
+                {row.receivedAmount}
+              </td>
+              <td className="whitespace-nowrap px-4 py-4 text-slate-700">
+                {row.transactionType}
+              </td>
+              <td className="whitespace-nowrap px-4 py-4">
+                <div className="flex items-center gap-2">
+                  {/* Asset Icon - using sender asset as primary */}
+                  <div
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white flex-shrink-0">
+                    {row.senderAsset?.charAt(0) || "$"}
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    {/* Asset Name */}
+                    <div className="font-medium text-slate-800">
+                      {row.senderAsset}
                     </div>
-                    <div className="leading-tight">
-                      <div className="font-medium text-slate-800">
-                        {row.senderAsset}
-                      </div>
-                      <div className="text-xs text-blue-500">
-                        {row.senderAddress}
-                      </div>
+
+                    {/* From/To Addresses */}
+                    <div className="flex items-center gap-2 text-xs">
+                      {/* From Address */}
+                      {row.senderAddress && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-[#a3a3a3]">From:</span>
+                          <span className="font-medium text-blue-500">
+              {row.senderAddress}
+            </span>
+                        </div>
+                      )}
+
+                      {/* Separator */}
+                      {row.senderAddress && row.receiverAddress && (
+                        <span className="text-[#a3a3a3]">→</span>
+                      )}
+
+                      {/* To Address */}
+                      {row.receiverAddress && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-[#a3a3a3]">To:</span>
+                          <span className="font-medium text-blue-500">
+              {row.receiverAddress}
+            </span>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </td>
-                <td className="whitespace-nowrap px-4 py-4">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
-                      $
+                </div>
+              </td>
+              <td className="whitespace-nowrap px-4 py-4">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
+                    $
+                  </div>
+                  <div className="leading-tight">
+                    <div className="font-medium text-slate-800">
+                      {row.senderAsset}
                     </div>
-                    <div className="leading-tight">
-                      <div className="font-medium text-slate-800">
-                        {row.receiverAsset}
-                      </div>
-                      <div className="text-xs text-blue-500">
-                        {row.receiverAddress}
-                      </div>
+                    <div className="text-xs text-blue-500">
+                      {row.senderAddress}
                     </div>
                   </div>
-                </td>
-                <td className="whitespace-nowrap px-4 py-4 text-blue-500">{row.transactionId}</td>
-              </tr>
-            ))}
+                </div>
+              </td>
+              <td className="whitespace-nowrap px-4 py-4">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
+                    $
+                  </div>
+                  <div className="leading-tight">
+                    <div className="font-medium text-slate-800">
+                      {row.receiverAsset}
+                    </div>
+                    <div className="text-xs text-blue-500">
+                      {row.receiverAddress}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td className="whitespace-nowrap px-4 py-4 text-blue-500">{row.transactionId}</td>
+            </tr>
+          ))}
           </tbody>
         </table>
       </div>
