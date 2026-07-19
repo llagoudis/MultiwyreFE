@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { getPaymentActivity } from "~/service/api/accounts";
-import { euroFormat } from "~/helpers/helper";
 
 interface Totals {
   last24Hours: number;
@@ -49,6 +48,13 @@ const Deposits = () => {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    return amount.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
   const ActivityCard = ({
     title,
     count,
@@ -64,7 +70,7 @@ const Deposits = () => {
         <div>
           <div className="flex items-center gap-2">
             <p className="text-2xl font-bold text-[#1A1C1E]">
-              € {euroFormat(amount)}
+              € {formatCurrency(amount)}
             </p>
             <span className="text-xs font-bold text-[#10B981]">+4.2%</span>
           </div>
