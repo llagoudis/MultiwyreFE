@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getWithdrawActivity } from "~/service/api/accounts";
+import {getPaymentActivity, getWithdrawActivity} from "~/service/api/accounts";
 
 interface Totals {
   last24Hours: number;
@@ -25,7 +25,7 @@ const Withdrawals = () => {
   }, []);
 
   const fetchTransactions = async () => {
-    const [response] = await getWithdrawActivity();
+    const [response] = await getPaymentActivity();
 
     if (response?.body) {
       const {
