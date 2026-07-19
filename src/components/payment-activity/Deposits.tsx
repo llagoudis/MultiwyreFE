@@ -6,13 +6,19 @@ interface Totals {
   last24Hours: number;
   last7Days: number;
   last30Days: number;
+  last24HoursAmount: number;
+  last7DaysAmount: number;
+  last30DaysAmount: number;
 }
 
 const Deposits = () => {
   const [depositTotals, setDepositTotals] = useState<Totals>({
     last24Hours: 0,
     last7Days: 0,
-    last30Days: 0
+    last30Days: 0,
+    last24HoursAmount: 0,
+    last7DaysAmount: 0,
+    last30DaysAmount: 0
   });
 
   useEffect(() => {
@@ -26,25 +32,39 @@ const Deposits = () => {
       const {
         deposit24hCount,
         deposit7dCount,
-        deposit30dCount
+        deposit30dCount,
+        deposit24hAmount,
+        deposit7dAmount,
+        deposit30dAmount
       } = response.body;
 
       setDepositTotals({
         last24Hours: Number(deposit24hCount) || 0,
         last7Days: Number(deposit7dCount) || 0,
-        last30Days: Number(deposit30dCount) || 0
+        last30Days: Number(deposit30dCount) || 0,
+        last24HoursAmount: Number(deposit24hAmount) || 0,
+        last7DaysAmount: Number(deposit7dAmount) || 0,
+        last30DaysAmount: Number(deposit30dAmount) || 0
       });
     }
   };
 
-  const ActivityCard = ({ title, count }: { title: string, count: number }) => (
+  const ActivityCard = ({
+    title,
+    count,
+    amount
+  }: {
+    title: string,
+    count: number,
+    amount: number
+  }) => (
     <div className="flex flex-col gap-6 rounded-2xl bg-[#F8F9FA] p-6 shadow-sm border border-gray-50">
       <div className="flex flex-col gap-4">
         <p className="text-sm font-medium text-[#8B8D91]">{title}</p>
         <div>
           <div className="flex items-center gap-2">
             <p className="text-2xl font-bold text-[#1A1C1E]">
-              € 1,05,068<span className="text-[#1A1C1E] opacity-50">.00</span>
+              € {euroFormat(amount)}
             </p>
             <span className="text-xs font-bold text-[#10B981]">+4.2%</span>
           </div>
@@ -54,7 +74,7 @@ const Deposits = () => {
               <path d="M12 12H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M3 10H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="text-xs font-bold">{count || 8} Transactions</span>
+            <span className="text-xs font-bold">{count} Transactions</span>
           </div>
         </div>
       </div>
@@ -74,9 +94,21 @@ const Deposits = () => {
 
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-      <ActivityCard title="Last 24 hours" count={depositTotals.last24Hours} />
-      <ActivityCard title="Last 7 Days" count={depositTotals.last7Days} />
-      <ActivityCard title="Last 30 Days" count={depositTotals.last30Days} />
+      <ActivityCard
+        title="Last 24 hours"
+        count={depositTotals.last24Hours}
+        amount={depositTotals.last24HoursAmount}
+      />
+      <ActivityCard
+        title="Last 7 Days"
+        count={depositTotals.last7Days}
+        amount={depositTotals.last7DaysAmount}
+      />
+      <ActivityCard
+        title="Last 30 Days"
+        count={depositTotals.last30Days}
+        amount={depositTotals.last30DaysAmount}
+      />
     </div>
   );
 };

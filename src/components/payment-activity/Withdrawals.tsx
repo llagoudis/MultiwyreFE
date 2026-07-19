@@ -1,18 +1,24 @@
 import React, { useEffect, useState } from "react";
-import {getPaymentActivity} from "~/service/api/accounts";
+import { getWithdrawActivity } from "~/service/api/accounts";
 import { euroFormat } from "~/helpers/helper";
 
 interface Totals {
   last24Hours: number;
   last7Days: number;
   last30Days: number;
+  last24HoursAmount: number;
+  last7DaysAmount: number;
+  last30DaysAmount: number;
 }
 
 const Withdrawals = () => {
   const [withdrawTotals, setWithdrawTotals] = useState<Totals>({
     last24Hours: 0,
     last7Days: 0,
-    last30Days: 0
+    last30Days: 0,
+    last24HoursAmount: 0,
+    last7DaysAmount: 0,
+    last30DaysAmount: 0
   });
 
   useEffect(() => {
@@ -20,31 +26,45 @@ const Withdrawals = () => {
   }, []);
 
   const fetchTransactions = async () => {
-    const [response] = await getPaymentActivity();
+    const [response] = await getWithdrawActivity();
 
     if (response?.body) {
       const {
         withdraw24hCount,
         withdraw7dCount,
-        withdraw30dCount
+        withdraw30dCount,
+        withdraw24hAmount,
+        withdraw7dAmount,
+        withdraw30dAmount
       } = response.body;
 
       setWithdrawTotals({
         last24Hours: Number(withdraw24hCount) || 0,
         last7Days: Number(withdraw7dCount) || 0,
-        last30Days: Number(withdraw30dCount) || 0
+        last30Days: Number(withdraw30dCount) || 0,
+        last24HoursAmount: Number(withdraw24hAmount) || 0,
+        last7DaysAmount: Number(withdraw7dAmount) || 0,
+        last30DaysAmount: Number(withdraw30dAmount) || 0
       });
     }
   };
 
-  const ActivityCard = ({ title, count }: { title: string, count: number }) => (
+  const ActivityCard = ({
+    title,
+    count,
+    amount
+  }: {
+    title: string,
+    count: number,
+    amount: number
+  }) => (
     <div className="flex flex-col gap-6 rounded-2xl bg-[#F8F9FA] p-6 shadow-sm border border-gray-50">
       <div className="flex flex-col gap-4">
         <p className="text-sm font-medium text-[#8B8D91]">{title}</p>
         <div>
           <div className="flex items-center gap-2">
             <p className="text-2xl font-bold text-[#1A1C1E]">
-              € 84,210<span className="text-[#1A1C1E] opacity-50">.00</span>
+              € {euroFormat(amount)}
             </p>
             <span className="text-xs font-bold text-[#FF3D71]">-2.8%</span>
           </div>
@@ -54,7 +74,7 @@ const Withdrawals = () => {
               <path d="M12 12H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M3 10H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="text-xs font-bold">{count || 5} Transactions</span>
+            <span className="text-xs font-bold">{count} Transactions</span>
           </div>
         </div>
       </div>
@@ -74,9 +94,21 @@ const Withdrawals = () => {
 
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-      <ActivityCard title="Last 24 hours" count={withdrawTotals.last24Hours} />
-      <ActivityCard title="Last 7 Days" count={withdrawTotals.last7Days} />
-      <ActivityCard title="Last 30 Days" count={withdrawTotals.last30Days} />
+      <ActivityCard
+        title="Last 24 hours"
+        count={withdrawTotals.last24Hours}
+        amount={withdrawTotals.last24HoursAmount}
+      />
+      <ActivityCard
+        title="Last 7 Days"
+        count={withdrawTotals.last7Days}
+        amount={withdrawTotals.last7DaysAmount}
+      />
+      <ActivityCard
+        title="Last 30 Days"
+        count={withdrawTotals.last30Days}
+        amount={withdrawTotals.last30DaysAmount}
+      />
     </div>
   );
 };
