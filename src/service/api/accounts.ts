@@ -53,8 +53,15 @@ const deleteWhitelistAddress = (id: number | string): APIFunction<number> =>
 const getPaymentActivity = async (): Promise<any> =>
   ApiHandler(
     async () =>
+      await ProtectedAxiosInstance.get("transactions/accountBalanceStats"),
+  );
+
+const getDepositActivity = async (): Promise<any> =>
+  ApiHandler(
+    async () =>
       await ProtectedAxiosInstance.get("ecommerce/payment-activity-deposit"),
   );
+
 
 const getWithdrawActivity = async (): Promise<any> =>
   ApiHandler(

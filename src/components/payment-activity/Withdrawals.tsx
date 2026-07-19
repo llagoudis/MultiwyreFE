@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { getWithdrawActivity } from "~/service/api/accounts";
+import {getPaymentActivity} from "~/service/api/accounts";
 import { euroFormat } from "~/helpers/helper";
-
-interface TransactionData {
-  projectId: number;
-  last24HoursCount: number;
-  last7DaysCount: number;
-  last30DaysCount: number;
-}
 
 interface Totals {
   last24Hours: number;
@@ -16,26 +9,32 @@ interface Totals {
 }
 
 const Withdrawals = () => {
-  const [withdrawTotals, setWithdrawTotals] = useState<Totals>({ last24Hours: 0, last7Days: 0, last30Days: 0 });
+  const [withdrawTotals, setWithdrawTotals] = useState<Totals>({
+    last24Hours: 0,
+    last7Days: 0,
+    last30Days: 0
+  });
 
   useEffect(() => {
-    // Using dummy data as the backend endpoint is not available yet
-    const dummyWithdrawals: TransactionData[] = [
-      { projectId: 1, last24HoursCount: 5, last7DaysCount: 18, last30DaysCount: 42 }
-    ];
-    
-    const withdrawCounts = dummyWithdrawals.reduce((acc: Totals, curr: TransactionData) => {
-      acc.last24Hours += curr.last24HoursCount;
-      acc.last7Days += curr.last7DaysCount;
-      acc.last30Days += curr.last30DaysCount;
-      return acc;
-    }, { last24Hours: 0, last7Days: 0, last30Days: 0 });
-
-    setWithdrawTotals(withdrawCounts);
+    fetchTransactions();
   }, []);
 
   const fetchTransactions = async () => {
-    // Function kept for future implementation, but currently using dummy data in useEffect
+    const [response] = await getPaymentActivity();
+
+    if (response?.body) {
+      const {
+        withdraw24hCount,
+        withdraw7dCount,
+        withdraw30dCount
+      } = response.body;
+
+      setWithdrawTotals({
+        last24Hours: Number(withdraw24hCount) || 0,
+        last7Days: Number(withdraw7dCount) || 0,
+        last30Days: Number(withdraw30dCount) || 0
+      });
+    }
   };
 
   const ActivityCard = ({ title, count }: { title: string, count: number }) => (
@@ -59,7 +58,7 @@ const Withdrawals = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Mini Bar Chart - matching image deeply */}
       <div className="flex items-end gap-1.5 h-12 w-full mt-2 px-1">
         <div className="h-[45%] w-full rounded-sm bg-[#E9ECEF]"></div>

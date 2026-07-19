@@ -2,13 +2,6 @@ import React, { useEffect, useState } from "react";
 import { getPaymentActivity } from "~/service/api/accounts";
 import { euroFormat } from "~/helpers/helper";
 
-interface TransactionData {
-  projectId: number;
-  last24HoursCount: number;
-  last7DaysCount: number;
-  last30DaysCount: number;
-}
-
 interface Totals {
   last24Hours: number;
   last7Days: number;
@@ -16,26 +9,31 @@ interface Totals {
 }
 
 const Deposits = () => {
-  const [depositTotals, setDepositTotals] = useState<Totals>({ last24Hours: 0, last7Days: 0, last30Days: 0 });
+  const [depositTotals, setDepositTotals] = useState<Totals>({
+    last24Hours: 0,
+    last7Days: 0,
+    last30Days: 0
+  });
 
   useEffect(() => {
-    fetchTransactions(); 
+    fetchTransactions();
   }, []);
 
   const fetchTransactions = async () => {
-    const [response] = await getPaymentActivity(); 
+    const [response] = await getPaymentActivity();
 
     if (response?.body) {
-      const { deposits } = response.body; 
+      const {
+        deposit24hCount,
+        deposit7dCount,
+        deposit30dCount
+      } = response.body;
 
-      const depositCounts = deposits.reduce((acc: Totals, curr: TransactionData) => {
-        acc.last24Hours += curr.last24HoursCount;
-        acc.last7Days += curr.last7DaysCount;
-        acc.last30Days += curr.last30DaysCount;
-        return acc;
-      }, { last24Hours: 0, last7Days: 0, last30Days: 0 });
-
-      setDepositTotals(depositCounts);
+      setDepositTotals({
+        last24Hours: Number(deposit24hCount) || 0,
+        last7Days: Number(deposit7dCount) || 0,
+        last30Days: Number(deposit30dCount) || 0
+      });
     }
   };
 
@@ -60,7 +58,7 @@ const Deposits = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Mini Bar Chart - matching image deeply */}
       <div className="flex items-end gap-1.5 h-12 w-full mt-2 px-1">
         <div className="h-[25%] w-full rounded-sm bg-[#E9ECEF]"></div>
@@ -78,7 +76,7 @@ const Deposits = () => {
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
       <ActivityCard title="Last 24 hours" count={depositTotals.last24Hours} />
       <ActivityCard title="Last 7 Days" count={depositTotals.last7Days} />
-      <ActivityCard title="Last 30 Dyas" count={depositTotals.last30Days} />
+      <ActivityCard title="Last 30 Days" count={depositTotals.last30Days} />
     </div>
   );
 };
