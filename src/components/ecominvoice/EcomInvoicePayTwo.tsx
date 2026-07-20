@@ -265,7 +265,6 @@ const EcomInvoicePayTwo = (props: propType) => {
 
     console.log("=================================");
   }
-  }
 
   const calculateConversionValue = (
     getPriceList: any,
