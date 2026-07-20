@@ -214,19 +214,38 @@ const EcomInvoicePayTwo = (props: propType) => {
   };
 
   async function fetchAssets() {
+    console.log("========== fetchAssets ==========");
+
     const [data] = await ApiHandler(getAssets);
+
+    console.log("Raw Assets API Response:", data);
+
     const res: any = data?.body ?? [];
-    const filtered = res?.filter(
+
+    console.log("Assets count:", res.length);
+    console.table(res);
+
+    const filtered = res.filter(
       (item: Asset) =>
         item?.name.toLowerCase() !== "any" &&
         item?.name.toLowerCase() !== "euro" &&
         item?.name.toLowerCase() !== "usd",
     );
 
+    console.log("Filtered assets:", filtered.length);
+    console.table(filtered);
+
     const defaultAsset = filtered.find(
       (item: Asset) =>
-        item.network === "ETH" && item.name?.toUpperCase().includes("USDC"),
+        item.network === "ETH" &&
+        item.name?.toUpperCase().includes("USDC"),
     );
+
+    console.log("Default asset:", defaultAsset);
+
+    if (!defaultAsset) {
+      console.warn("❌ No default ETH USDC asset found");
+    }
 
     let defaultNetwork = null;
 
@@ -236,13 +255,16 @@ const EcomInvoicePayTwo = (props: propType) => {
         icon: defaultAsset.networkIcon,
       };
 
-      if (defaultAsset) {
-        setSelectedAsset(defaultAsset);
-        setSelectedNetwork(defaultNetwork);
-      }
+      console.log("Default network:", defaultNetwork);
+
+      setSelectedAsset(defaultAsset);
+      setSelectedNetwork(defaultNetwork);
     }
 
     setAssets(filtered);
+
+    console.log("=================================");
+  }
   }
 
   const calculateConversionValue = (
