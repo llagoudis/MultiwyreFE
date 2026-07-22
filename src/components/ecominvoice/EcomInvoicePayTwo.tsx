@@ -6,18 +6,18 @@ import {
 } from "@headlessui/react";
 import Big from "big.js";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import {useEffect, useState} from "react";
+import {ToastContainer, toast} from "react-toastify";
 //import "react-toastify/dist/ReactToastify.css";
 
-import { Box } from "@mui/material";
+import {Box} from "@mui/material";
 import {
   getAssets,
   getEconUrlTransaction,
   pricelistFn,
   updateEconUrlTransaction,
 } from "~/service/ApiRequests";
-import { ApiHandler, withoutProtection } from "~/service/UtilService";
+import {ApiHandler, withoutProtection} from "~/service/UtilService";
 import DownArrow from "../../assets/general/arrow_down.svg";
 import MuiButton from "../MuiButton";
 
@@ -69,10 +69,10 @@ const EcomInvoicePayTwo = (props: propType) => {
   const [selectedNetwork, setSelectedNetwork] = useState<{
     name: string;
     icon: string;
-  }>({ name: "", icon: "" });
+  }>({name: "", icon: ""});
   const [loading, setLoading] = useState(false);
 
-  console.log({ withoutNetworkValue, conversionValue });
+  console.log({withoutNetworkValue, conversionValue});
 
   useEffect(() => {
     fetchAssets();
@@ -114,12 +114,13 @@ const EcomInvoicePayTwo = (props: propType) => {
           setWithoutNetworkValue,
         );
       }
-    } catch (error) {}
+    } catch (error) {
+    }
   };
 
   const geteconurlTransaction = async () => {
     const url = window.location.href;
-    const requestBody = { url };
+    const requestBody = {url};
 
     try {
       const [data, error]: APIResult<{
@@ -147,7 +148,8 @@ const EcomInvoicePayTwo = (props: propType) => {
     try {
       const response = await pricelistFn(projectId);
       setgetPriceList(response.data.body.findPriceList);
-    } catch (error) {}
+    } catch (error) {
+    }
   };
 
   const handleTextClick = () => {
@@ -273,7 +275,7 @@ const EcomInvoicePayTwo = (props: propType) => {
     setFinalAmount: any,
     setWithoutNetworkValue: any,
   ) => {
-    console.log({ FinalAmount });
+    console.log({FinalAmount});
 
     // =====================================================================
     const fromCurrencyIds: string[] = [];
@@ -521,15 +523,18 @@ const EcomInvoicePayTwo = (props: propType) => {
         : icon;
   }
 
-  const filteredAssets = selectedNetwork
-    ? assets
+ const filteredAssets =
+  selectedNetwork.name === ""
+    ? assets.map((item) => ({
+        ...item,
+        icon: USDC_USDT_icon(item.name, item.icon),
+      }))
+    : assets
         .filter((asset) => asset.network === selectedNetwork.name)
         .map((item) => ({
           ...item,
-          icon: USDC_USDT_icon(item?.name, item?.icon),
-        }))
-    : [];
-
+          icon: USDC_USDT_icon(item.name, item.icon),
+        }));
   return (
     <div>
       <div className="fixed inset-0 flex w-screen items-center justify-center bg-[#f9fcff] p-4">
@@ -556,7 +561,8 @@ const EcomInvoicePayTwo = (props: propType) => {
               <span className="mb-1 text-sm">Token</span>
               <div className="">
                 <Listbox value={selectedAsset} onChange={setSelectedAsset}>
-                  <ListboxButton className="flex w-full items-center justify-between rounded-lg bg-[#eff3f4] p-3 pl-4 text-left">
+                  <ListboxButton
+                    className="flex w-full items-center justify-between rounded-lg bg-[#eff3f4] p-3 pl-4 text-left">
                     <div className="flex items-center gap-2">
                       {selectedAsset && (
                         <Image
@@ -572,10 +578,11 @@ const EcomInvoicePayTwo = (props: propType) => {
                           : "Select Token"}
                       </p>
                     </div>
-                    <Image src={DownArrow} alt="arrow" width={12} height={8} />
+                    <Image src={DownArrow} alt="arrow" width={12} height={8}/>
                   </ListboxButton>
 
-                  <ListboxOptions className="absolute z-50 mt-2 max-h-[40vh] w-full overflow-y-auto rounded-md bg-white shadow-lg">
+                  <ListboxOptions
+                    className="absolute z-50 mt-2 max-h-[40vh] w-full overflow-y-auto rounded-md bg-white shadow-lg">
                     {filteredAssets.map((asset, i) => (
                       <ListboxOption
                         key={i}
@@ -638,14 +645,15 @@ const EcomInvoicePayTwo = (props: propType) => {
                     }
                   }}
                 >
-                  <ListboxButton className="flex w-full items-center justify-between rounded-lg bg-[#eff3f4] p-3 pl-4 text-left">
+                  <ListboxButton
+                    className="flex w-full items-center justify-between rounded-lg bg-[#eff3f4] p-3 pl-4 text-left">
                     <div className="flex items-center gap-2">
-                      {selectedNetwork && (
+                      {selectedNetwork.icon && (
                         <Image
-                          src={selectedNetwork.icon ?? ""}
+                          src={selectedNetwork.icon}
                           width={24}
                           height={24}
-                          alt="network"
+                          alt={selectedNetwork.name}
                         />
                       )}
                       <p>
@@ -654,10 +662,11 @@ const EcomInvoicePayTwo = (props: propType) => {
                           : "Select Network"}
                       </p>
                     </div>
-                    <Image src={DownArrow} alt="arrow" width={12} height={8} />
+                    <Image src={DownArrow} alt="arrow" width={12} height={8}/>
                   </ListboxButton>
 
-                  <ListboxOptions className="absolute z-50 mt-2 max-h-[40vh] w-full overflow-y-auto rounded-md bg-white shadow-lg">
+                  <ListboxOptions
+                    className="absolute z-50 mt-2 max-h-[40vh] w-full overflow-y-auto rounded-md bg-white shadow-lg">
                     {networks.map((network) => (
                       <ListboxOption
                         key={network.name}
@@ -691,7 +700,7 @@ const EcomInvoicePayTwo = (props: propType) => {
           ></MuiButton>
         </div>
       </div>
-      <ToastContainer />
+      <ToastContainer/>
     </div>
   );
 };
