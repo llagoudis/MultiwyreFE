@@ -560,12 +560,7 @@ const EcomInvoicePayTwo = (props: propType) => {
                     <div className="flex items-center gap-2">
                       {selectedAsset && (
                         <Image
-                          src={
-                            USDC_USDT_icon(
-                              selectedAsset.name,
-                              selectedAsset.icon,
-                            ) ?? ""
-                          }
+                          src={selectedAsset.icon}
                           width={24}
                           height={24}
                           alt="token"
@@ -590,7 +585,7 @@ const EcomInvoicePayTwo = (props: propType) => {
                         <div className="flex items-center gap-3">
                           {asset?.icon && (
                             <Image
-                              src={asset.icon ?? ""}
+                              src={asset.icon}
                               width={24}
                               height={24}
                               alt="token"
@@ -671,7 +666,7 @@ const EcomInvoicePayTwo = (props: propType) => {
                       >
                         <div className="flex items-center gap-3">
                           <Image
-                            src={network.icon ?? ""}
+                            src={network.icon}
                             width={24}
                             height={24}
                             alt="network"
