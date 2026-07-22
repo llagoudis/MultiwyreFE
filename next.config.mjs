@@ -1,4 +1,4 @@
-import { createRequire } from 'module';
+import {createRequire} from 'module';
 
 const require = createRequire(import.meta.url);
 
@@ -64,6 +64,31 @@ const config = {
         port: '',
         pathname: '/api/v1/file/files/**', // More specific path pattern
       },
+      {
+        protocol: 'https',
+        hostname: 'hotcoin-snp-idcard.oss-accelerate.aliyuncs.com',
+        port: '',
+        pathname: '/hotcoin/photo/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'hotcoin-snp-idcard.oss-accelerate.aliyuncs.com',
+        port: '',
+        pathname: '/cms/support/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'raw.githubusercontent.com',
+        port: '',
+        pathname: '/trustwallet/assets/master/blockchains/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'oval-resources.s3.us-east-2.amazonaws.com',
+        port: '',
+        pathname: '/**',
+      }
+
     ],
     // Optional: Set a minimum cache time for optimized images
     minimumCacheTTL: 60,
