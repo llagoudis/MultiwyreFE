@@ -126,7 +126,7 @@ export const getTransactionExplorerUrl = (
     // Polygon
     [TEST_COINS.USDC_POLYGON]: {
       mainnet: `https://polygonscan.com/tx/${txHash}`,
-      testnet: `https://amoy.polygonscan.com/tx/${txHash}`,
+      testnet: `https://polygonscan.com/tx/${txHash}`,
     },
 
     // BSC
@@ -146,7 +146,7 @@ export const getTransactionExplorerUrl = (
     },
 
     [TEST_COINS.USDCPOS_B6BMTT9T_F8E4]: {
-      testnet: `https://amoy.polygonscan.com/tx/${txHash}`,
+      testnet: `https://polygonscan.com/tx/${txHash}`,
       mainnet: `https://polygonscan.com/tx/${txHash}`,
     },
   };
