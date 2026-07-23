@@ -72,7 +72,6 @@ const Withdrawals = () => {
             <p className="text-2xl font-bold text-[#1A1C1E]">
               € {formatCurrency(amount)}
             </p>
-            <span className="text-xs font-bold text-[#FF3D71]">-2.8%</span>
           </div>
           <div className="mt-2 flex items-center gap-2 text-[#8B8D91]">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
