@@ -72,7 +72,6 @@ const EcomInvoicePayTwo = (props: propType) => {
   }>({name: "", icon: ""});
   const [loading, setLoading] = useState(false);
 
-  console.log({withoutNetworkValue, conversionValue});
 
   useEffect(() => {
     fetchAssets();
@@ -216,15 +215,12 @@ const EcomInvoicePayTwo = (props: propType) => {
   };
 
   async function fetchAssets() {
-    console.log("========== fetchAssets ==========");
 
     const [data] = await ApiHandler(getAssets);
 
-    console.log("Raw Assets API Response:", data);
 
     const res: any = data?.body ?? [];
 
-    console.log("Assets count:", res.length);
     console.table(res);
 
     const filtered = res.filter(
@@ -234,7 +230,6 @@ const EcomInvoicePayTwo = (props: propType) => {
         item?.name.toLowerCase() !== "usd",
     );
 
-    console.log("Filtered assets:", filtered.length);
     console.table(filtered);
 
     const defaultAsset = filtered.find(
@@ -243,7 +238,6 @@ const EcomInvoicePayTwo = (props: propType) => {
         item.name?.toUpperCase().includes("USDC"),
     );
 
-    console.log("Default asset:", defaultAsset);
 
     if (!defaultAsset) {
       console.warn("❌ No default ETH USDC asset found");
@@ -257,15 +251,12 @@ const EcomInvoicePayTwo = (props: propType) => {
         icon: defaultAsset.networkIcon,
       };
 
-      console.log("Default network:", defaultNetwork);
 
       setSelectedAsset(defaultAsset);
       setSelectedNetwork(defaultNetwork);
     }
 
     setAssets(filtered);
-
-    console.log("=================================");
   }
 
   const calculateConversionValue = (
@@ -275,7 +266,6 @@ const EcomInvoicePayTwo = (props: propType) => {
     setFinalAmount: any,
     setWithoutNetworkValue: any,
   ) => {
-    console.log({FinalAmount});
 
     // =====================================================================
     const fromCurrencyIds: string[] = [];
@@ -283,10 +273,8 @@ const EcomInvoicePayTwo = (props: propType) => {
     let foundAny = false;
     let MarkupFeePercentage;
 
-    console.log("getPriceList?.FxMarkupFees: ", getPriceList?.FxMarkupFees);
     getPriceList?.FxMarkupFees.forEach(
       (index: { fromCurrencyId: string; toCurrencyId: string }) => {
-        console.log("index: ", index);
         if (index.fromCurrencyId === "ANY" && index.toCurrencyId === "ANY") {
           foundAny = true;
         } else {
@@ -296,7 +284,6 @@ const EcomInvoicePayTwo = (props: propType) => {
       },
     );
 
-    console.log("Fxmarkup ", !!getPriceList?.FxMarkupFees);
 
     if (foundAny) {
       getPriceList?.FxMarkupFees.forEach((index: { percent: any }) => {
@@ -310,10 +297,6 @@ const EcomInvoicePayTwo = (props: propType) => {
             toCurrencyIds.includes(selectedAsset.fireblockAssetId)
           ) {
             MarkupFeePercentage = index.percent;
-            console.log(
-              "MarkupFeePercentage fromCurrencyIds any",
-              MarkupFeePercentage,
-            );
           }
         },
       );
@@ -325,10 +308,6 @@ const EcomInvoicePayTwo = (props: propType) => {
             fromCurrencyIds.includes(requestedAsset)
           ) {
             MarkupFeePercentage = index.percent;
-            console.log(
-              "MarkupFeePercentage toCurrencyId any",
-              MarkupFeePercentage,
-            );
           }
         },
       );
@@ -347,20 +326,11 @@ const EcomInvoicePayTwo = (props: propType) => {
           ) {
             matched = true;
             MarkupFeePercentage = index.percent;
-            console.log(
-              `index.percent of ${
-                (index.fromCurrencyId, "and ", index.toCurrencyId, "")
-              } =`,
-              index.percent,
-            );
           }
         },
       );
 
       if (!matched) {
-        console.log(
-          "No matching currencies found for pairCurrency1 and selectedAsset.",
-        );
         MarkupFeePercentage = "0";
       }
     }
@@ -375,16 +345,13 @@ const EcomInvoicePayTwo = (props: propType) => {
       const markupFeePercentage = MarkupFeePercentage
         ? new Big(MarkupFeePercentage)
         : new Big(0);
-      console.log("markupFeePercentage: ", markupFeePercentage.toString());
 
       const markupCalculation = markupFeePercentage
         .div(100)
         .times(new Big(FinalAmount));
-      console.log("markupCalculation: ", markupCalculation.toString());
 
       // Step 2: Calculate new amount after FX markup
       const amountAfterFXMarkup = new Big(FinalAmount).plus(markupCalculation);
-      console.log("amountAfterFXMarkup: ", amountAfterFXMarkup.toString());
       setmarkPercentage(markupCalculation.toString());
 
       // Step 3: Calculate Transfer Fees based on the new amount (amountAfterFXMarkup)
@@ -401,16 +368,13 @@ const EcomInvoicePayTwo = (props: propType) => {
         getPriceList?.TransferFees.filter(
           (fee: { currencyId: string }) => fee.currencyId === "ANY",
         ).map((fee: { percent: any }) => new Big(fee.percent))[0] || new Big(0);
-      console.log("maxPercentCalc: ", maxPercentCalc.toString());
 
       const calcAmount = maxPercentCalc.div(100).times(amountAfterFXMarkup);
-      console.log("calcAmount: ", calcAmount.toString());
 
       // Step 4: Calculate final amount after adding all fees
       const afterCalcAmount = amountAfterFXMarkup
         .plus(calcAmount)
         .plus(maxFixedFee);
-      console.log("afterCalcAmount: ", afterCalcAmount.toString());
       const withFxMarkup = new Big(FinalAmount).plus(markupCalculation);
       setWithoutNetworkValue(withFxMarkup.toString());
       setpercentage(calcAmount.toString());
@@ -422,22 +386,17 @@ const EcomInvoicePayTwo = (props: propType) => {
           fee.currencyId === selectedAsset.fireblockAssetId,
       )
     ) {
-      console.log("FinalAmount: ", FinalAmount);
-      console.log("else if condition apply");
       // Step 1: FX Markup Calculation
       const markupFeePercentage = MarkupFeePercentage
         ? new Big(MarkupFeePercentage)
         : new Big(0);
-      console.log("markupFeePercentage: ", markupFeePercentage.toString());
 
       const markupCalculation = markupFeePercentage
         .div(100)
         .times(new Big(FinalAmount));
-      console.log("markupCalculation: ", markupCalculation.toString());
 
       // Step 2: Calculate new amount after FX markup
       const amountAfterFXMarkup = new Big(FinalAmount).plus(markupCalculation);
-      console.log("amountAfterFXMarkup: ", amountAfterFXMarkup.toString());
       setmarkPercentage(markupCalculation.toString());
       setWithoutNetworkValue(amountAfterFXMarkup.toString());
       // Step 3: Calculate Transfer Fees based on the new amount (amountAfterFXMarkup)
@@ -449,7 +408,6 @@ const EcomInvoicePayTwo = (props: propType) => {
             fee.currencyId === selectedAsset.fireblockAssetId,
         ).map((fee: { fixedFee: any }) => new Big(fee.fixedFee))[0] ||
         new Big(0);
-      console.log("maxFixedFee: ", maxFixedFee.toString());
 
       // Calculate percentage-based fee
       const maxPercentCalc =
@@ -457,36 +415,29 @@ const EcomInvoicePayTwo = (props: propType) => {
           (fee: { currencyId: string }) =>
             fee.currencyId === selectedAsset.fireblockAssetId,
         ).map((fee: { percent: any }) => new Big(fee.percent))[0] || new Big(0);
-      console.log("maxPercentCalc: ", maxPercentCalc.toString());
 
       const calcAmount = maxPercentCalc.div(100).times(amountAfterFXMarkup);
-      console.log("calcAmount: ", calcAmount.toString());
 
       // Step 4: Calculate final amount after adding all fees
       const afterCalcAmount = amountAfterFXMarkup
         .plus(calcAmount)
         .plus(maxFixedFee);
-      console.log("afterCalcAmount: ", afterCalcAmount.toString());
 
       setpercentage(calcAmount.toString());
       setFixedFee(maxFixedFee.toString());
       setFinalAmount(afterCalcAmount.toString());
     } else {
-      console.log("else  condition apply");
       const markupFeePercentage = MarkupFeePercentage
         ? new Big(MarkupFeePercentage)
         : new Big(0);
 
-      console.log("markupFeePercentage", markupFeePercentage.toString());
 
       const markupCalculation = markupFeePercentage
         .div(100)
         .times(new Big(FinalAmount));
-      console.log("markupCalculation", markupCalculation.toString());
 
       const afterCalculationmark = Big(FinalAmount).plus(markupCalculation);
 
-      console.log("afterCalculationmark", afterCalculationmark.toString());
       const withFxMarkup = new Big(FinalAmount).plus(markupCalculation);
       setWithoutNetworkValue(withFxMarkup.toString());
       setFinalAmount(afterCalculationmark.toString());
