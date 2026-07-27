@@ -553,13 +553,13 @@ const EcomInvoicePayTwo = (props: propType) => {
 
             <Box className="relative flex w-1/2 flex-col">
               <span className="mb-1 text-sm">Token</span>
-              <div className="">
+              <div    className={`...
+        ${!selectedNetwork.name ? "opacity-50 cursor-not-allowed" : ""}
+    `}>
                 <Listbox value={selectedAsset}
                          onChange={setSelectedAsset}
                          disabled={!selectedNetwork.name}
-                         className={`...
-        ${!selectedNetwork.name ? "opacity-50 cursor-not-allowed" : ""}
-    `}
+                      
                 >
                   <ListboxButton
                     className="flex w-full items-center justify-between rounded-lg bg-[#eff3f4] p-3 pl-4 text-left">
