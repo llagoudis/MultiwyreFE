@@ -468,24 +468,18 @@ const EcomInvoicePayTwo = (props: propType) => {
     );
 
     return token.includes("USDC")
-      ? USDC_ICON?.icon
+      ? (USDC_ICON?.icon ?? icon)
       : token.includes("USDT")
-        ? USDT_ICON?.icon
+        ? (USDT_ICON?.icon ?? icon)
         : icon;
   }
 
- const filteredAssets =
-  selectedNetwork.name === ""
-    ? assets.map((item) => ({
-        ...item,
-        icon: USDC_USDT_icon(item.name, item.icon),
-      }))
-    : assets
-        .filter((asset) => asset.network === selectedNetwork.name)
-        .map((item) => ({
-          ...item,
-          icon: USDC_USDT_icon(item.name, item.icon),
-        }));
+  const filteredAssets =
+    selectedNetwork.name === ""
+      ? assets
+      : assets.filter(
+        asset => asset.network === selectedNetwork.name
+      );
   return (
     <div>
       <div className="fixed inset-0 flex w-screen items-center justify-center bg-[#f9fcff] p-4">
@@ -510,14 +504,20 @@ const EcomInvoicePayTwo = (props: propType) => {
 
             <Box className="relative flex w-1/2 flex-col">
               <span className="mb-1 text-sm">Token</span>
-              <div className="">
-                <Listbox value={selectedAsset} onChange={setSelectedAsset}>
+              <div    className={`...
+        ${!selectedNetwork.name ? "opacity-50 cursor-not-allowed" : ""}
+    `}>
+                <Listbox value={selectedAsset}
+                         onChange={setSelectedAsset}
+                         disabled={!selectedNetwork.name}
+                      
+                >
                   <ListboxButton
                     className="flex w-full items-center justify-between rounded-lg bg-[#eff3f4] p-3 pl-4 text-left">
                     <div className="flex items-center gap-2">
                       {selectedAsset && (
                         <Image
-                          src={selectedAsset.icon}
+                          src={USDC_USDT_icon(selectedAsset.name, selectedAsset.icon)}
                           width={24}
                           height={24}
                           alt="token"
@@ -542,8 +542,9 @@ const EcomInvoicePayTwo = (props: propType) => {
                       >
                         <div className="flex items-center gap-3">
                           {asset?.icon && (
+
                             <Image
-                              src={asset.icon}
+                              src={USDC_USDT_icon(asset.name, asset.icon)}
                               width={24}
                               height={24}
                               alt="token"
@@ -565,6 +566,7 @@ const EcomInvoicePayTwo = (props: propType) => {
               <div className="">
                 <Listbox
                   value={selectedNetwork}
+
                   onChange={(value) => {
                     setSelectedNetwork(value);
 
