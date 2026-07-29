@@ -11,6 +11,7 @@ import localStorageService from "~/service/LocalstorageService";
 import useGlobalStore from "~/store/useGlobalStore";
 import { decryptResponse } from "~/helpers/helper";
 import { ApiHandler } from "~/service/UtilService";
+import {goToDashboard} from "~/helpers/navigationHelper";
 interface FormData {
   emailOrPhone: string;
   password: string;
@@ -142,8 +143,7 @@ const LoginForm: React.FC = () => {
           user: res.body,
         }));
         setIsLoading(false);
-        toast.success("Login successful");
-        router.push("/app/dashboard");
+        goToDashboard("LOGIN")
       }
     } catch (error) {
       const message = ErrorResponse(error);

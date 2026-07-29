@@ -5,6 +5,7 @@ import withAuth from "~/components/withAuth";
 import Transfers from "~/components/transfers/Transfers";
 import { checkUserStatus } from "~/service/api/accounts";
 import { useRouter } from "next/router";
+import {goToDashboard} from "~/helpers/navigationHelper";
 
 const TransferPage = () => {
   const router = useRouter();
@@ -16,7 +17,7 @@ const TransferPage = () => {
     if (response?.success) {
       setStatus(response?.success);
     } else {
-      router.push("/app/dashboard");
+      goToDashboard('TRANSFER')
     }
   };
 

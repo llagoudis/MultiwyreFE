@@ -54,7 +54,11 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       if (/^\/invoices\/[^/]+$/.test(window.location.pathname)) {
         const invoiceId = window.location.pathname.split("/")[2];
         router.push(`/invoices/${invoiceId}`);
-      } else {
+      } else if (/^\/ecompayment\/[^/]+$/.test(window.location.pathname)) {
+        return; // stay on ecompayment page
+    } else {
+        console.log("Redirecting to dashboard:", '_app');
+        console.log("Current path:", window.location.pathname);
         router.push("/app/dashboard");
       }
     } else if (window.location.pathname === "/auth/resetPassword") {

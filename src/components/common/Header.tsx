@@ -10,6 +10,7 @@ import localStorageService from "~/service/LocalstorageService";
 import { useRouter } from "next/router";
 import ArrowDown from "../../assets/general/arrow_down.svg";
 import { Dialog } from "@headlessui/react";
+import {goToDashboard} from "~/helpers/navigationHelper";
 
 interface State {
   handleSidebar: () => void;
@@ -63,7 +64,7 @@ const Topbar: React.FC<HeaderProps> = ({ title }) => {
     if (router.pathname === "/app/dashboard") {
       window.location.reload();
     } else {
-      router.push("/app/dashboard");
+      goToDashboard('HEADER')
     }
   };
 

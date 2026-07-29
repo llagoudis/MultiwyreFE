@@ -16,6 +16,7 @@ import withAuth from "~/components/withAuth";
 // import useGlobalStore from "~/store/useGlobalStore";
 import { checkUserStatus } from "~/service/api/accounts";
 import ExchangeNew from "~/components/exchange/ExchangeNew";
+import {goToDashboard} from "~/helpers/navigationHelper";
 
 const ExchangePage = () => {
   const router = useRouter();
@@ -28,7 +29,7 @@ const ExchangePage = () => {
     if (response?.success) {
       setStatus(response?.success);
     } else {
-      router.push("/app/dashboard");
+      goToDashboard('EXCHANGE');
     }
   };
 
