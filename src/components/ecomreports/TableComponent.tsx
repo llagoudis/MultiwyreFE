@@ -83,6 +83,7 @@ interface EcomTransactionDetails extends CommonKeys {
   customerId: string;
   customerEmail?: string;
   recoveryEmail?: string;
+  parentTransactionId?: string;
   status: string;
   exactAmount: string;
   requestedAmount: string;
@@ -269,6 +270,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
     { label: "Date and Time", name: "date" },
     { label: "Client ID ", name: "customerId" },
     { label: "Customer E-Mail", name: "customerEmail" },
+    { label: "Parent TX ID", name: "parentTransactionId" },
     { label: "Unique ID", name: "widgetNumber" },
     { label: "Order ID", name: "orderId" },
     { label: "Status", name: "status" },
@@ -292,6 +294,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
     "widgetNumber",
     "orderId",
     "customerEmail",
+    "parentTransactionId",
     "status",
     "senderaccount",
     "receiveraccount",
@@ -365,7 +368,14 @@ const TableComponent: React.FC<TableComponentProps> = ({
         label: "Customer E-Mail",
         name: "customerEmail",
         key: "customerEmail",
-        getValue: (row) => row?.recoveryEmail ?? "-",
+        getValue: (row) => row?.customerEmail || row?.recoveryEmail || "-",
+      },
+      {
+        label: "Parent TX ID",
+        name: "parentTransactionId",
+        key: "parentTransactionId",
+        getValue: (row) =>
+          row?.parentTransactionId || row?.transactionId || "-",
       },
       {
         label: "Unique ID",
@@ -611,7 +621,9 @@ const TableComponent: React.FC<TableComponentProps> = ({
         "Client ID": item?.customerId ?? "--",
         "Unique ID": item?.widgetNumber ?? "--",
         "Order ID": item?.orderId ?? "--",
-        "Customer E-Mail": item?.recoveryEmail ?? "--",
+        "Parent TX ID":
+          item?.parentTransactionId || item?.transactionId || "--",
+        "Customer E-Mail": item?.customerEmail || item?.recoveryEmail || "--",
         Status: item?.status ?? "--",
         Fee: String(bigNumber(item?.fee)),
         "Credited Amount":
