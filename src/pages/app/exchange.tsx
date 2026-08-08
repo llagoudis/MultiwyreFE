@@ -37,7 +37,7 @@ const ExchangePage = () => {
     void checkStatus();
   }, []);
 
-  return <Layout title="Exchange">{status && <ExchangeNew />}</Layout>;
+  return <Layout title="OTC Exchange">{status && <ExchangeNew />}</Layout>;
 };
 
 export default withAuth(ExchangePage);

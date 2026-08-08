@@ -1,323 +1,195 @@
-import { useEffect, useState, Fragment, useRef } from "react";
-import WarningMsg from "../common/WarningMsg";
-import WalletCard from "./WalletCard";
-import VerificationScreen from "../verification/identity-verification/MainScreen";
-import CompanyVerification from "../verification/company-verification/MainScreen";
-import localStorageService from "~/service/LocalstorageService";
+import { useEffect, useMemo, useState } from "react";
 import useGlobalStore from "~/store/useGlobalStore";
-import DepositDrawer from "./DepositDrawer";
-import ExchangeDrawer from "./ExchangeDrawer";
-import WithdrawDrawer from "./WithdrawDrawer";
-import AddWhitelistDrawer from "./AddWhitelistDrawer";
-import TableComponent from "../TableComponent";
-import { euroFormat } from "~/helpers/helper";
-import Head from "next/head";
-import BlackRightArrow from "../../assets/general/back_arrow_r.svg";
-import BlackLeftArrow from "../../assets/general/back_arrow_l.svg";
-import PaymentActivity from "../payment-activity/paymentActivity";
-import { checkMerchants } from "~/service/api/accounts";
-import Image, { type StaticImageData } from "next/image";
-import arrowUp from "../../assets/general/send_money.svg";
-import arrowDown from "../../assets/general/receive_money.svg";
-import transfer from "../../assets/general/transfer_money.svg";
-import { DownloadIcon, ExchangeIcon, UploadIcon, WalletIcon } from "~/assets/svgs";
-type imageType = StaticImageData;
-interface verificationStateType {
-  identity: verificationStates;
-  company: verificationStates;
-}
+import useAsyncMasterStore from "~/hooks/useAsyncMasterStore";
+import { deleteWhitelistAddress, getPaymentActivity, getWhitelistedAddress } from "~/service/api/accounts";
+import { coinMeta, networkOf, shortAddr } from "~/components/mw/assets";
+import { IcPlus, IcCopy, IcEdit, IcTrash, IcClock, IcLockClosed, IcCard, IcWalletEmpty } from "~/components/mw/icons";
+import AddAccountModal from "./AddAccountModal";
+import useConfirm from "~/components/mw/useConfirm";
+import mwToast from "~/components/mw/toast";
 
-interface AuthBody {
-  userType: string;
-}
+const PERIODS = ["Last 24 hours", "Last 7 Days", "Last 30 Days"] as const;
+// Decorative trend bars (no time-series endpoint exists yet — the real numbers
+// below the chart come from transaction/accountBalanceStats).
+const BARS = {
+  deposits: [[6, 9, 7, 11, 8, 13, 10, 16], [7, 5, 9, 8, 12, 10, 14, 11], [9, 7, 11, 8, 13, 12, 15, 18]],
+  withdrawals: [[8, 6, 10, 7, 9, 11, 8, 12], [5, 8, 6, 10, 7, 9, 12, 8], [10, 8, 12, 9, 11, 7, 13, 10]],
+};
+
+const fmtMoney = (n: number) => Number(n || 0).toLocaleString("en-IE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const Dashboard = () => {
-  const dashboard = useGlobalStore((state) => state.dashboard);
+  const [dashboard, whitelist, syncWhitelist, user] = useGlobalStore((s) => [s.dashboard, s.whitelistedAddress, s.syncWhitelistedAddress, s.user]);
+  const assets = useAsyncMasterStore("assets") as Assets[];
+  const { confirm, ConfirmDialog } = useConfirm();
 
-  const mergedAssets = [...dashboard.assets];
-
-  const splitIntoChunks = (array: any, chunkSize: any) => {
-    const chunks = [];
-    for (let i = 0; i < array.length; i += chunkSize) {
-      chunks.push(array.slice(i, i + chunkSize));
-    }
-    return chunks;
-  };
-
-  const assetChunks = splitIntoChunks(mergedAssets, 6);
-
-  // Slider
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const divReference = useRef<HTMLDivElement>(null);
-  const [assetsHeight, setAssetsHeight] = useState<number>(0);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<WhitelistAddress | null>(null);
+  const [paKind, setPaKind] = useState<"deposits" | "withdrawals">("deposits");
+  const [pa, setPa] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    if (divReference.current) {
-      setAssetsHeight(divReference.current.offsetHeight);
-    }
+    void syncWhitelist();
+    void (async () => {
+      const [res] = await getPaymentActivity();
+      if (res?.success && res.body) setPa(res.body as Record<string, number>);
+    })();
   }, []);
 
-  const nextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % assetChunks.length);
+  const refreshWhitelist = async () => {
+    const [res] = await getWhitelistedAddress();
+    if (res?.success) useGlobalStore.setState({ whitelistedAddress: res.body, whiteListSynced: true });
   };
 
-  const prevSlide = () => {
-    setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + assetChunks.length) % assetChunks.length,
-    );
+  const balanceByAsset = useMemo(() => {
+    const m = new Map<string, { balance: string; assetValue: number }>();
+    (dashboard.assets ?? []).forEach((a) => m.set(a.assetId, { balance: a.balance, assetValue: a.assetValue }));
+    return m;
+  }, [dashboard.assets]);
+
+  const currencySym = (dashboard.currency || "EUR") === "EUR" ? "€" : dashboard.currency;
+  const accounts = whitelist ?? [];
+  const companyName = user.companyProfileDetails?.companyName || user.fullname || "there";
+
+  const copy = (v: string) => {
+    if (navigator.clipboard) void navigator.clipboard.writeText(v);
+    mwToast("Address copied");
   };
 
-  // -------- end -----------
-
-  const admin = useGlobalStore((state) => state.admin);
-
-  useEffect(() => {
-    useGlobalStore.getState().syncDashboard();
-  }, []);
-
-  const companyVerified = false;
-
-  const [companyVerificationScreen, setCompanyVerificationScreen] =
-    useState<boolean>(false);
-
-  const [identityVerification, setIdentityVerification] =
-    useState<boolean>(false);
-
-  const [verificationStatus, setVerificationStatus] =
-    useState<verificationStateType>({
-      identity: "SUBMITTED",
-      company: "SUBMITTED",
-    });
-
-  const [authBody, setAuthBody] = useState<AuthBody | null>(null);
-  const [merchantsAvailable, setMerchantsAvailable] = useState<boolean>(false);
-
-  const [depositOpen, setDepositOpen] = useState(false);
-  const [withdrawOpen, setWithdrawOpen] = useState(false);
-  const [exchangeOpen, setExchangeOpen] = useState(false);
-  const [addWhitelistOpen, setAddWhitelistOpen] = useState(false);
-
-  const handleCompanyVerifyScreen = (value: boolean) => {
-    setCompanyVerificationScreen(value);
-    localStorageService.updateVerification({
-      companyVerificationScreen: value,
-    });
-    const companyVerification = localStorageService.decodeVerification();
-
-    if (
-      companyVerification?.companyVerificationScreenObj?.accountCreationSuccess
-    ) {
-      setVerificationStatus((prev) => ({
-        ...prev,
-        company: "SUBMITTED",
-      }));
-      localStorageService.updateAuthBody({ isCompanyVerified: "SUBMITTED" });
+  const onDelete = async (a: WhitelistAddress) => {
+    if (await confirm(`Delete account "${a.label}"?`)) {
+      const [, err] = await deleteWhitelistAddress(a.id);
+      if (err) return mwToast(err);
+      await refreshWhitelist();
+      mwToast(a.label + " deleted");
     }
   };
 
-  const handleVerifyScreen = (value: boolean) => {
-    setIdentityVerification(value);
-
-    localStorageService.updateVerification({ identityVerification: value });
-
-    const verification = localStorageService.decodeVerification();
-    if (verification.identityVerificationObj?.successScreen) {
-      setVerificationStatus((prev) => ({
-        ...prev,
-        identity: "SUBMITTED",
-      }));
-      localStorageService.updateAuthBody({ isUserVerified: "SUBMITTED" });
-    }
-  };
-
-  useEffect(() => {
-    const verification = localStorageService.decodeVerification();
-    const identity = verification?.identityVerification || false;
-    const company = verification?.companyVerificationScreen || false;
-    setIdentityVerification(identity);
-    setCompanyVerificationScreen(company);
-    localStorageService.updateVerification({
-      identityVerification: identity,
-      companyVerificationScreen: company,
-    });
-
-    const authBody = localStorageService.decodeAuthBody();
-    setAuthBody(authBody);
-
-    void fetchMerchants();
-
-    if (authBody) {
-      setVerificationStatus((prev) => ({
-        ...prev,
-        identity: authBody.isUserVerified,
-        company: authBody.isCompanyVerified,
-      }));
-    }
-  }, []);
-
-  const fetchMerchants = async () => {
-    const [response] = await checkMerchants();
-    if (response?.body) {
-      setMerchantsAvailable(true);
-    } else {
-      setMerchantsAvailable(false);
-    }
-  };
-
-  let sum = 0;
-  dashboard.assets?.map((item) => {
-    sum = sum + Number(item.assetValue);
-  });
+  const openAdd = () => { setEditTarget(null); setModalOpen(true); };
+  const openEdit = (a: WhitelistAddress) => { setEditTarget(a); setModalOpen(true); };
 
   return (
-    <Fragment>
-      <Head>
-        <title>{admin?.tabName ?? "Exchange your crypo currencies"}</title>
-        <meta name="description" content="Generated by create-t3-app" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <div className="view" id="viewDashboard">
+      <section className="welcome">
+        <h2>Welcome, {companyName}</h2>
+        <p>Your dashboard is all set and ready for you to explore now.</p>
+      </section>
 
-      {/* Company verification */}
-      {verificationStatus.identity === "PENDING" && (
-        <WarningMsg
-          handleClick={() => handleVerifyScreen(true)}
-          element={
-            <span>
-              Complete your{" "}
-              <span className="font-bold">Identity Verification</span> to
-              continue using exchange services
-            </span>
-          }
-        />
-      )}
+      <section className="card balance">
+        <div className="bal-left">
+          <div className="bal-eyebrow">
+            <span className="chip"><IcCard width={16} height={16} /></span>
+            Total Balance
+          </div>
+          <div className="bal-amount"><span className="cur">{currencySym}</span>{fmtMoney(dashboard.totalValue)}</div>
+          <div className="bal-sub">
+            {accounts.length ? `Across ${accounts.length} account${accounts.length === 1 ? "" : "s"} in ${dashboard.currency || "EUR"}` : "No accounts added yet"}
+          </div>
+        </div>
+        <div className="bal-actions">
+          <button className="btn btn-primary" onClick={openAdd}><IcPlus width={17} height={17} /> Add Wallet</button>
+        </div>
+      </section>
 
-      {!companyVerified &&
-        verificationStatus.company === "PENDING" &&
-        verificationStatus.identity !== "PENDING" && (
-          <WarningMsg
-            element={
-              <span>
-                Complete your{" "}
-                <span className="font-bold">Company Verification</span> to
-                continue using exchange services
-              </span>
-            }
-            handleClick={() => handleCompanyVerifyScreen(true)}
-          />
-        )}
-      {/* Section 1: Welcome Board */}
-      <div className="welcomeBoard  flex flex-col rounded-xl bg-primary-gradient p-4 text-white shadow-lg">
-        <div>
-          <p className="text-xl">
-            Welcome, {`${dashboard.firstname ?? ""} ${dashboard?.lastname ?? ""}`} 👋
-          </p>
-          <p className="mt-2 text-sm">
-            Your dashboard is all set and ready for you to explore now.
-          </p>
+      <div className="section-head">
+        <h3>Accounts</h3>
+        <div className="head-right">
+          <span className="count">{accounts.length} account{accounts.length === 1 ? "" : "s"}</span>
         </div>
       </div>
 
-      {/* Combined Section: Total Balance + Assets Area */}
-      <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
-        {/* Total Balance Area */}
-        <div className="bg-[#FBFBFB] p-4 rounded-xl flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-2">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-black">
-              <div className="border border-[#7E7E7E57] rounded-md p-2">
-                <WalletIcon />
+      <section className="card acct-list">
+        {accounts.length === 0 ? (
+          <div className="empty">
+            <div className="ic"><IcWalletEmpty width={26} height={26} /></div>
+            <h4>No accounts yet</h4>
+            <p>Add your first account to start receiving and sending funds. You choose the asset, network and address — Multiwyre never holds your keys.</p>
+            <button className="btn btn-primary" style={{ margin: "0 auto" }} onClick={openAdd}><IcPlus width={17} height={17} /> Add Wallet</button>
+          </div>
+        ) : (
+          accounts.map((a) => {
+            const cm = coinMeta(a.assetId);
+            const net = networkOf(a.assetId);
+            const approved = !!a.status;
+            const bal = balanceByAsset.get(a.assetId);
+            const base = (a.Assets?.name ?? a.assetId);
+            return (
+              <div className="arow" key={String(a.id)}>
+                <div className="coin" style={{ background: cm.color }}>{cm.glyph}</div>
+                <div className="meta">
+                  <div className="nm">{a.label}{net && <span className="net">{net}</span>}</div>
+                  <div className="sub">
+                    <span className={`stat ${approved ? "approved" : "pending"}`} title={approved ? "Approved by admin" : "Awaiting admin approval"}>
+                      {approved ? <>Approved<IcLockClosed width={12} height={12} /></> : <><IcClock width={12} height={12} />Pending</>}
+                    </span>
+                    <span className="addr copy" title="Click to copy" onClick={() => copy(a.assetAddress)}>
+                      {shortAddr(a.assetAddress)}<IcCopy width={11} height={11} />
+                    </span>
+                  </div>
+                </div>
+                <div className="amt">
+                  {bal && Number(bal.balance) > 0 ? (
+                    <>
+                      <div className="v">{Number(bal.balance).toLocaleString()}</div>
+                      <div className="fiat">≈ {currencySym}{fmtMoney(bal.assetValue)}</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="v zero">0</div>
+                      <div className="fiat">≈ {currencySym}0.00</div>
+                    </>
+                  )}
+                </div>
+                <button className="edit-btn" title="Edit account" aria-label="Edit account" onClick={() => openEdit(a)}><IcEdit width={15} height={15} /></button>
+                <button className="del-btn" title="Delete account" aria-label="Delete account" onClick={() => onDelete(a)}><IcTrash width={15} height={15} /></button>
               </div>
-              <span className=" font-bold uppercase tracking-wider">Total Balance</span>
-            </div>
-
-            <div className="flex items-baseline gap-1 md:gap-2">
-              <span className="text-xl md:text-3xl font-bold text-black"> {euroFormat.format(sum ?? 0).replace("€", "")}</span>
-            </div>
-            <p className="text-sm font-medium text-[#8B8D91]">
-              All accounts balance in {dashboard.currency}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 md:gap-3">
-            <button
-              onClick={() => setDepositOpen(true)}
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
-            >
-              <DownloadIcon />
-              Deposit
-            </button>
-            <button
-              onClick={() => setWithdrawOpen(true)}
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
-            >
-              <UploadIcon />
-              Withdraw
-            </button>
-            <button
-              onClick={() => setExchangeOpen(true)}
-              className="w-full md:w-auto flex items-center justify-center gap-2 rounded-md bg-[#EEF1FF] px-4 md:px-6 py-2.5 text-sm font-semibold text-black transition-all hover:bg-[#E2E8FF]"
-            >
-              <ExchangeIcon />
-              Exchange
-            </button>
-          </div>
-        </div>
-
-        {/* Assets Area */}
-        <div ref={divReference}>
-          <p className="text-2xl font-bold text-[#1A1C1E] mb-2">Assets</p>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
-            {assetChunks.flat().map((item: any, itemIndex: any) => (
-              <WalletCard
-                key={itemIndex}
-                walletDetails={item}
-                currency={dashboard.currency}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="my-6">
-        <PaymentActivity />
-      </div>
-
-      {identityVerification && verificationStatus.identity === "PENDING" && (
-        <VerificationScreen close={() => handleVerifyScreen(false)} />
-      )}
-
-      {companyVerificationScreen &&
-        verificationStatus.company === "PENDING" && (
-          <CompanyVerification close={() => handleCompanyVerifyScreen(false)} />
+            );
+          })
         )}
+      </section>
 
-      <DepositDrawer
-        open={depositOpen}
-        onClose={() => setDepositOpen(false)}
-        assets={dashboard.assets}
-      />
+      <div className="section-head"><h3>Payment Activity</h3></div>
+      <section className="card" style={{ flex: "none" }}>
+        <div className="pa-head">
+          <div className="seg">
+            <button className={paKind === "deposits" ? "on" : ""} onClick={() => setPaKind("deposits")}>Deposits</button>
+            <button className={paKind === "withdrawals" ? "on" : ""} onClick={() => setPaKind("withdrawals")}>Withdrawals</button>
+          </div>
+        </div>
+        <div className="pa-grid">
+          {PERIODS.map((p, i) => {
+            const win = ["24h", "7d", "30d"][i];
+            const pre = paKind === "deposits" ? "deposit" : "withdraw";
+            const count = Number(pa[`${pre}${win}Count`] ?? 0);
+            const amount = Number(pa[`${pre}${win}Amount`] ?? 0);
+            const bars = BARS[paKind][i]!;
+            const max = Math.max(...bars);
+            return (
+              <div className="pa-card" key={p}>
+                <div className="lbl">{p}</div>
+                <div className="amt"><span className="cur">{currencySym}</span>{fmtMoney(amount)}</div>
+                <div className="tx"><IcCard width={14} height={14} />{count} Transactions</div>
+                <div className="chart">
+                  {bars.map((b, j) => (
+                    <div key={j} className={`bar${j === bars.length - 1 ? " hi" : ""}`} style={{ height: `${Math.round((b / max) * 100)}%` }} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
-      <ExchangeDrawer
-        open={exchangeOpen}
-        onClose={() => setExchangeOpen(false)}
-        assets={dashboard.assets}
+      <AddAccountModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        assets={assets}
+        tfaEnabled={!!user.tfaEnabled}
+        editTarget={editTarget}
+        onSubmitted={refreshWhitelist}
       />
-
-      <WithdrawDrawer
-        open={withdrawOpen}
-        onClose={() => setWithdrawOpen(false)}
-        assets={dashboard.assets}
-        onAddWhitelist={() => {
-          setWithdrawOpen(false);
-          setAddWhitelistOpen(true);
-        }}
-      />
-
-      <AddWhitelistDrawer
-        open={addWhitelistOpen}
-        onClose={() => setAddWhitelistOpen(false)}
-        assets={dashboard.assets}
-      />
-    </Fragment>
+      {ConfirmDialog}
+    </div>
   );
 };
 

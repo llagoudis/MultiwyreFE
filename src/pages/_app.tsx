@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import localStorageService from "~/service/LocalstorageService";
 import "~/styles/globals.css";
+import "~/styles/mw.css";
 import "@getivy/react-sdk/dist/index.css";
 import "../styles/ivy-checkout.module.css";
 // your override CSS
