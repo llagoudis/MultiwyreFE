@@ -6,6 +6,7 @@ interface WhitelistAddress {
   assetId: string;
   description: string;
   status: boolean;
+  approvalStatus?: "pending" | "approved" | "rejected" | string;
 }
 interface LegalDocuments extends CommonKeys {
   id: string;

@@ -50,6 +50,14 @@ const deleteWhitelistAddress = (id: number | string): APIFunction<number> =>
     ProtectedAxiosInstance.delete(`/accounts/whitelist/${id}`, {}),
   );
 
+const updateWhitelistAddress = (
+  id: number | string,
+  data: Partial<TemplateFormType>,
+): APIFunction<WhitelistAddress> =>
+  ApiHandler(() =>
+    ProtectedAxiosInstance.patch(`/accounts/whitelist/${id}`, data),
+  );
+
 const getPaymentActivity = async (): Promise<any> =>
   ApiHandler(
     async () =>
@@ -77,6 +85,7 @@ export {
   getPriceList,
   createWhitelistAddress,
   deleteWhitelistAddress,
+  updateWhitelistAddress,
   checkUserStatus,
   checkMerchants,
   getAllCustomerMerchants,

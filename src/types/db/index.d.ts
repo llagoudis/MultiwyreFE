@@ -463,6 +463,7 @@ interface WhitelistAddress extends CommonKeys {
   description: string;
   externalWalletId: string;
   status: boolean;
+  approvalStatus?: "pending" | "approved" | "rejected" | string;
   Assets: Assets;
   User: Partial<User>;
 }

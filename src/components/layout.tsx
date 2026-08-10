@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import Sidebar from "./common/Sidebar";
 import Header from "./common/Header";
 import SidebarProvider from "./context/SidebarProvider";
@@ -7,29 +7,29 @@ import { usePathname } from "next/navigation";
 type Props = {
   children: ReactNode;
   title: string;
+  crumb?: string;
 };
 
-const routesArray = ["/auth/login", "/auth/signup"];
+const bareRoutes = ["/auth/login", "/auth/signup"];
 
-const Layout = ({ children, title }: Props) => {
+const Layout = ({ children, title, crumb }: Props) => {
   const pathName = usePathname();
+  const bare = bareRoutes.includes(pathName ?? "");
+
+  if (bare) return <>{children}</>;
 
   return (
-    <>
-      <SidebarProvider>
-        <div className="flex h-[100vh] bg-brand-gray">
-          <div className="">
-            {!routesArray.includes(pathName) && <Sidebar />}
-          </div>
-          <div className="w-full overflow-y-auto " >
-            <div className="sticky top-0 z-50 ">
-              {!routesArray.includes(pathName) && <Header title={title} />}
-            </div>
-            <div className="p-4">{children}</div>
+    <SidebarProvider>
+      <div className="mw-root">
+        <div className="app">
+          <Sidebar />
+          <div className="main">
+            <Header title={title} crumb={crumb} />
+            <main className="content">{children}</main>
           </div>
         </div>
-      </SidebarProvider>
-    </>
+      </div>
+    </SidebarProvider>
   );
 };
 

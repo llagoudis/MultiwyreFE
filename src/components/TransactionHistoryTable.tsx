@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 
 import {
@@ -49,7 +48,6 @@ const TransactionHistoryTable: React.FC<TransactionHistoryTableProps> = ({
   onDownloadClick,
   onFiltersReady,
 }) => {
-  const router = useRouter();
   const walletId = useDashboard()?.assets?.[0]?.walletId;
 
   const [reports, setReports] = useState<TransactionDetails[]>([]);
@@ -339,26 +337,6 @@ const TransactionHistoryTable: React.FC<TransactionHistoryTableProps> = ({
   // Define row actions
   const getRowActions = (row: TransactionDetails) => {
     const actions = [];
-
-    // Refund action for incoming transactions
-    if (row.operationType === 1) {
-      actions.push({
-        label: "Refund",
-        onClick: () => {
-          router.push({
-            pathname: "/app/transfers",
-            query: {
-              amount: row?.TransactionFee?.amount,
-              assetId: row?.assetId,
-              sourceAddress: row?.sourceAddress,
-            },
-          });
-        },
-        renderCustom: () => (
-          <div className="cursor-pointer p-2 text-[#1AD598]">Refund</div>
-        ),
-      });
-    }
 
     // Download action for specific operation type
     if (row.operationType === 5) {
