@@ -217,12 +217,7 @@ const getStatusColor = (status: string): string => {
 };
 
 const roleRestrictions: Record<string, string[]> = {
-  ex_user_viewer: [
-    "/app/exchange",
-    "/app/transfers",
-    "/app/profile",
-    "/app/transfers",
-  ],
+  ex_user_viewer: ["/app/exchange", "/app/profile"],
 };
 
 export function Debounce<T extends (...args: any[]) => any>(

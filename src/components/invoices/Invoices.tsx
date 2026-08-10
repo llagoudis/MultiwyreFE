@@ -118,14 +118,10 @@ const Invoices = () => {
         </div>
         <div className="pane-body">
           <div className="grid-toolbar">
-            <div className="gt-left">
-              <button className="gt" onClick={() => mwToast("Column visibility — coming soon")}>▦ Columns</button>
-              <button className="gt" onClick={() => mwToast("Use the search box to filter")}>⚲ Filters</button>
-              <button className="gt" onClick={() => mwToast("Density — coming soon")}>≡ Density</button>
-            </div>
+            <div className="gt-left" />
             <div className="gt-right">
-              <button className="gt" onClick={exportCsv}>⭳ Export</button>
-              <button className="gt" onClick={() => { setSearch(""); setPage(0); }}>⟲ Clear</button>
+              <button className="gt" onClick={exportCsv}>Export</button>
+              <button className="gt" onClick={() => { setSearch(""); setPage(0); }}>Clear</button>
             </div>
           </div>
 

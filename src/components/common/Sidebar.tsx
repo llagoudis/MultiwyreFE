@@ -6,8 +6,7 @@ import { SidebarContext } from "../context/SidebarProvider";
  * Sidebar — Non-Custodial redesign.
  * Matches the design handoff: white sidebar, gradient brand header, gradient
  * active pill, image-based nav icons (public/mw/navicons/*).
- * Per product decision the nav drops Transfers & Bulk Payout, but their
- * routes (/app/transfers, /app/bulkPayout) are kept intact.
+ * Transfers & Bulk Payout removed from product (routes redirect to dashboard).
  */
 const NAV = [
   { name: "Dashboard", path: "/app/dashboard", icon: "/mw/navicons/home.svg" },

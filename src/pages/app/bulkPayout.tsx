@@ -1,9 +1,16 @@
-import React from "react";
-import BulkPayout from "~/components/bulkPayout/BulkPayout";
-import Layout from "~/components/layout";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
+import withAuth from "~/components/withAuth";
 
+/** Bulk Payout retired — redirect to dashboard. */
 const BulkPayoutPage = () => {
-  return <Layout title="bulkPayout">{<BulkPayout />}</Layout>;
+  const router = useRouter();
+
+  useEffect(() => {
+    void router.replace("/app/dashboard");
+  }, [router]);
+
+  return null;
 };
 
-export default BulkPayoutPage;
+export default withAuth(BulkPayoutPage);

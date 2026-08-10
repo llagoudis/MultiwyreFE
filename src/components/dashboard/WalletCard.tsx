@@ -2,7 +2,7 @@ import { Fragment, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Dialog, Snackbar } from "@mui/material";
-import { DownloadIcon, ExchangeIcon, UploadIcon } from "~/assets/svgs";
+import { DownloadIcon, ExchangeIcon } from "~/assets/svgs";
 
 interface WalletCardProps {
   walletDetails: DashboardAssetType;
@@ -140,11 +140,6 @@ const WalletCard: React.FC<WalletCardProps> = ({ walletDetails, currency }) => {
                   >
                     <DownloadIcon className="w-4 h-4 md:w-5 md:h-5 text-[#4775F2] group-hover:text-white transition-colors" />
                   </button>
-                  <Link href={`./transfers/?from=${walletDetails.assetId}&type=send`} onClick={(e) => e.stopPropagation()}>
-                    <div className="group flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-md border border-[#4775F2] bg-white hover:bg-[#4775F2] transition-all duration-200 flex-shrink-0">
-                      <UploadIcon className="w-4 h-4 md:w-5 md:h-5 text-[#4775F2] group-hover:text-white transition-colors" />
-                    </div>
-                  </Link>
                   <Link href={`./exchange`} onClick={(e) => e.stopPropagation()}>
                     <div className="group flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-md border border-[#4775F2] bg-white hover:bg-[#4775F2] transition-all duration-200 flex-shrink-0">
                       <ExchangeIcon className="w-4 h-4 md:w-5 md:h-5 text-[#4775F2] group-hover:text-white transition-colors" />

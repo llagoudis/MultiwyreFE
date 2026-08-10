@@ -1,15 +1,26 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IcPlus, IcRefresh, IcEdit, IcTrash, IcClose } from "~/components/mw/icons";
 import useConfirm from "~/components/mw/useConfirm";
 import mwToast from "~/components/mw/toast";
+import {
+  createOrgRole,
+  createOrgUser,
+  deleteOrgRole,
+  deleteOrgUser,
+  getOrgPermissions,
+  getOrgRoles,
+  getOrgUsers,
+  updateOrgRole,
+  updateOrgUser,
+  type OrgRole,
+  type OrgUser,
+} from "~/service/api/org";
 
 /**
- * Organisation Management (Roles & Users).
- * NOTE: there is currently NO backend for roles / users / permissions in the
- * user API. This tab is a fully-functional in-memory UI built to the design;
- * it must be wired to real endpoints once they exist. Nothing is persisted.
+ * Organisation Management (Roles & Users) — wired to /api/v1/org/*
+ * Does not touch platform ACCESS_ROLES / JWT auth roles.
  */
-const PERM_GROUPS: [string, string[]][] = [
+const FALLBACK_PERM_GROUPS: [string, string[]][] = [
   ["Accounts & Wallets", ["Add wallet", "Edit wallet"]],
   ["History", ["Export transaction data"]],
   ["Invoices", ["Create invoice", "Download invoice"]],
@@ -17,14 +28,13 @@ const PERM_GROUPS: [string, string[]][] = [
   ["Security", ["Manage profile photo", "Change email address", "Change phone number", "Manage 2FA", "Change password", "Manage identity verification"]],
 ];
 
-interface Role { name: string; perms: string[] }
-interface User { email: string; role: string; joined: [string, string] }
-
 const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
   const { confirm, ConfirmDialog } = useConfirm();
   const [orgTab, setOrgTab] = useState<"roles" | "users">("roles");
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [users, setUsers] = useState<User[]>([{ email: ownerEmail || "owner@multiwyre.com", role: "Owner", joined: ["—", ""] }]);
+  const [roles, setRoles] = useState<OrgRole[]>([]);
+  const [users, setUsers] = useState<OrgUser[]>([]);
+  const [permGroups, setPermGroups] = useState<[string, string[]][]>(FALLBACK_PERM_GROUPS);
+  const [loading, setLoading] = useState(false);
 
   const [drawer, setDrawer] = useState<{ kind: "role" | "user" | null; editIdx: number | null }>({ kind: null, editIdx: null });
   const [roleName, setRoleName] = useState("");
@@ -34,9 +44,37 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
   const [userPw2, setUserPw2] = useState("");
   const [userRoles, setUserRoles] = useState<Set<string>>(new Set());
 
-  const allPerms = useMemo(() => PERM_GROUPS.flatMap((g) => g[1]), []);
+  const allPerms = useMemo(() => permGroups.flatMap((g) => g[1]), [permGroups]);
   const open = drawer.kind !== null;
   const editing = drawer.editIdx !== null;
+
+  const load = async () => {
+    setLoading(true);
+    const [[permRes], [roleRes], [userRes]] = await Promise.all([
+      getOrgPermissions(),
+      getOrgRoles(),
+      getOrgUsers(),
+    ]);
+    if (permRes?.success && Array.isArray(permRes.body)) {
+      setPermGroups(permRes.body.map((g) => [g.group, g.perms]));
+    }
+    if (roleRes?.success && Array.isArray(roleRes.body)) setRoles(roleRes.body);
+    if (userRes?.success && Array.isArray(userRes.body)) {
+      const list = userRes.body;
+      // Keep owner visible even if not in org directory yet
+      if (ownerEmail && !list.some((u) => u.email.toLowerCase() === ownerEmail.toLowerCase())) {
+        setUsers([{ id: 0, email: ownerEmail, role: "Owner", roleId: null, joined: ["—", ""] }, ...list]);
+      } else {
+        setUsers(list);
+      }
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ownerEmail]);
 
   const openRole = (idx?: number) => {
     const r = typeof idx === "number" ? roles[idx] : null;
@@ -48,7 +86,7 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
     const u = typeof idx === "number" ? users[idx] : null;
     setUserEmail(u?.email ?? "");
     setUserPw(""); setUserPw2("");
-    setUserRoles(new Set(u?.role ? [u.role] : []));
+    setUserRoles(new Set(u?.role && u.role !== "Owner" ? [u.role] : []));
     setDrawer({ kind: "user", editIdx: idx ?? null });
   };
   const close = () => setDrawer({ kind: null, editIdx: null });
@@ -59,36 +97,69 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
     apply(next);
   };
 
-  const submitRole = () => {
+  const submitRole = async () => {
     if (!roleName.trim()) return mwToast("Enter a role name");
-    const role: Role = { name: roleName.trim(), perms: [...rolePerms] };
-    if (editing) setRoles((rs) => rs.map((r, i) => (i === drawer.editIdx ? role : r)));
-    else setRoles((rs) => [...rs, role]);
+    const payload = { name: roleName.trim(), perms: [...rolePerms] };
+    if (editing) {
+      const id = roles[drawer.editIdx!]?.id;
+      if (!id) return;
+      const [res] = await updateOrgRole(id, payload);
+      if (!res?.success) return mwToast("Failed to update role");
+    } else {
+      const [res] = await createOrgRole(payload);
+      if (!res?.success) return mwToast("Failed to create role");
+    }
     close();
-    mwToast(role.name + (editing ? " role updated" : " role created"));
+    mwToast(payload.name + (editing ? " role updated" : " role created"));
+    void load();
   };
-  const submitUser = () => {
+
+  const submitUser = async () => {
     if (!userEmail.trim()) return mwToast("Enter an email");
-    if (!editing) {
+    const roleName0 = [...userRoles][0];
+    const roleId = roles.find((r) => r.name === roleName0)?.id ?? null;
+    if (editing) {
+      const id = users[drawer.editIdx!]?.id;
+      if (!id) return mwToast("Owner row cannot be edited here");
+      const [res] = await updateOrgUser(id, { email: userEmail.trim(), roleId });
+      if (!res?.success) return mwToast("Failed to update user");
+    } else {
       if (!userPw) return mwToast("Enter a password");
       if (userPw !== userPw2) return mwToast("Passwords do not match");
+      const [res] = await createOrgUser({
+        email: userEmail.trim(),
+        password: userPw,
+        roleId,
+      });
+      if (!res?.success) return mwToast("Failed to invite user");
     }
-    const roleName0 = [...userRoles][0] ?? "Member";
-    if (editing) setUsers((us) => us.map((u, i) => (i === drawer.editIdx ? { ...u, email: userEmail.trim(), role: roleName0 } : u)));
-    else setUsers((us) => [...us, { email: userEmail.trim(), role: roleName0, joined: ["—", ""] }]);
     close();
     mwToast(userEmail.trim() + (editing ? " updated" : " invited"));
+    void load();
   };
 
   const delRole = async (i: number) => {
-    if (await confirm(`Delete role "${roles[i]!.name}"?`)) { setRoles((rs) => rs.filter((_, k) => k !== i)); mwToast(roles[i]!.name + " role deleted"); }
+    const role = roles[i];
+    if (!role) return;
+    if (!(await confirm(`Delete role "${role.name}"?`))) return;
+    const [res] = await deleteOrgRole(role.id);
+    if (!res?.success) return mwToast("Failed to delete role");
+    mwToast(role.name + " role deleted");
+    void load();
   };
+
   const delUser = async (i: number) => {
-    if (await confirm(`Remove user "${users[i]!.email}"?`)) { setUsers((us) => us.filter((_, k) => k !== i)); mwToast(users[i]!.email + " removed"); }
+    const user = users[i];
+    if (!user?.id) return mwToast("Owner cannot be removed here");
+    if (!(await confirm(`Remove user "${user.email}"?`))) return;
+    const [res] = await deleteOrgUser(user.id);
+    if (!res?.success) return mwToast("Failed to remove user");
+    mwToast(user.email + " removed");
+    void load();
   };
 
   const NF = (
-    <div className="nf"><div className="nf-ph" aria-hidden /><div className="nf-t">Not found</div></div>
+    <div className="nf"><div className="nf-ph" aria-hidden /><div className="nf-t">{loading ? "Loading…" : "Not found"}</div></div>
   );
 
   return (
@@ -99,7 +170,7 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
           <button className={orgTab === "users" ? "on" : ""} onClick={() => setOrgTab("users")}>Users</button>
         </div>
         <div className="org-actions">
-          <button className="icon-sq" title="Refresh" onClick={() => mwToast("Refreshed")}><IcRefresh /></button>
+          <button className="icon-sq" title="Refresh" onClick={() => void load()}><IcRefresh /></button>
           <button className="btn btn-primary" onClick={() => (orgTab === "roles" ? openRole() : openUser())}>
             <IcPlus width={16} height={16} /><span>{orgTab === "roles" ? "Add role" : "Add user"}</span>
           </button>
@@ -113,12 +184,12 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
               <thead><tr><th>Role</th><th>Permissions</th><th className="r">Actions</th></tr></thead>
               <tbody>
                 {roles.map((r, i) => (
-                  <tr key={i}>
+                  <tr key={r.id}>
                     <td><span className="rchip">{r.name}</span></td>
                     <td className="d2">{r.perms.length} permission{r.perms.length === 1 ? "" : "s"}</td>
                     <td className="r"><div className="rowacts">
                       <button className="ra-btn" onClick={() => openRole(i)}><IcEdit width={15} height={15} />Edit</button>
-                      <button className="ra-btn danger" onClick={() => delRole(i)}><IcTrash width={15} height={15} />Delete</button>
+                      <button className="ra-btn danger" onClick={() => void delRole(i)}><IcTrash width={15} height={15} />Delete</button>
                     </div></td>
                   </tr>
                 ))}
@@ -130,13 +201,17 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
             <thead><tr><th>User</th><th>Role</th><th>Joined on</th><th className="r">Actions</th></tr></thead>
             <tbody>
               {users.map((u, i) => (
-                <tr key={i}>
+                <tr key={`${u.id}-${u.email}`}>
                   <td className="d1">{u.email}</td>
                   <td><span className="rchip">{u.role}</span></td>
                   <td><div className="d1">{u.joined[0]}</div><div className="d2">{u.joined[1]}</div></td>
                   <td className="r"><div className="rowacts">
-                    <button className="ra-btn" onClick={() => openUser(i)}><IcEdit width={15} height={15} />Edit</button>
-                    <button className="ra-btn danger" onClick={() => delUser(i)}><IcTrash width={15} height={15} />Delete</button>
+                    {u.id > 0 && (
+                      <>
+                        <button className="ra-btn" onClick={() => openUser(i)}><IcEdit width={15} height={15} />Edit</button>
+                        <button className="ra-btn danger" onClick={() => void delUser(i)}><IcTrash width={15} height={15} />Delete</button>
+                      </>
+                    )}
                   </div></td>
                 </tr>
               ))}
@@ -145,7 +220,6 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
         )}
       </div>
 
-      {/* Drawer */}
       <div className={`overlay drawer-ov${open ? " open" : ""}`} onClick={(e) => { if (e.target === e.currentTarget) close(); }}>
         <aside className="drawer" role="dialog" aria-modal="true">
           <div className="drawer-head">
@@ -165,7 +239,7 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
                   <button className="rf-all" onClick={() => setRolePerms(rolePerms.size === allPerms.length ? new Set() : new Set(allPerms))}>{rolePerms.size === allPerms.length ? "Deselect all" : "Select all"}</button>
                 </div>
                 <div>
-                  {PERM_GROUPS.map(([g, items]) => (
+                  {permGroups.map(([g, items]) => (
                     <div key={g}>
                       <div className="pgroup">{g}</div>
                       {items.map((p) => (
@@ -192,8 +266,16 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
                 <div className="rf-head"><h4>Roles</h4></div>
                 <div>
                   {roles.map((r) => (
-                    <label className="perm" key={r.name}>
-                      <input type="checkbox" checked={userRoles.has(r.name)} onChange={() => toggle(userRoles, r.name, setUserRoles)} />{r.name}
+                    <label className="perm" key={r.id}>
+                      <input
+                        type="checkbox"
+                        checked={userRoles.has(r.name)}
+                        onChange={() => {
+                          // Single role selection (matches current UX)
+                          setUserRoles(new Set([r.name]));
+                        }}
+                      />
+                      {r.name}
                     </label>
                   ))}
                 </div>
@@ -213,7 +295,7 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
               className="btn btn-primary"
               style={{ width: "100%", justifyContent: "center" }}
               disabled={drawer.kind === "user" && roles.length === 0}
-              onClick={drawer.kind === "role" ? submitRole : submitUser}
+              onClick={() => void (drawer.kind === "role" ? submitRole() : submitUser())}
             >
               {drawer.kind === "role" ? (editing ? "Save Role" : "Create Role") : editing ? "Save user" : "Create user"}
             </button>

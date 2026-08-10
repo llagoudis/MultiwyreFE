@@ -110,7 +110,11 @@ const Dashboard = () => {
           accounts.map((a) => {
             const cm = coinMeta(a.assetId);
             const net = networkOf(a.assetId);
-            const approved = !!a.status;
+            const approval = String(a.approvalStatus || (a.status ? "approved" : "pending")).toLowerCase();
+            const approved = approval === "approved";
+            const rejected = approval === "rejected";
+            const statusClass = approved ? "approved" : rejected ? "failed" : "pending";
+            const statusLabel = approved ? "Approved" : rejected ? "Rejected" : "Pending";
             const bal = balanceByAsset.get(a.assetId);
             const base = (a.Assets?.name ?? a.assetId);
             return (
@@ -119,8 +123,8 @@ const Dashboard = () => {
                 <div className="meta">
                   <div className="nm">{a.label}{net && <span className="net">{net}</span>}</div>
                   <div className="sub">
-                    <span className={`stat ${approved ? "approved" : "pending"}`} title={approved ? "Approved by admin" : "Awaiting admin approval"}>
-                      {approved ? <>Approved<IcLockClosed width={12} height={12} /></> : <><IcClock width={12} height={12} />Pending</>}
+                    <span className={`stat ${statusClass}`} title={statusLabel}>
+                      {approved ? <>Approved<IcLockClosed width={12} height={12} /></> : rejected ? statusLabel : <><IcClock width={12} height={12} />Pending</>}
                     </span>
                     <span className="addr copy" title="Click to copy" onClick={() => copy(a.assetAddress)}>
                       {shortAddr(a.assetAddress)}<IcCopy width={11} height={11} />
