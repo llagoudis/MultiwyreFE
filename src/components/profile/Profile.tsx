@@ -1,7 +1,6 @@
 "use client";
 
 import { Fragment, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { Modal } from "@mui/material";
 import toast from "react-hot-toast";
 import { ApiHandler } from "../../service/UtilService";
@@ -18,6 +17,8 @@ import { IcCamera } from "~/components/mw/icons";
 
 interface Form { currentPassword?: string; newPassword?: string; twoFactorCode?: string }
 type ProfileTab = "settings" | "fees" | "org";
+
+const DEFAULT_AVATAR = "/mw/images/defaultProfile.svg";
 
 const feeIcon = (
   <svg width="18" height="14" viewBox="0 0 18 14" fill="none"><path d="M17.28 4.22 13.28.22a.75.75 0 0 0-1.06 1.06l2.72 2.72H.75a.75.75 0 0 0 0 1.5h16a.75.75 0 0 0 .53-1.28Z" fill="#DB33A1" /><path d="M16.75 8H.75a.75.75 0 0 0-.53 1.28l4 4a.75.75 0 0 0 1.06-1.06L2.56 9.5h14.19a.75.75 0 0 0 0-1.5Z" fill="#DB33A1" /></svg>
@@ -147,7 +148,19 @@ const Profile = () => {
             <div className="ppane">
               <section className="card prow">
                 <div className="pl">
-                  <Image className="pavatar" src={profileImgLink || "/mw/images/defaultProfileImage.png"} alt="Profile" width={62} height={62} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    className="pavatar"
+                    src={profileImgLink || DEFAULT_AVATAR}
+                    alt="Profile"
+                    width={62}
+                    height={62}
+                    onError={(e) => {
+                      const el = e.currentTarget;
+                      if (el.src.includes("defaultProfile.svg")) return;
+                      el.src = DEFAULT_AVATAR;
+                    }}
+                  />
                   <div>
                     <p className="pt">{fullname || "Your account"}</p>
                     <p className="ps">This photo will be displayed on your profile.</p>

@@ -23,7 +23,7 @@ const procBadge = (s = "") => {
 
 const Reports = () => {
   const dashboard = useGlobalStore((s) => s.dashboard);
-  const [tab, setTab] = useState<Tab>(2);
+  const [tab, setTab] = useState<Tab>(1);
   const [showFilters, setShowFilters] = useState(true);
   const [currency, setCurrency] = useState("");
   const [fromDate, setFromDate] = useState("");
@@ -104,7 +104,7 @@ const Reports = () => {
         case "Date and Time": return formatDate(r.createdAt);
         case "Client ID": return r?.customerId ?? "";
         case "Customer E-mail": return r?.customerEmail || r?.recoveryEmail || "";
-        case "Merchant Name": return "";
+        case "Merchant Name": return r?.Merchant?.projectName ?? "";
         case "Unique ID": return r?.widgetNumber ?? "";
         case "Order ID": return r?.orderId ?? "";
         case "Status": return r?.status ?? "";
@@ -201,7 +201,7 @@ const Reports = () => {
                       <td>{formatDate(r?.createdAt)}</td>
                       <td>{r?.customerId ?? "-"}</td>
                       <td className="mut">{r?.customerEmail || r?.recoveryEmail || "-"}</td>
-                      <td className="mut">-</td>
+                      <td className="mut">{r?.Merchant?.projectName ?? "-"}</td>
                       <td>{r?.widgetNumber ?? "-"}</td>
                       <td>{r?.orderId ?? "-"}</td>
                       <td><span className={`badge ${procBadge(r?.status)}`}>{r?.status ?? "-"}</span></td>

@@ -257,11 +257,7 @@ export const companyVerificationSubmitPaymentInfo = (data: CompanyDataReq) =>
   );
 
 export const updateProfilePicture = (data: FormData) =>
-  ProtectedAxiosInstance.post("/auth/update-profile-photo", data, {
-    headers: {
-      "Content-Type": "form-data",
-    },
-  });
+  ProtectedAxiosInstance.post("/auth/update-profile-photo", data);
 
 export const updateInvoicePicture = (data: FormData) =>
   ProtectedAxiosInstance.post("/auth/update-invoice-photo", data, {

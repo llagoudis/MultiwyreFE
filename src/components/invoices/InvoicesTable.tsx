@@ -1,6 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import ReactDOMServer from "react-dom/server";
-import ReactDOM from "react-dom/client";
 import { Box, Button } from "@mui/material";
 import CopyButton from "../../assets/general/copy.svg";
 import {
@@ -17,9 +15,8 @@ import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { ApiHandler } from "~/service/UtilService";
 import toast from "react-hot-toast";
-import { fetchAddressDetails, getInvoices } from "~/service/ApiRequests";
+import { getInvoices } from "~/service/ApiRequests";
 import {
-  convertImageToBase64,
   Debounce,
   ExportCsv,
   formatDate,
@@ -29,11 +26,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import MuiDataGrid from "../MuiDataGrid";
-import InvoiceTemplate from "./InvoiceTemplate";
-import InvoiceTemplateSafari from "./InvoiceTemplateSafari";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-import QRCode from "qrcode";
+import { downloadInvoicePdf } from "./downloadInvoicePdf";
 
 export interface currencyType {
   id: number;
@@ -290,128 +283,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoiceUpdated }) => {
 
   const handleDownload = async (row: Invoices) => {
     handleMenuClose();
-    const [res, error]: APIResult<{
-      invoiceImg: OnvoiceDetailsProp;
-      bankDetails: bankDetailsProp;
-      fromAddress: addressDetailsProp;
-    }> = await ApiHandler(() => fetchAddressDetails(row?.projectId));
-
-    const userAgent = window.navigator.userAgent;
-    const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
-
-    const base64 = await convertImageToBase64(
-      res?.body?.invoiceImg?.invoiceImgLink,
-    );
-
-    const qrBase64 = await QRCode.toDataURL(row.invoiceURL || "", {
-      width: 120,
-    });
-
-    if (!isSafari) {
-      const container = document.createElement("div");
-      container.style.position = "fixed";
-      container.style.top = "-9999px";
-      container.style.left = "-9999px";
-      container.style.pointerEvents = "none";
-      container.style.zIndex = "0";
-      document.body.appendChild(container);
-
-      const root = ReactDOM.createRoot(container);
-      await new Promise((resolve) => {
-        root.render(
-          <InvoiceTemplate
-            invoice={row}
-            addressDetails={res?.body?.fromAddress}
-            bankDetails={res?.body?.bankDetails}
-            invoiceImageUrl={res?.body?.invoiceImg}
-            base64={base64}
-            qrImage={qrBase64}
-          />,
-        );
-        setTimeout(resolve, 500);
-      });
-
-      const canvas = await html2canvas(container, {
-        scale: 2,
-      });
-      const imgData = canvas.toDataURL("image/jpeg", 1.0);
-
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
-
-      const linkElement = container.querySelector<HTMLAnchorElement>(".pdf-link");
-
-      if (linkElement) {
-        const rect = linkElement.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        const pxToMm = (px: number) => px * 0.264583;
-
-        const x = pxToMm(rect.left - containerRect.left);
-        const y = pxToMm(rect.top - containerRect.top);
-        const width = pxToMm(rect.width);
-        const height = pxToMm(rect.height);
-
-        pdf.link(x, y, width, height, { url: linkElement.href });
-      }
-
-      const blob = pdf.output("blob");
-      const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = `Invoice_${row?.id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
-
-      root.unmount();
-      document.body.removeChild(container);
-    } else {
-      const htmlTemplate: string = ReactDOMServer.renderToStaticMarkup(
-        <InvoiceTemplateSafari
-          invoice={row}
-          addressDetails={res?.body?.fromAddress}
-          bankDetails={res?.body?.bankDetails}
-          invoiceImageUrl={res?.body?.invoiceImg}
-          base64={base64}
-          qrImage={qrBase64}
-        />,
-      );
-
-      const win = window.open("", "_blank");
-      if (win) {
-        const styles = Array.from(
-          document.querySelectorAll('link[rel="stylesheet"], style'),
-        )
-          .map((node) => node.outerHTML)
-          .join("\n");
-
-        win.document.write(`
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Invoice_${row?.id}</title>
-          ${styles}
-      </head>
-      <body>
-        ${htmlTemplate}
-      </body>
-      </html>
-    `);
-
-        win.print();
-      }
-    }
+    await downloadInvoicePdf(row);
   };
 
   const columns = React.useMemo<GridColDef[]>(() => [

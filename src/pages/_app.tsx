@@ -173,7 +173,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       `}</style>
       <Home />
       <Component {...pageProps} />
-      <Toaster />
+      <Toaster containerStyle={{ zIndex: 20000 }} />
     </div>
   );
 };

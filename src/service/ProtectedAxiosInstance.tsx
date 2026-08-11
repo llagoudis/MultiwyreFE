@@ -30,13 +30,17 @@ axiosRetry(ProtectedAxiosInstance, {
     }
 
     const url = error?.config?.url;
-    if (url === "/exchange/addOrder" || url === "/transaction") {
+    if (
+      url === "/exchange/addOrder" ||
+      url === "/transaction" ||
+      (typeof url === "string" && url.includes("/org/"))
+    ) {
       return false;
     }
 
     if (axiosRetry.isNetworkOrIdempotentRequestError(error)) {
       if (error?.config?.url) {
-        const excludedEndpoints = ["/exchange/addOrder", "/transaction"];
+        const excludedEndpoints = ["/exchange/addOrder", "/transaction", "/org/"];
         console.log("excludedEndpoints___: ", excludedEndpoints);
         const requestUrl = error.config.url;
         if (

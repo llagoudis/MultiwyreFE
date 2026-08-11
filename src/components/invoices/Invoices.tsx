@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type MouseEvent } from "react";
 import { getInvoices } from "~/service/ApiRequests";
 import { ApiHandler } from "~/service/UtilService";
 import { formatDate, onCopy } from "~/helpers/helper";
 import localStorageService from "~/service/LocalstorageService";
 import AddInvoice from "./AddInvoice";
 import InvoiceCreated from "./InvoiceCreated";
+import { downloadInvoicePdf } from "./downloadInvoicePdf";
 import { IcSearch, IcKebab } from "~/components/mw/icons";
 import mwToast from "~/components/mw/toast";
 
@@ -32,6 +33,8 @@ const Invoices = () => {
   const [openAdd, setOpenAdd] = useState<string>("");
   const [refreshFlag, setRefreshFlag] = useState(false);
   const [viewer, setViewer] = useState(false);
+  const [menu, setMenu] = useState<{ row: Invoices; x: number; y: number } | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const authBody = localStorageService.decodeAuthBody();
@@ -52,6 +55,36 @@ const Invoices = () => {
   }, [page]);
 
   useEffect(() => { void load(); }, [load, refreshFlag]);
+
+  useEffect(() => {
+    if (!menu) return;
+    const close = () => setMenu(null);
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
+    window.addEventListener("click", close);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("click", close);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menu]);
+
+  const openMenu = (e: MouseEvent<HTMLElement>, row: Invoices) => {
+    e.stopPropagation();
+    const r = e.currentTarget.getBoundingClientRect();
+    setMenu((cur) => (cur?.row.id === row.id ? null : { row, x: r.right, y: r.bottom + 6 }));
+  };
+
+  const onDownload = async (row: Invoices) => {
+    setMenu(null);
+    setDownloading(true);
+    try {
+      await downloadInvoicePdf(row);
+    } catch {
+      mwToast("Could not download invoice");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const filtered = useMemo(() => {
     if (!search.trim()) return rows;
@@ -155,7 +188,16 @@ const Invoices = () => {
                       <td>{statusLabel(et?.status ?? r.status) === "Completed" && et?.amount ? <>{et.amount}<div className="sm">({et.assetId})</div></> : "-"}</td>
                       <td><span className={`pill ${statusClass(et?.status ?? r.status)}`}>{statusLabel(et?.status ?? r.status)}</span></td>
                       <td>{r.invoiceURL ? <span className="lnk" onClick={() => onCopy(r.invoiceURL)}>Link Url</span> : "-"}</td>
-                      <td><div className="kebab" title="Open invoice" onClick={() => r.invoiceURL && window.open(r.invoiceURL, "_blank", "noopener")}><IcKebab /></div></td>
+                      <td>
+                        <button
+                          type="button"
+                          className="kebab"
+                          aria-label="Invoice actions"
+                          onClick={(e) => openMenu(e, r)}
+                        >
+                          <IcKebab />
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
@@ -165,6 +207,38 @@ const Invoices = () => {
           {totalPages > 1 && <Pager />}
         </div>
       </section>
+
+      {menu && (
+        <div
+          className="kebab-menu"
+          style={{ top: menu.y, left: menu.x }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button type="button" disabled={downloading} onClick={() => void onDownload(menu.row)}>
+            Download
+          </button>
+          <button
+            type="button"
+            disabled={!menu.row.invoiceURL}
+            onClick={() => {
+              if (menu.row.invoiceURL) onCopy(menu.row.invoiceURL);
+              setMenu(null);
+            }}
+          >
+            Copy link
+          </button>
+          <button
+            type="button"
+            disabled={!menu.row.invoiceURL}
+            onClick={() => {
+              if (menu.row.invoiceURL) window.open(menu.row.invoiceURL, "_blank", "noopener");
+              setMenu(null);
+            }}
+          >
+            Open invoice
+          </button>
+        </div>
+      )}
 
       {openAdd === "addNew" && (
         <AddInvoice onClose={handleInvoiceCreated} openAdd={openAdd} setInvoiceUpdated={() => setRefreshFlag((f) => !f)} />

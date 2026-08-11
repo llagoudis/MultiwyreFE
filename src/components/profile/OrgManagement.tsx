@@ -18,7 +18,7 @@ import {
 
 /**
  * Organisation Management (Roles & Users) — wired to /api/v1/org/*
- * Does not touch platform ACCESS_ROLES / JWT auth roles.
+ * Create user also provisions a real USER + COMPANIES_AND_USERS row so they can log in.
  */
 const FALLBACK_PERM_GROUPS: [string, string[]][] = [
   ["Accounts & Wallets", ["Add wallet", "Edit wallet"]],
@@ -43,6 +43,7 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
   const [userPw, setUserPw] = useState("");
   const [userPw2, setUserPw2] = useState("");
   const [userRoles, setUserRoles] = useState<Set<string>>(new Set());
+  const [saving, setSaving] = useState(false);
 
   const allPerms = useMemo(() => permGroups.flatMap((g) => g[1]), [permGroups]);
   const open = drawer.kind !== null;
@@ -116,26 +117,35 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
 
   const submitUser = async () => {
     if (!userEmail.trim()) return mwToast("Enter an email");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail.trim())) return mwToast("Enter a valid email");
     const roleName0 = [...userRoles][0];
+    if (!roleName0) return mwToast("Select a role");
     const roleId = roles.find((r) => r.name === roleName0)?.id ?? null;
-    if (editing) {
-      const id = users[drawer.editIdx!]?.id;
-      if (!id) return mwToast("Owner row cannot be edited here");
-      const [res] = await updateOrgUser(id, { email: userEmail.trim(), roleId });
-      if (!res?.success) return mwToast("Failed to update user");
-    } else {
-      if (!userPw) return mwToast("Enter a password");
-      if (userPw !== userPw2) return mwToast("Passwords do not match");
-      const [res] = await createOrgUser({
-        email: userEmail.trim(),
-        password: userPw,
-        roleId,
-      });
-      if (!res?.success) return mwToast("Failed to invite user");
+    if (!roleId) return mwToast("Select a role");
+    setSaving(true);
+    try {
+      if (editing) {
+        const id = users[drawer.editIdx!]?.id;
+        if (!id) return mwToast("Owner row cannot be edited here");
+        const [res, err] = await updateOrgUser(id, { email: userEmail.trim(), roleId });
+        if (!res?.success) return mwToast(err || "Failed to update user");
+      } else {
+        if (!userPw) return mwToast("Enter a password");
+        if (userPw.length < 8) return mwToast("Password must be at least 8 characters");
+        if (userPw !== userPw2) return mwToast("Passwords do not match");
+        const [res, err] = await createOrgUser({
+          email: userEmail.trim(),
+          password: userPw,
+          roleId,
+        });
+        if (!res?.success) return mwToast(err || "Failed to create user");
+      }
+      close();
+      mwToast(userEmail.trim() + (editing ? " updated" : " created — they can log in with this email"));
+      void load();
+    } finally {
+      setSaving(false);
     }
-    close();
-    mwToast(userEmail.trim() + (editing ? " updated" : " invited"));
-    void load();
   };
 
   const delRole = async (i: number) => {
@@ -152,8 +162,8 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
     const user = users[i];
     if (!user?.id) return mwToast("Owner cannot be removed here");
     if (!(await confirm(`Remove user "${user.email}"?`))) return;
-    const [res] = await deleteOrgUser(user.id);
-    if (!res?.success) return mwToast("Failed to remove user");
+    const [res, err] = await deleteOrgUser(user.id);
+    if (!res?.success) return mwToast(err || "Failed to remove user");
     mwToast(user.email + " removed");
     void load();
   };
@@ -258,7 +268,7 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
                 {!editing && (
                   <>
                     <label className="rn-lbl" style={{ marginTop: 16 }}>Password</label>
-                    <input className="rn-inp" type="password" placeholder="Enter password" autoComplete="new-password" value={userPw} onChange={(e) => setUserPw(e.target.value)} />
+                    <input className="rn-inp" type="password" placeholder="Enter password (min 8 characters)" autoComplete="new-password" value={userPw} onChange={(e) => setUserPw(e.target.value)} />
                     <label className="rn-lbl" style={{ marginTop: 16 }}>Confirm Password</label>
                     <input className="rn-inp" type="password" placeholder="Re-enter password" autoComplete="new-password" value={userPw2} onChange={(e) => setUserPw2(e.target.value)} />
                   </>
@@ -294,10 +304,16 @@ const OrgManagement = ({ ownerEmail }: { ownerEmail: string }) => {
             <button
               className="btn btn-primary"
               style={{ width: "100%", justifyContent: "center" }}
-              disabled={drawer.kind === "user" && roles.length === 0}
+              disabled={saving || (drawer.kind === "user" && roles.length === 0)}
               onClick={() => void (drawer.kind === "role" ? submitRole() : submitUser())}
             >
-              {drawer.kind === "role" ? (editing ? "Save Role" : "Create Role") : editing ? "Save user" : "Create user"}
+              {saving
+                ? "Saving…"
+                : drawer.kind === "role"
+                  ? (editing ? "Save Role" : "Create Role")
+                  : editing
+                    ? "Save user"
+                    : "Create user"}
             </button>
           </div>
         </aside>

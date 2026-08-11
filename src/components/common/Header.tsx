@@ -29,7 +29,7 @@ const CRUMB: Record<string, string> = {
   Profile: "Account settings and fees",
 };
 
-const DEFAULT_AVATAR = "/mw/headericons/profile-img.png";
+const DEFAULT_AVATAR = "/mw/images/defaultProfile.svg";
 
 const Topbar: React.FC<HeaderProps> = ({ title, crumb }) => {
   const { handleSidebar, setMobileOpen } = useContext(SidebarContext);
@@ -109,7 +109,16 @@ const Topbar: React.FC<HeaderProps> = ({ title, crumb }) => {
 
       <div className="user" onClick={() => switchAccounts.length > 0 && setOpenSwitchAccounts(true)}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="avatar" src={profileImgLink || DEFAULT_AVATAR} alt="" onError={(e) => ((e.target as HTMLImageElement).src = DEFAULT_AVATAR)} />
+        <img
+          className="avatar"
+          src={profileImgLink || DEFAULT_AVATAR}
+          alt=""
+          onError={(e) => {
+            const el = e.currentTarget;
+            if (el.src.includes("defaultProfile.svg")) return;
+            el.src = DEFAULT_AVATAR;
+          }}
+        />
         <div>
           <div className="nm">{activeName || "Account"}</div>
           {activeRole && <div className="rl">{String(activeRole).toUpperCase()}</div>}
@@ -133,7 +142,16 @@ const Topbar: React.FC<HeaderProps> = ({ title, crumb }) => {
             >
               <div className="flex items-center gap-3 px-4 py-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt="" className="h-9 w-9 rounded-full object-cover" src={item?.profileImgLink || DEFAULT_AVATAR} />
+                <img
+                  alt=""
+                  className="h-9 w-9 rounded-full object-cover"
+                  src={item?.profileImgLink || DEFAULT_AVATAR}
+                  onError={(e) => {
+                    const el = e.currentTarget;
+                    if (el.src.includes("defaultProfile.svg")) return;
+                    el.src = DEFAULT_AVATAR;
+                  }}
+                />
                 <div>
                   <p className="text-sm font-bold">{item?.fullname}</p>
                   <p className="text-xs text-gray-500">{item?.email}</p>
