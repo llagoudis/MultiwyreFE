@@ -64,6 +64,8 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       }
     } else if (window.location.pathname === "/auth/resetPassword") {
       router.push("/auth/resetPassword");
+    } else if (!token && window.location.pathname === "/") {
+      router.push("/auth/login");
     } else if (!token && !isUnprotected) {
       router.push("/auth/login");
     }
@@ -79,16 +81,19 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       const ip = res?.ip;
 
       if (ip) {
-        const [res_en, error] = await ApiHandler(checkUserByIP, { ip });
+        const [, error] = await ApiHandler(checkUserByIP, { ip });
 
-        if (error) {
+        // Only show blocked page for real IP blocks — not network/decrypt/DB errors
+        const isIpBlocked =
+          typeof error === "string" &&
+          /ip blocked/i.test(error);
+
+        if (isIpBlocked) {
           router.push("/auth/ipBlocked");
           return;
         }
 
-        if (res_en?.success) {
-          NavigateToLogin();
-        }
+        NavigateToLogin();
       }
     } catch (e) {
       NavigateToLogin();
