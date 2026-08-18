@@ -3,7 +3,7 @@ import Modal from "~/components/mw/Modal";
 import Otp from "~/components/mw/Otp";
 import { IcShieldLock, IcCheck } from "~/components/mw/icons";
 import { baseTicker, coinMeta, networkOf } from "~/components/mw/assets";
-import { createWhitelistAddress, deleteWhitelistAddress } from "~/service/api/accounts";
+import { createWhitelistAddress, updateWhitelistAddress } from "~/service/api/accounts";
 import { verify2FAOTP } from "~/service/api/auth";
 import mwToast from "~/components/mw/toast";
 
@@ -82,9 +82,16 @@ const AddAccountModal = ({ open, onClose, assets, tfaEnabled, editTarget, onSubm
     setBusy(true);
     try {
       if (editing && editTarget) {
-        // No native update endpoint for whitelist — emulate via delete + recreate.
-        const [, delErr] = await deleteWhitelistAddress(editTarget.id);
-        if (delErr) { mwToast(delErr); setBusy(false); return; }
+        const [res, err] = await updateWhitelistAddress(editTarget.id, {
+          assetId: draft.assetId,
+          label: draft.label.trim(),
+          assetAddress: draft.address.trim(),
+          description: "",
+        });
+        if (err || !res?.success) { mwToast(err || "Could not save the account"); setBusy(false); return; }
+        onSubmitted();
+        setPhase("done");
+        return;
       }
       const [res, err] = await createWhitelistAddress({
         assetId: draft.assetId,

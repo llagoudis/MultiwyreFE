@@ -4,14 +4,16 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { Modal } from "@mui/material";
 import toast from "react-hot-toast";
 import { ApiHandler } from "../../service/UtilService";
-import { get2FAQRCode, submit2FAOtp, updatePassword, updateProfilePicture } from "../../service/ApiRequests";
+import { fetchCheckoutFees, get2FAQRCode, submit2FAOtp, updatePassword, updateProfilePicture } from "../../service/ApiRequests";
 import { getOperationTypeUserpanel, getTransferFeesByPricelistId } from "../../service/api/pricelists";
+import { getAllCustomerMerchants } from "../../service/api/accounts";
 import localStorageService from "../../service/LocalstorageService";
 import useGlobalStore from "~/store/useGlobalStore";
 import ChangePassword from "./ChangePassword";
 import TwoFactorAuthentication from "./TwoFactorAuthentication";
 import ChangeAuth from "./ChangeMobileEmail";
 import OrgManagement from "./OrgManagement";
+import IdentityVerificationMainScreen from "../verification/identity-verification/MainScreen";
 import mwToast from "~/components/mw/toast";
 import { IcCamera } from "~/components/mw/icons";
 
@@ -38,12 +40,14 @@ const Profile = () => {
   const [changePasswordModal, setChangePasswordModal] = useState(false);
   const [open, setOpen] = useState(""); // ChangeAuth: "email" | "sms"
   const [tab, setTab] = useState<ProfileTab>("settings");
+  const [identityOpen, setIdentityOpen] = useState(false);
 
   const [userDetails, setUserDetails] = useState<{ email?: string; phone?: string; countryCode?: string; fullname?: string; isUserVerified?: string; tfaEnabled?: boolean }>({});
   const { email, phone, countryCode, fullname, isUserVerified, tfaEnabled } = userDetails;
 
   const [transferFees, setTransferFees] = useState<TransferFees[]>([]);
   const [operationType, setOperationType] = useState<TransferFees[]>([]);
+  const [ecommerceFees, setEcommerceFees] = useState<any[]>([]);
 
   useEffect(() => { useGlobalStore.getState().syncAdminProfile(); }, [dashboard]);
   useEffect(() => { setUserDetails(localStorageService.decodeAuthBody() ?? {}); }, [dashboard]);
@@ -58,6 +62,25 @@ const Profile = () => {
       }
     })();
   }, [dashboard.priceList]);
+
+  useEffect(() => {
+    void (async () => {
+      const [merchantRes] = await getAllCustomerMerchants();
+      const merchant = merchantRes?.body?.[0];
+      const merchantId = merchant?.projectId ?? merchant?.id;
+      if (!merchantId) {
+        setEcommerceFees([]);
+        return;
+      }
+      const [feesRes, error] = await ApiHandler(fetchCheckoutFees, { id: merchantId });
+      if (error) return;
+      const feeRows =
+        feesRes?.body?.merchant?.User?.PriceList?.TransferFees ??
+        feesRes?.body?.merchant?.PriceList?.TransferFees ??
+        [];
+      setEcommerceFees(feeRows);
+    })();
+  }, []);
 
   const operationName = (id?: number) => operationType.find((o) => o.id === id)?.displayName ?? "";
 
@@ -122,6 +145,7 @@ const Profile = () => {
   return (
     <Fragment>
       <ChangeAuth open={open} handleClose={() => setOpen("")} />
+      {identityOpen && <IdentityVerificationMainScreen close={() => setIdentityOpen(false)} />}
 
       <Modal open={changePasswordModal} onClose={() => setChangePasswordModal(false)} className="flex items-center justify-center">
         <div className="w-[420px] max-w-[92vw] rounded-2xl bg-white p-6 outline-none">
@@ -214,7 +238,7 @@ const Profile = () => {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" /><path d="M8 12.5l2.5 2.5L16 9.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                     {identityApproved ? "Approved" : (isUserVerified ? isUserVerified.charAt(0) + isUserVerified.slice(1).toLowerCase() : "Pending")}
                   </span>
-                  <button className="btn-blue" onClick={() => mwToast("Identity update — opens the verification flow")}>View/ Update</button>
+                  <button className="btn-blue" onClick={() => setIdentityOpen(true)}>View/ Update</button>
                 </div>
               </section>
 
@@ -256,7 +280,12 @@ const Profile = () => {
                     <div><p className="pt">Ecommerce Fees</p><p className="ps">Fees for ecommerce and payment gateway services.</p></div>
                   </div>
                   <div className="fee-cols"><span>Description</span><span>Fees</span></div>
-                  <p className="fee-none">No fees configured yet.</p>
+                  {ecommerceFees.length ? ecommerceFees.map((item: any) => (
+                    <div className="fee-row" key={`ecom-${item.id}`}>
+                      <span className="n"><span className="dot" />{operationName(item.operationType) || "Ecommerce"} ({item.currencyId})</span>
+                      <span className="f">{item.percent}% + {item.fixedFee} {item.currencyId}</span>
+                    </div>
+                  )) : <p className="fee-none">No fees configured yet.</p>}
                 </div>
               </div>
             </div>

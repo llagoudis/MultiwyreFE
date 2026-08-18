@@ -6,9 +6,11 @@ import {
   createExchangeTransaction,
   fetchTransaferFeesApi,
   getFxMarkup,
+  SendOTCTradeMail,
   SendEuroMail,
 } from "~/service/ApiRequests";
 import { verify2FAOTP } from "~/service/api/auth";
+import { getEuroTemplates, getLimits } from "~/service/api/transaction";
 import Modal from "~/components/mw/Modal";
 import Otp from "~/components/mw/Otp";
 import { IcShieldLock, IcInfo } from "~/components/mw/icons";
@@ -62,6 +64,9 @@ const ExchangeNew = () => {
   const [otp, setOtp] = useState("");
   const [otpErr, setOtpErr] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [limits, setLimits] = useState<Limits[]>([]);
+  const [euroTemplates, setEuroTemplates] = useState<EuroMail[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState("");
 
   const fromTicker = coinForKrakenName(from);
   const toTicker = coinForKrakenName(to);
@@ -122,6 +127,35 @@ const ExchangeNew = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [from, to]);
 
+  useEffect(() => {
+    if (dashboard.limitList) {
+      void getLimits(dashboard.limitList).then(([res]) => {
+        if (res?.success && res.body) setLimits(res.body);
+      });
+    }
+    void getEuroTemplates().then(([res]) => {
+      if (res?.success && res.body) setEuroTemplates(res.body);
+    });
+  }, [dashboard.limitList]);
+
+  useEffect(() => {
+    const template = euroTemplates.find((item) => item.templateName === selectedTemplate);
+    if (!template) return;
+    setBenef((b) => ({
+      ...b,
+      iban: template.IBAN ?? "",
+      name: template.customerName ?? "",
+      addr: template.customerAddress ?? "",
+      zip: template.customerZipcode ?? "",
+      swift: template.swift ?? "",
+      bank: template.bankName ?? "",
+      bankAddr: template.bankAddress ?? "",
+      bankLoc: template.bankLocation ?? "",
+      bankCountry: template.bankCountry ?? "",
+      ref: template.reference ?? "",
+    }));
+  }, [selectedTemplate, euroTemplates]);
+
   // ---- receive + fee breakdown ----
   const vol = parseFloat(volume) || 0;
   const price = parseFloat(market) || 0;
@@ -139,6 +173,14 @@ const ExchangeNew = () => {
 
   const execute = () => {
     if (vol <= 0) return mwToast("Enter an amount");
+    const limitValue = isToEur ? receive : receive * (parseFloat(market) || 0);
+    const otcLimitHit = limits.some((item) => {
+      if ((item.currencyId !== coinName(toTicker) && item.currencyId !== "ANY") || item.exchangeType !== "OTC_TRADE") return false;
+      if (item.exchangeLimit === "MIN") return limitValue <= Number(item.amount);
+      if (item.exchangeLimit === "MAX") return limitValue >= Number(item.amount);
+      return false;
+    });
+    if (otcLimitHit) return mwToast("Please note your order will be sent to OTC desk");
     let dest = "";
     if (isToEur) {
       if (!benef.iban || !benef.name || !benef.swift || !benef.bank) return mwToast("Fill in the required beneficiary details");
@@ -154,7 +196,7 @@ const ExchangeNew = () => {
       receiveAmt: receive.toFixed(6),
       dest,
       depositAddr: fromAsset?.assetAddress || "—",
-      bankRef: "FX-" + Math.floor(100000 + Math.random() * 900000),
+      bankRef: `FX-${user.id}-${Date.now()}`,
     });
     setView("order");
   };
@@ -189,6 +231,17 @@ const ExchangeNew = () => {
       transactionFee,
     };
     const [res, err] = await ApiHandler(createExchangeTransaction, formData);
+    const otcMail = {
+      clientName: dashboard?.firstname ?? user?.fullname ?? "",
+      contactPerson: dashboard?.lastname ?? "",
+      accountNumber: trade.depositAddr,
+      ordertype: pairInfo.type,
+      date: new Date().toISOString(),
+      fromCurrency: coinName(from),
+      toCurrency: coinName(to),
+      amount: Number(vol),
+    };
+    await ApiHandler(SendOTCTradeMail, otcMail);
     if (isToEur && res?.success) {
       // crypto -> EUR: also register the beneficiary payout via the euro endpoint.
       await SendEuroMail({
@@ -280,6 +333,15 @@ const ExchangeNew = () => {
               ) : (
                 <div className="exc-benef">
                   <h3>Beneficiary Details</h3>
+                  <div className="exc-benef-row">
+                    <label>Saved beneficiary</label>
+                    <select className="rn-inp" value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
+                      <option value="">Select saved beneficiary</option>
+                      {euroTemplates.map((item) => (
+                        <option key={item.id} value={item.templateName}>{item.templateName}</option>
+                      ))}
+                    </select>
+                  </div>
                   <div className="exc-benef-sec">Customer Information</div>
                   <div className="exc-benef-grid">
                     {BENEF_FIELDS.map(([key, label, req, ph]) => (
@@ -349,9 +411,9 @@ const ExchangeNew = () => {
                   <div className="exc-benef">
                     <div className="exc-benef-sec" style={{ paddingTop: 0, borderTop: "none" }}>Multiwyre banking details</div>
                     <div className="exc-benef-row"><label>Beneficiary</label><span className="v mono">Multiwyre Ltd</span></div>
-                    <div className="exc-benef-row"><label>IBAN</label><span className="v mono">LT12 3450 0400 1234 5678</span></div>
-                    <div className="exc-benef-row"><label>SWIFT / BIC</label><span className="v mono">MWYRELT2X</span></div>
-                    <div className="exc-benef-row"><label>Bank name</label><span className="v mono">Multiwyre EMI</span></div>
+                    <div className="exc-benef-row"><label>IBAN</label><span className="v mono">{trade.depositAddr}</span></div>
+                    <div className="exc-benef-row"><label>SWIFT / BIC</label><span className="v mono">Your assigned EUR account</span></div>
+                    <div className="exc-benef-row"><label>Bank name</label><span className="v mono">Use your assigned EUR settlement account</span></div>
                     <div className="exc-benef-row"><label>Reference</label><span className="v mono">{trade.bankRef}</span></div>
                   </div>
                 )}
