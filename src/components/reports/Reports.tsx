@@ -32,6 +32,8 @@ const Reports = () => {
   const [trade, setTrade] = useState<any[]>([]);
   const [proc, setProc] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
 
   const currencyOptions = useMemo(() => {
     const seen = new Set<string>();
@@ -40,23 +42,34 @@ const Reports = () => {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const params: FilterType = { pageSize: 50, pageNumber: 1 } as FilterType;
+    const params: FilterType = { pageSize: 50, pageNumber: page + 1 } as FilterType;
     if (fromDate) params.fromDate = fromDate;
     if (toDate) params.toDate = toDate;
     if (currency) params.assetName = currency;
     if (tab === 1) {
       const [res] = await ApiHandler<{ data: any[]; pagination: Pagination }>(getExchangeTxns, params);
-      if (res?.success && res.body?.data) setTrade(res.body.data);
-      else setTrade([]);
+      if (res?.success && res.body?.data) {
+        setTrade(res.body.data);
+        setPagination(res.body.pagination ?? null);
+      } else {
+        setTrade([]);
+        setPagination(null);
+      }
     } else {
       const [res] = await ApiHandler<{ data: any[]; pagination: Pagination }>(getEcomTransactions, params);
-      if (res?.success && res.body?.data) setProc(res.body.data);
-      else setProc([]);
+      if (res?.success && res.body?.data) {
+        setProc(res.body.data);
+        setPagination(res.body.pagination ?? null);
+      } else {
+        setProc([]);
+        setPagination(null);
+      }
     }
     setLoading(false);
-  }, [tab, currency, fromDate, toDate]);
+  }, [tab, currency, fromDate, toDate, page]);
 
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => { setPage(0); }, [tab]);
 
   const resetFilters = () => { setCurrency(""); setFromDate(""); setToDate(""); };
 
@@ -216,6 +229,17 @@ const Reports = () => {
                 )}
               </tbody>
             </table>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16 }}>
+            <button className="gt" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0 || loading}>Previous</button>
+            <span className="mut">Page {page + 1}{pagination?.totalPages ? ` of ${pagination.totalPages}` : ""}</span>
+            <button
+              className="gt"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={loading || (pagination ? page + 1 >= pagination.totalPages : (tab === 1 ? trade.length < 50 : proc.length < 50))}
+            >
+              Next
+            </button>
           </div>
         </div>
       </section>
