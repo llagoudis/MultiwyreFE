@@ -1,28 +1,37 @@
 import Layout from "~/components/layout";
 import withAuth from "~/components/withAuth";
 import Button from "~/components/common/Button";
-import axios from "axios";
-// import { useRouter } from "next/router";
+import {
+  createEcomUrlTransaction,
+  getMerchantUrlToken,
+} from "~/service/ApiRequests";
 
 const ecompayment = () => {
-  // const router = useRouter();
   const handlePayment = async () => {
-    const paymentData = {
+    const merchantCredentials = {
       projectId: "1",
-      customerId: "38",
       privateKey: "neGliqugApxmTFQiuv5ZnX4ax9hRC71vuP6skh0A0iU=",
       publicKey: "QuX6yNtgEJzu7R04z0QjSF5A/Ay5J8DjDaiPisUg6ZI=",
+    };
+
+    const paymentData = {
+      customerId: "38",
       orderId: "123",
       requestedAmount: "125",
       requestedAssetId: "EUR",
+      successRedirectURL:
+        process.env.NEXT_PUBLIC_SUCCESS_URL ||
+        `${window.location.origin}/buy/success`,
+      failedRedirectURL: `${window.location.origin}/buy/failed`,
+      customerEmail: "test@example.com",
     };
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/v1/ecomtransaction/url/create",
-        paymentData,
-      );
-      if (response) {
+      const tokenResponse = await getMerchantUrlToken(merchantCredentials);
+      const token = tokenResponse.data.token;
+
+      const response = await createEcomUrlTransaction(paymentData, token);
+      if (response?.data?.transaction) {
         window.location.href = response.data.transaction;
       }
     } catch (error) {

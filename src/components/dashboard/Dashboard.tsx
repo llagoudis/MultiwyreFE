@@ -9,12 +9,6 @@ import useConfirm from "~/components/mw/useConfirm";
 import mwToast from "~/components/mw/toast";
 
 const PERIODS = ["Last 24 hours", "Last 7 Days", "Last 30 Days"] as const;
-// Decorative trend bars (no time-series endpoint exists yet — the real numbers
-// below the chart come from transaction/accountBalanceStats).
-const BARS = {
-  deposits: [[6, 9, 7, 11, 8, 13, 10, 16], [7, 5, 9, 8, 12, 10, 14, 11], [9, 7, 11, 8, 13, 12, 15, 18]],
-  withdrawals: [[8, 6, 10, 7, 9, 11, 8, 12], [5, 8, 6, 10, 7, 9, 12, 8], [10, 8, 12, 9, 11, 7, 13, 10]],
-};
 
 const fmtMoney = (n: number) => Number(n || 0).toLocaleString("en-IE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -26,7 +20,7 @@ const Dashboard = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<WhitelistAddress | null>(null);
   const [paKind, setPaKind] = useState<"deposits" | "withdrawals">("deposits");
-  const [pa, setPa] = useState<Record<string, number>>({});
+  const [pa, setPa] = useState<Record<string, number | number[]>>({});
 
   useEffect(() => {
     void syncWhitelist();
@@ -166,8 +160,11 @@ const Dashboard = () => {
             const pre = paKind === "deposits" ? "deposit" : "withdraw";
             const count = Number(pa[`${pre}${win}Count`] ?? 0);
             const amount = Number(pa[`${pre}${win}Amount`] ?? 0);
-            const bars = BARS[paKind][i]!;
-            const max = Math.max(...bars);
+            const seriesRaw = pa[`${pre}${win}Series`];
+            const bars = Array.isArray(seriesRaw)
+              ? seriesRaw.map((value) => Number(value) || 0)
+              : [];
+            const max = Math.max(0, ...bars);
             return (
               <div className="pa-card" key={p}>
                 <div className="lbl">{p}</div>
@@ -175,7 +172,7 @@ const Dashboard = () => {
                 <div className="tx"><IcCard width={14} height={14} />{count} Transactions</div>
                 <div className="chart">
                   {bars.map((b, j) => (
-                    <div key={j} className={`bar${j === bars.length - 1 ? " hi" : ""}`} style={{ height: `${Math.round((b / max) * 100)}%` }} />
+                    <div key={j} className={`bar${j === bars.length - 1 ? " hi" : ""}`} style={{ height: `${max > 0 ? Math.round((b / max) * 100) : 8}%` }} />
                   ))}
                 </div>
               </div>

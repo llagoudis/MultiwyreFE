@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useState, type MouseEvent } from "react";
 import { getInvoices } from "~/service/ApiRequests";
 import { ApiHandler } from "~/service/UtilService";
 import { formatDate, onCopy } from "~/helpers/helper";
@@ -30,6 +30,7 @@ const Invoices = () => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [openAdd, setOpenAdd] = useState<string>("");
   const [refreshFlag, setRefreshFlag] = useState(false);
   const [viewer, setViewer] = useState(false);
@@ -43,18 +44,32 @@ const Invoices = () => {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [res] = await ApiHandler(() =>
-      getInvoices({ pageSize: PER, pageNumber: page + 1, field: "createdAt", sort: "DESC" } as FilterType),
-    );
+    const params: FilterType = {
+      pageSize: PER,
+      pageNumber: page + 1,
+      field: "createdAt",
+      sort: "DESC",
+    };
+    if (debouncedSearch) params.search = debouncedSearch;
+    const [res] = await ApiHandler(() => getInvoices(params));
     if (res?.success && res.body) {
       const body = res.body as unknown as { data: Invoices[]; pagination?: Pagination };
       setRows(body.data ?? []);
       setTotal(body.pagination?.totalItems ?? (body.data?.length ?? 0));
     }
     setLoading(false);
-  }, [page]);
+  }, [page, debouncedSearch]);
 
   useEffect(() => { void load(); }, [load, refreshFlag]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const next = search.trim();
+      setDebouncedSearch(next);
+      setPage(0);
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
     if (!menu) return;
@@ -86,14 +101,6 @@ const Invoices = () => {
     }
   };
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return rows;
-    const q = search.toLowerCase();
-    return rows.filter((r) =>
-      [r.name, r.EcomTransaction?.customerEmail, String(r.id), r.currency].some((v) => String(v ?? "").toLowerCase().includes(q)),
-    );
-  }, [rows, search]);
-
   const totalPages = Math.max(1, Math.ceil(total / PER));
 
   const handleInvoiceCreated = (value: string) => {
@@ -102,9 +109,9 @@ const Invoices = () => {
   };
 
   const exportCsv = () => {
-    if (!filtered.length) return mwToast("Nothing to export");
+    if (!rows.length) return mwToast("Nothing to export");
     const head = ["ID", "Date", "Name", "Email", "Requested", "Currency", "Invoiced", "Asset", "Paid", "Status", "Invoice URL"];
-    const lines = filtered.map((r) => [
+    const lines = rows.map((r) => [
       r.id, formatDate(r.createdAt), r.name, r.EcomTransaction?.customerEmail ?? "",
       r.amount, r.currency, r.EcomTransaction?.exactAmount ?? "", r.EcomTransaction?.assetId ?? "",
       r.EcomTransaction?.amount ?? "", statusLabel(r.EcomTransaction?.status ?? r.status), r.invoiceURL,
@@ -167,9 +174,9 @@ const Invoices = () => {
               <tbody>
                 {loading ? (
                   <tr><td colSpan={11} style={{ textAlign: "center", padding: 32 }} className="mut">Loading invoices…</td></tr>
-                ) : filtered.length === 0 ? (
+                ) : rows.length === 0 ? (
                   <tr><td colSpan={11} style={{ textAlign: "center", padding: 32 }} className="mut">No invoices found</td></tr>
-                ) : filtered.map((r) => {
+                ) : rows.map((r) => {
                   const [d, ...rest] = formatDate(r.createdAt).split(" ");
                   const et = r.EcomTransaction;
                   return (

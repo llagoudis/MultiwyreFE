@@ -18,6 +18,13 @@ const AxiosInstanceEncrypt = axios.create({
   },
 });
 
+const MerchantAxiosInstance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 const AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   headers: {
@@ -279,6 +286,30 @@ export const fetchUserById = async (data: any) =>
   await ProtectedAxiosInstance.get(`/user/${data.id}`);
 
 export const fetchSecurity = () => AxiosInstance.get("/security");
+
+export const getMerchantUrlToken = (data: {
+  projectId: string;
+  privateKey: string;
+  publicKey: string;
+}) => MerchantAxiosInstance.post("/merchant/merchant-url-token", data);
+
+export const createEcomUrlTransaction = (
+  data: {
+    customerId: string;
+    orderId: string;
+    requestedAmount: string;
+    requestedAssetId: string;
+    successRedirectURL: string;
+    failedRedirectURL: string;
+    customerEmail?: string;
+  },
+  token: string,
+) =>
+  MerchantAxiosInstance.post("/ecomtransaction/url/create", data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
 export const getEconUrlTransaction = (data: any) =>
   AxiosInstance.post("/ecomtransaction/url/transaction/get", data, {

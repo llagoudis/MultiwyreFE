@@ -17,6 +17,7 @@ interface FilterType {
   pageSize?: number;
   pageNumber?: number;
   operation?: string;
+  search?: string;
   [key: string]: string | number | null | undefined;
 }
 
