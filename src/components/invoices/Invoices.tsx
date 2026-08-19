@@ -32,6 +32,7 @@ const Invoices = () => {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [openAdd, setOpenAdd] = useState<string>("");
+  const [editInvoice, setEditInvoice] = useState<Invoices | null>(null);
   const [refreshFlag, setRefreshFlag] = useState(false);
   const [viewer, setViewer] = useState(false);
   const [menu, setMenu] = useState<{ row: Invoices; x: number; y: number } | null>(null);
@@ -104,8 +105,26 @@ const Invoices = () => {
   const totalPages = Math.max(1, Math.ceil(total / PER));
 
   const handleInvoiceCreated = (value: string) => {
-    if (value === "success") { setRefreshFlag((f) => !f); setOpenAdd("success"); }
-    else setOpenAdd("");
+    const wasEdit = Boolean(editInvoice);
+    setEditInvoice(null);
+    if (value === "success") {
+      setRefreshFlag((f) => !f);
+      setOpenAdd(wasEdit ? "" : "success");
+    } else {
+      setOpenAdd("");
+    }
+  };
+
+  const onEdit = (row: Invoices) => {
+    const status = (row.EcomTransaction?.status ?? row.status ?? "").toUpperCase();
+    if (status === "COMPLETED") {
+      mwToast("Paid invoices cannot be edited");
+      setMenu(null);
+      return;
+    }
+    setMenu(null);
+    setEditInvoice(row);
+    setOpenAdd("edit");
   };
 
   const exportCsv = () => {
@@ -150,7 +169,7 @@ const Invoices = () => {
               <input placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
             {!viewer && (
-              <button className="btn btn-primary" onClick={() => setOpenAdd("addNew")}>
+              <button className="btn btn-primary" onClick={() => { setEditInvoice(null); setOpenAdd("addNew"); }}>
                 <span style={{ fontSize: 17, lineHeight: 1 }}>+</span> New Invoices
               </button>
             )}
@@ -224,6 +243,11 @@ const Invoices = () => {
           <button type="button" disabled={downloading} onClick={() => void onDownload(menu.row)}>
             Download
           </button>
+          {!viewer && (
+            <button type="button" onClick={() => onEdit(menu.row)}>
+              Edit
+            </button>
+          )}
           <button
             type="button"
             disabled={!menu.row.invoiceURL}
@@ -247,8 +271,13 @@ const Invoices = () => {
         </div>
       )}
 
-      {openAdd === "addNew" && (
-        <AddInvoice onClose={handleInvoiceCreated} openAdd={openAdd} setInvoiceUpdated={() => setRefreshFlag((f) => !f)} />
+      {(openAdd === "addNew" || openAdd === "edit") && (
+        <AddInvoice
+          onClose={handleInvoiceCreated}
+          openAdd={openAdd}
+          invoice={editInvoice ?? undefined}
+          setInvoiceUpdated={() => setRefreshFlag((f) => !f)}
+        />
       )}
       {openAdd === "success" && <InvoiceCreated onClose={() => setOpenAdd("")} openAdd={openAdd} />}
     </div>

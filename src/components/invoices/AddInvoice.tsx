@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Modal from "~/components/mw/Modal";
 import mwToast from "~/components/mw/toast";
-import { createInvoices } from "~/service/ApiRequests";
+import { createInvoices, updateInvoices } from "~/service/ApiRequests";
 import { getAllCustomerMerchants } from "~/service/api/accounts";
 import { ApiHandler } from "~/service/UtilService";
 
@@ -95,7 +95,25 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
   }, [totalAmount, setValue]);
 
   useEffect(() => {
-    if (invoice) reset({ ...invoice });
+    if (!invoice) return;
+    reset({
+      name: invoice.name ?? "",
+      billingAddress: invoice.EcomTransaction?.billingAddress ?? "",
+      currency: invoice.currency ?? "",
+      amount: String(invoice.amount ?? "0"),
+      email: invoice.email ?? "",
+      projectId: String(invoice.projectId ?? ""),
+    });
+    const items = invoice.EcomTransaction?.billingItems;
+    if (items?.length) {
+      setBillingItems(
+        items.map((item, index) => ({
+          id: Date.now() + index,
+          description: item.description ?? "",
+          amount: String(item.amount ?? ""),
+        })),
+      );
+    }
   }, [invoice, reset]);
 
   const addBillingItem = () => {
@@ -130,18 +148,20 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
       email: values.email || null,
       projectId: values.projectId,
     };
-    const [res]: APIResult<any> = await ApiHandler(createInvoices, payload);
+    const [res]: APIResult<any> = invoice
+      ? await ApiHandler(() => updateInvoices(invoice.id, payload as InvoiceForm))
+      : await ApiHandler(createInvoices, payload);
     setLoading(false);
     if (res?.success) onClose("success");
-    else mwToast("Failed to create invoice");
+    else mwToast(invoice ? "Failed to update invoice" : "Failed to create invoice");
   };
 
   return (
     <Modal
       open={Boolean(openAdd)}
       onClose={() => onClose()}
-      title="New invoice"
-      subtitle="Enter invoice details"
+      title={invoice ? "Edit invoice" : "New invoice"}
+      subtitle={invoice ? "Update invoice details" : "Enter invoice details"}
       maxWidth={640}
       footer={
         <>
@@ -154,7 +174,7 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
             disabled={loading}
             onClick={() => void handleSubmit(onSubmit)()}
           >
-            {loading ? "Creating…" : "Create invoice"}
+            {loading ? (invoice ? "Saving…" : "Creating…") : invoice ? "Save" : "Create invoice"}
           </button>
         </>
       }
@@ -215,6 +235,7 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
                 className="inp"
                 value={field.value || ""}
                 onChange={(e) => field.onChange(e.target.value)}
+                disabled={Boolean(invoice)}
               >
                 <option value="">Select project</option>
                 {merchants.map((m) => (

@@ -144,6 +144,9 @@ export const pricelistFn = (projectId: string) =>
 export const createInvoices = (data: InvoiceForm) =>
   ProtectedAxiosInstance.post("invoice/addinvoice", data);
 
+export const updateInvoices = (id: number | string, data: InvoiceForm) =>
+  ProtectedAxiosInstance.put(`invoice/${id}`, data);
+
 export const updateInvoiceTransactions = (data: any) =>
   AxiosInstance.put("ecomtransaction/update", data);
 
