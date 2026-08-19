@@ -1,11 +1,27 @@
-const url =
-  "https://crypto-processing-backend-a4cshfazgbbsgze6.eastus-01.azurewebsites.net/api/v1/checkout-merchant/widget";
+const widgetScriptEl =
+  document.currentScript ||
+  document.querySelector("script[src*='widget.js']");
 
-const baseURL =
-  "https://crypto-processing-user-panel-h2czeeg9eeguh7hh.eastus-01.azurewebsites.net";
+const baseURL = widgetScriptEl?.src
+  ? new URL(widgetScriptEl.src).origin.replace(/\/$/, "")
+  : "";
+
+let url = "";
 let verifiedResponse = null;
 
-console.log("called 5555");
+async function resolveWidgetApiUrl() {
+  const fromAttr = widgetScriptEl?.getAttribute("data-api-base-url");
+  const apiBaseFromAttr = (fromAttr || "").replace(/\/$/, "");
+  if (apiBaseFromAttr) {
+    url = `${apiBaseFromAttr}/checkout-merchant/widget`;
+    return;
+  }
+
+  const res = await fetch(`${baseURL}/api/widget-config`);
+  const data = await res.json();
+  const apiBaseUrl = String(data?.apiBaseUrl || "").replace(/\/$/, "");
+  url = `${apiBaseUrl}/checkout-merchant/widget`;
+}
 
 const options_Data = {
   inputField1: [
@@ -1283,8 +1299,15 @@ let activeInput = null;
 let markup = null;
 let price = null;
 
-function main() {
-  const currentScript = document.currentScript;
+async function main() {
+  const currentScript = widgetScriptEl;
+
+  try {
+    await resolveWidgetApiUrl();
+  } catch (err) {
+    alert("Error loading widget configuration.");
+    return;
+  }
 
   const privateKey = currentScript?.getAttribute("data-private-key");
 
