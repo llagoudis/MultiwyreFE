@@ -1,3 +1,6 @@
+/**
+ * @deprecated Prefer service/api/* modules. Do not add new exports here.
+ */
 import axios from "axios";
 import type {
   getEmailOtpReq,
@@ -7,7 +10,6 @@ import toast from "react-hot-toast";
 import ProtectedAxiosInstance from "./ProtectedAxiosInstance";
 import type { CompanyDataReq } from "~/types/CompanyVerification";
 import { type Transfer } from "~/types/createTransfer";
-// import axiosRetry from "axios-retry";
 import { convertUrlParams, encryptPayload } from "~/helpers/helper";
 import { ApiHandler } from "./UtilService";
 
@@ -31,35 +33,6 @@ const AxiosInstance = axios.create({
     "Content-Type": "application/json",
   },
 });
-
-// axiosRetry(AxiosInstance, {
-//   retries: 10,
-//   retryDelay: axiosRetry.exponentialDelay,
-//   retryCondition: (error: any) => {
-//     if (axiosRetry.isNetworkOrIdempotentRequestError(error)) {
-//       if (error?.config?.url) {
-//         const excludedEndpoints = [
-//           "/exchange/addOrder",
-//           "/transaction",
-//           "/signup",
-//         ];
-//         const requestUrl = error.config.url;
-//         if (
-//           excludedEndpoints.some((endpoint) => requestUrl.includes(endpoint))
-//         ) {
-//           console.log("error?.config?.url: ", error?.config?.url);
-
-//           return false;
-//         }
-//       }
-//     }
-//     if (error?.response?.status) {
-//       return error.response.status >= 450;
-//     }
-
-//     return false;
-//   },
-// });
 
 AxiosInstance.interceptors.request.use(
   (config) => {

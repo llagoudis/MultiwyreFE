@@ -104,7 +104,7 @@ const Dashboard = () => {
           accounts.map((a) => {
             const cm = coinMeta(a.assetId);
             const net = networkOf(a.assetId);
-            const approval = String(a.approvalStatus || (a.status ? "approved" : "pending")).toLowerCase();
+            const approval = String(a.approvalStatus || "pending").toLowerCase();
             const approved = approval === "approved";
             const rejected = approval === "rejected";
             const statusClass = approved ? "approved" : rejected ? "failed" : "pending";

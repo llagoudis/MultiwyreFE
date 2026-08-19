@@ -1,9 +1,8 @@
 import { ApiHandler } from "../UtilService";
 import ProtectedAxiosInstance from "../ProtectedAxiosInstance";
-import AxiosInstance from "~/components/service/ApiService";
 
 const getCountries = async (): APIFunction<Country[]> =>
-  await ApiHandler(() => AxiosInstance.get("/lib/get-all-countries"));
+  await ApiHandler(() => ProtectedAxiosInstance.get("/lib/get-all-countries"));
 
 const getLegalForm = async (): APIFunction<GenericMasterType[]> =>
   await ApiHandler(() => ProtectedAxiosInstance.get("/lib/get-legal-form"));
