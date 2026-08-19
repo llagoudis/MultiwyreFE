@@ -14,9 +14,7 @@ const maskAddress = (maskString: string, assetId: string) => {
   return firstFiveLetters.join("") + "*****" + lastFiveLetters.join("");
 };
 
-const encryptionKey =
-  process.env.NEXT_PUBLIC_ENCRYPTION_KEY ??
-  "Xca{J*3CM-#1S!EmVLryqE,a;x+Bu/L+_XxgaFhGJPi_8Vu7kx2?";
+const encryptionKey = process.env.NEXT_PUBLIC_ENCRYPTION_KEY ?? "";
 export const encryptPayload = (data: any) => {
   const myIp = localStorageService.getIPAddress() ?? "IP not available";
   const ipAddedData = { ...data, ipAddress: myIp };
