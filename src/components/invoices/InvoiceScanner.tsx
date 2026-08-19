@@ -75,7 +75,10 @@ const InvoiceScanner = (props: propType) => {
             toAddress: res?.body?.transactionDetails?.toAddress ?? "",
           });
 
-          if (res?.body?.transactionDetails?.status === "COMPLETED") {
+          if (
+            res?.body?.transactionDetails?.status === "COMPLETED" ||
+            res?.body?.status === "COMPLETED"
+          ) {
             props.onPaymentSuccess(res?.body);
           }
         }
@@ -108,12 +111,15 @@ const InvoiceScanner = (props: propType) => {
   };
 
   const [ws, setWs] = useState<WebSocket | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     const merchantId = props.invoiceDetails?.merchantId;
+    let cancelled = false;
     const connectWebSocket = () => {
       const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
       const newWs = new WebSocket(`${wsUrl}?token=${merchantId}`);
+      wsRef.current = newWs;
       setWs(newWs);
       newWs.onopen = () => {
         console.log("WebSocket connection opened");
@@ -138,19 +144,20 @@ const InvoiceScanner = (props: propType) => {
         }
       };
 
-      newWs.onclose = (event) => {
-        setTimeout(() => {
-          connectWebSocket();
-        }, 3000);
+      newWs.onclose = () => {
+        if (!cancelled) {
+          setTimeout(() => {
+            connectWebSocket();
+          }, 3000);
+        }
       };
     };
 
     connectWebSocket();
 
     return () => {
-      if (ws) {
-        ws.close();
-      }
+      cancelled = true;
+      wsRef.current?.close();
     };
   }, [state]);
   return (

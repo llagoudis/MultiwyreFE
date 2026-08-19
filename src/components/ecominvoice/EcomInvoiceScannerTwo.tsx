@@ -1,7 +1,7 @@
 import { Box, Button } from "@mui/material";
 import Image from "next/image";
 import QRCode from "qrcode.react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { TEST_COINS } from "~/helpers/helper";
 import Failed from "../../assets/general/close.png";
@@ -9,6 +9,8 @@ import Close from "../../assets/general/close.svg";
 import Copy from "../../assets/general/copy.svg";
 import Exclamatory from "../../assets/general/exclamatory.svg";
 import Timer from "./Timer";
+import { getEconUrlTransaction } from "~/service/ApiRequests";
+import { ApiHandler } from "~/service/UtilService";
 
 type propType = {
   onClose: (value?: any, status?: any) => void;
@@ -44,12 +46,40 @@ const EcomInvoiceScannerTwo = (props: propType) => {
   const [countdown, setCountdown] = useState(10);
   const [ethProvider, setEthProvider] = useState<any>(null);
   const [currentAccount, setCurrentAccount] = useState<string>();
+  const paidRef = useRef(false);
+  const wsRef = useRef<WebSocket | null>(null);
+
+  const markPaid = (data: any) => {
+    if (paidRef.current) return;
+    paidRef.current = true;
+    setStatus(data);
+    props.onClose("success", data);
+  };
+
+  useEffect(() => {
+    const pollStatus = async () => {
+      const url = window.location.href;
+      const [res] = await ApiHandler(getEconUrlTransaction, { url });
+      if (res?.body?.status === "COMPLETED") {
+        markPaid(res.body);
+      }
+    };
+
+    void pollStatus();
+    const interval = setInterval(() => {
+      void pollStatus();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const merchantId = tmerchant?.publicKey;
+    let cancelled = false;
     const connectWebSocket = () => {
       const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
       const newWs = new WebSocket(`${wsUrl}?token=${merchantId}`);
+      wsRef.current = newWs;
       setWs(newWs);
 
       newWs.onopen = () => {
@@ -68,27 +98,27 @@ const EcomInvoiceScannerTwo = (props: propType) => {
             data?.assetId == body?.assetId &&
             data?.toAddress == body?.toAddress
           ) {
-            setStatus(data);
-            props.onClose("success", data);
+            markPaid(data);
           }
         } catch (error) {
           console.error("Error parsing message:", error);
         }
       };
 
-      newWs.onclose = (event) => {
-        setTimeout(() => {
-          connectWebSocket();
-        }, 3000);
+      newWs.onclose = () => {
+        if (!cancelled) {
+          setTimeout(() => {
+            connectWebSocket();
+          }, 3000);
+        }
       };
     };
 
     connectWebSocket();
 
     return () => {
-      if (ws) {
-        ws.close();
-      }
+      cancelled = true;
+      wsRef.current?.close();
     };
   }, []);
 
