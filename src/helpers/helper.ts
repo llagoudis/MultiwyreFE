@@ -14,8 +14,11 @@ const maskAddress = (maskString: string, assetId: string) => {
   return firstFiveLetters.join("") + "*****" + lastFiveLetters.join("");
 };
 
-const encryptionKey = process.env.NEXT_PUBLIC_ENCRYPTION_KEY ?? "";
+const encryptionKey = process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
 export const encryptPayload = (data: any) => {
+  if (!encryptionKey) {
+    throw new Error("NEXT_PUBLIC_ENCRYPTION_KEY is not configured");
+  }
   const myIp = localStorageService.getIPAddress() ?? "IP not available";
   const ipAddedData = { ...data, ipAddress: myIp };
   const encryptedData = CryptoJS.AES.encrypt(
@@ -28,6 +31,9 @@ export const encryptPayload = (data: any) => {
 };
 
 export const decryptResponse = (data: any) => {
+  if (!encryptionKey) {
+    throw new Error("NEXT_PUBLIC_ENCRYPTION_KEY is not configured");
+  }
   const decryptedData = CryptoJS.AES.decrypt(data, encryptionKey).toString(
     CryptoJS.enc.Utf8,
   );

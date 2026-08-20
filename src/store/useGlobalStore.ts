@@ -85,10 +85,12 @@ const useGlobalStore = create(
       ...initGlobal,
 
       async syncDashboard() {
-        const [res, error] = await getDashboard();
+        const [res] = await getDashboard();
         if (res?.success) {
           set({ dashboard: { ...res.body, updatedWithApi: true } });
+          return;
         }
+        set({ dashboard: { ...get().dashboard, updatedWithApi: true } });
       },
 
       async syncAdminProfile() {
