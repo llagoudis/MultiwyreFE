@@ -40,7 +40,7 @@ const UserDashboard = () => {
   return (
     <Layout title="Dashboard">
       {isClient &&
-        (!dashboard.updatedWithApi || isComplete !== "COMPLETE" ? (
+        (!dashboard.updatedWithApi ? (
           <div className="flex min-h-[90vh] flex-col items-center justify-center gap-10">
             <CircularProgress color="inherit" size={70} />
             <p className="text-xl">Loading account details.</p>
