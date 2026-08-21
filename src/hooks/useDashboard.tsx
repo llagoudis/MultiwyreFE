@@ -9,7 +9,7 @@ const useDashboard = () => {
   ]);
 
   useEffect(() => {
-    if (!state.updatedWithApi && setupComplete === "COMPLETE") {
+    if (!state.updatedWithApi) {
       sync();
     }
   }, [setupComplete]);
