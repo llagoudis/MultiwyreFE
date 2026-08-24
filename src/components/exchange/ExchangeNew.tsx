@@ -78,14 +78,14 @@ const pairs = [
 const availableCurrencies = ["BTC", "USDC", "EUR", "USDT", "ETH"];
 
 const BENEF_FIELDS = [
-  ["iban", "IBAN", true, "GB08 PYYP 0099 3912 0001 49"],
+  ["iban", "IBAN", true, "Enter IBAN"],
   ["name", "Customer name", true, "Full name"],
   ["addr", "Customer address", true, "Street address"],
   ["zip", "Customer ZIP code", true, "ZIP / postcode"],
   ["dest", "Destination address", false, "Same as IBAN"],
 ] as const;
 const BENEF_BANK = [
-  ["swift", "Customer swift", true, "PYYPGB21"],
+  ["swift", "Customer swift", true, "Enter SWIFT"],
   ["bank", "Bank name", true, "Bank name"],
   ["bankAddr", "Bank address", true, "Street, city"],
   ["bankLoc", "Bank location", true, "Postcode"],
