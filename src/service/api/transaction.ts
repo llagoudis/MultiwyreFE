@@ -35,6 +35,26 @@ const getEuroTemplates = async (): APIFunction<EuroMail[]> =>
     ProtectedAxiosInstance.get("/exchange/euro-templates"),
   );
 
+/** Multiwyre EUR settlement details from Admin Beneficiary (read-only). */
+export type CompanyBeneficiary = {
+  iban?: string;
+  customerName?: string;
+  customerAddress?: string;
+  customerZip?: string;
+  destinationAddress?: string;
+  customerSwift?: string;
+  bankName?: string;
+  bankAddress?: string;
+  bankLocation?: string;
+  bankCountry?: string;
+  bankReference?: string;
+};
+
+const getCompanyBeneficiary = async (): APIFunction<CompanyBeneficiary> =>
+  await ApiHandler(() =>
+    ProtectedAxiosInstance.get("/exchange/company-beneficiary"),
+  );
+
 const getExchangeTxns = (params: FilterType) => {
   return ProtectedAxiosInstance.get(
     `transaction/reports?${convertUrlParams({
@@ -47,6 +67,7 @@ const getExchangeTxns = (params: FilterType) => {
 export {
   createInternalTransaction,
   createTransaction,
+  getCompanyBeneficiary,
   getEcomTransactions,
   getEuroTemplates,
   getExchangeTxns,

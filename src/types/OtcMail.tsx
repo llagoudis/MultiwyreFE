@@ -7,6 +7,17 @@ interface OTCMail {
   fromCurrency: string;
   toCurrency: string;
   amount: number;
+  /** When set, BE creates a PENDING OTC_TRANSACTION desk order */
+  spendingCurrency?: string;
+  receivingCurrency?: string;
+  spendingAmount?: number;
+  receivingAmount?: number;
+  price?: number;
+  exchangeFee?: number;
+  transactionFee?: number;
+  fxMarkUp?: number;
+  type?: string;
+  destinationAddress?: string;
 }
 
 interface EuroMail {

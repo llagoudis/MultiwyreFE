@@ -3,18 +3,73 @@ import useGlobalStore from "~/store/useGlobalStore";
 import { changeName, coinForKrakenName, coinName, dateValidation } from "~/helpers/helper";
 import { ApiHandler } from "~/service/UtilService";
 import {
-  createExchangeTransaction,
   fetchTransaferFeesApi,
   getFxMarkup,
   SendOTCTradeMail,
-  SendEuroMail,
 } from "~/service/ApiRequests";
 import { verify2FAOTP } from "~/service/api/auth";
-import { getEuroTemplates, getLimits } from "~/service/api/transaction";
+import { getCompanyBeneficiary, getEuroTemplates, getLimits, type CompanyBeneficiary } from "~/service/api/transaction";
 import Modal from "~/components/mw/Modal";
 import Otp from "~/components/mw/Otp";
 import { IcShieldLock, IcInfo } from "~/components/mw/icons";
 import mwToast from "~/components/mw/toast";
+
+/** Same visuals as Admin walleticons — used when Azure Assets.icon URL fails locally. */
+const LOCAL_COIN_ICON: Record<string, string> = {
+  BTC: "/mw/coinicons/btc.svg",
+  ETH: "/mw/coinicons/eth.svg",
+  USDT: "/mw/coinicons/usdt.svg",
+  "USDT.t": "/mw/coinicons/trx.svg",
+  USDC: "/mw/coinicons/USDC.svg",
+  EUR: "/mw/coinicons/eur.svg",
+};
+
+/** Admin Assets.icon first; local Admin SVGs if remote fails; letter last (QA #58). */
+const AssetIcon = ({ icon, ticker }: { icon?: string; ticker: string }) => {
+  const norm =
+    LOCAL_COIN_ICON[ticker]
+      ? ticker
+      : (() => {
+          const u = String(ticker || "").toUpperCase();
+          if (u.includes("USDC")) return "USDC";
+          if (u.includes("TRC20") || u === "USDT.T") return "USDT.t";
+          if (u.includes("USDT")) return "USDT";
+          if (u.startsWith("BTC")) return "BTC";
+          if (u.startsWith("ETH")) return "ETH";
+          if (u.startsWith("EUR")) return "EUR";
+          return ticker;
+        })();
+  const letter = (norm || "?").charAt(0).toUpperCase();
+  const remote = (icon ?? "").trim();
+  const local = LOCAL_COIN_ICON[norm] ?? "";
+  const [phase, setPhase] = useState<"remote" | "local" | "letter">(() =>
+    remote ? "remote" : local ? "local" : "letter",
+  );
+
+  useEffect(() => {
+    setPhase(remote ? "remote" : local ? "local" : "letter");
+  }, [remote, local]);
+
+  const src = phase === "remote" ? remote : phase === "local" ? local : "";
+  const showImg = Boolean(src);
+
+  return (
+    <span className={`exc-coin${showImg ? " has-img" : ""}`}>
+      {showImg ? (
+        <img
+          src={src}
+          alt=""
+          onError={() => {
+            if (phase === "remote" && local) setPhase("local");
+            else setPhase("letter");
+          }}
+        />
+      ) : (
+        letter
+      )}
+    </span>
+  );
+};
 
 const pairs = [
   "BTC/USDC", "BTC/EUR", "USDC/EUR", "ETH/EUR", "ETH/USDC", "ETH/BTC",
@@ -59,7 +114,20 @@ const ExchangeNew = () => {
   const [benef, setBenef] = useState<Record<BenefKey, string>>({ iban: "", name: "", addr: "", zip: "", dest: "", swift: "", bank: "", bankAddr: "", bankLoc: "", bankCountry: "", ref: "" });
 
   const [view, setView] = useState<"form" | "order">("form");
-  const [trade, setTrade] = useState<{ vol: string; from: string; to: string; receiveAmt: string; dest: string; depositAddr: string; bankRef: string } | null>(null);
+  const [trade, setTrade] = useState<{
+    vol: string;
+    from: string;
+    to: string;
+    receiveAmt: string;
+    dest: string;
+    depositAddr: string;
+    bankRef: string;
+    price: string;
+    exchangeFee: number;
+    transactionFee: number;
+    fxMarkUp: number;
+    pairType: string;
+  } | null>(null);
   const [tfaOpen, setTfaOpen] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpErr, setOtpErr] = useState(false);
@@ -67,6 +135,8 @@ const ExchangeNew = () => {
   const [limits, setLimits] = useState<Limits[]>([]);
   const [euroTemplates, setEuroTemplates] = useState<EuroMail[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [companyBenef, setCompanyBenef] = useState<CompanyBeneficiary | null>(null);
+  const [companyBenefLoaded, setCompanyBenefLoaded] = useState(false);
 
   const fromTicker = coinForKrakenName(from);
   const toTicker = coinForKrakenName(to);
@@ -136,6 +206,10 @@ const ExchangeNew = () => {
     void getEuroTemplates().then(([res]) => {
       if (res?.success && res.body) setEuroTemplates(res.body);
     });
+    void getCompanyBeneficiary().then(([res]) => {
+      setCompanyBenefLoaded(true);
+      if (res?.success && res.body) setCompanyBenef(res.body);
+    });
   }, [dashboard.limitList]);
 
   useEffect(() => {
@@ -171,16 +245,19 @@ const ExchangeNew = () => {
   };
   const swap = () => { const f = from; setFrom(to); setTo(f); };
 
+  const companyIban = (companyBenef?.iban ?? "").trim();
+  const companyConfigured = Boolean(companyIban && (companyBenef?.customerName ?? "").trim());
+
   const execute = () => {
     if (vol <= 0) return mwToast("Enter an amount");
-    const limitValue = isToEur ? receive : receive * (parseFloat(market) || 0);
-    const otcLimitHit = limits.some((item) => {
-      if ((item.currencyId !== coinName(toTicker) && item.currencyId !== "ANY") || item.exchangeType !== "OTC_TRADE") return false;
-      if (item.exchangeLimit === "MIN") return limitValue <= Number(item.amount);
-      if (item.exchangeLimit === "MAX") return limitValue >= Number(item.amount);
-      return false;
-    });
-    if (otcLimitHit) return mwToast("Please note your order will be sent to OTC desk");
+    if (isFromEur) {
+      if (!companyBenefLoaded) return mwToast("Loading settlement details…");
+      if (!companyConfigured) {
+        return mwToast("EUR settlement details are not configured yet. Contact support.");
+      }
+    } else if (!fromAsset?.assetAddress) {
+      return mwToast("No wallet found for the spending asset");
+    }
     let dest = "";
     if (isToEur) {
       if (!benef.iban || !benef.name || !benef.swift || !benef.bank) return mwToast("Fill in the required beneficiary details");
@@ -189,14 +266,30 @@ const ExchangeNew = () => {
       dest = destAddr.trim();
       if (!dest) return mwToast("Enter a destination wallet address");
     }
+    // OTC Exchange page: always desk flow (Pending History). Limits are informational only.
+    const limitValue = isToEur ? receive : receive * (parseFloat(market) || 0);
+    const otcLimitHit = limits.some((item) => {
+      if ((item.currencyId !== coinName(toTicker) && item.currencyId !== "ANY") || item.exchangeType !== "OTC_TRADE") return false;
+      if (item.exchangeLimit === "MIN") return limitValue <= Number(item.amount);
+      if (item.exchangeLimit === "MAX") return limitValue >= Number(item.amount);
+      return false;
+    });
+    if (otcLimitHit) {
+      mwToast("Order size is outside auto limits — OTC desk will review this Pending order");
+    }
     setTrade({
       vol: String(vol),
       from,
       to,
       receiveAmt: receive.toFixed(6),
       dest,
-      depositAddr: fromAsset?.assetAddress || "—",
+      depositAddr: isFromEur ? companyIban : fromAsset!.assetAddress,
       bankRef: `FX-${user.id}-${Date.now()}`,
+      price: market,
+      exchangeFee,
+      transactionFee,
+      fxMarkUp: fees.fxMarkUp,
+      pairType: pairInfo.type,
     });
     setView("order");
   };
@@ -209,68 +302,72 @@ const ExchangeNew = () => {
     setTrade(null);
   };
 
+  /** OTC Exchange: create PENDING desk trade only — no Kraken, no balance debit. */
   const submitOrder = async () => {
     if (!trade) return;
-    setBusy(true);
-    const formData = {
-      spendingCurrency: from,
-      receivingCurrency: to,
-      pair: pairInfo.pair,
-      ordertype: "market",
-      price: market,
-      spendingAmount: vol,
-      receivingAmount: receive,
-      volume: pairInfo.type === "sell" ? vol : receive,
-      type: pairInfo.type,
-      fxMarkUp: fees.fxMarkUp,
-      exchangeFixedFee: fees.exchangeFixedFee,
-      exchangePercent: fees.exchangePercent,
-      transactionFixedFee: fees.transactionFixedFee,
-      transactionPercent: fees.transactionPercent,
-      exchangeFee,
-      transactionFee,
-    };
-    const [res, err] = await ApiHandler(createExchangeTransaction, formData);
-    const otcMail = {
-      clientName: dashboard?.firstname ?? user?.fullname ?? "",
-      contactPerson: dashboard?.lastname ?? "",
-      accountNumber: trade.depositAddr,
-      ordertype: pairInfo.type,
-      date: new Date().toISOString(),
-      fromCurrency: coinName(from),
-      toCurrency: coinName(to),
-      amount: Number(vol),
-    };
-    await ApiHandler(SendOTCTradeMail, otcMail);
-    if (isToEur && res?.success) {
-      // crypto -> EUR: also register the beneficiary payout via the euro endpoint.
-      await SendEuroMail({
-        IBAN: benef.iban, customerName: benef.name, customerAddress: benef.addr, customerZipcode: benef.zip,
-        customerCity: "", customerCountry: benef.bankCountry, swift: benef.swift, bankName: benef.bank,
-        bankAddress: benef.bankAddr, bankLocation: benef.bankLoc, bankCountry: benef.bankCountry,
-        paymentSystemType: "SEPA", reference: benef.ref || trade.bankRef, amount: receive, currency: "EUR",
-        transferFee: transactionFee, description: benef.ref || "FX Conversion",
-      } as unknown as EuroMail).catch(() => undefined);
+    const spendAmt = Number(trade.vol);
+    const receiveAmt = Number(trade.receiveAmt);
+    if (!(spendAmt > 0) || !Number.isFinite(spendAmt)) {
+      mwToast("Invalid spend amount");
+      return;
     }
-    setBusy(false);
-    if (err || !res?.success) return mwToast(err || "Could not submit the order");
-    mwToast(res?.message || "Order confirmed — view it in History → Trading History");
-    setTfaOpen(false);
-    resetForm();
+    setBusy(true);
+    try {
+      const otcPayload: OTCMail = {
+        clientName: dashboard?.firstname ?? user?.fullname ?? "",
+        contactPerson: dashboard?.lastname ?? "",
+        accountNumber: trade.depositAddr,
+        ordertype: trade.pairType,
+        date: new Date().toISOString(),
+        fromCurrency: coinName(trade.from),
+        toCurrency: coinName(trade.to),
+        amount: spendAmt,
+        spendingCurrency: trade.from,
+        receivingCurrency: trade.to,
+        spendingAmount: spendAmt,
+        receivingAmount: receiveAmt,
+        price: parseFloat(trade.price) || 0,
+        exchangeFee: trade.exchangeFee,
+        transactionFee: trade.transactionFee,
+        fxMarkUp: trade.fxMarkUp,
+        type: trade.pairType,
+        destinationAddress: trade.dest,
+      };
+      const [res, err] = await ApiHandler(SendOTCTradeMail, otcPayload);
+      if (err || !res?.success) {
+        mwToast(err || "Could not submit OTC order to desk");
+        return;
+      }
+      mwToast(res?.message || "OTC order submitted — view Pending in History → Trading History");
+      setTfaOpen(false);
+      resetForm();
+    } finally {
+      setBusy(false);
+    }
   };
 
   const onConfirm = () => {
-    if (user.tfaEnabled) { setOtp(""); setOtpErr(false); setTfaOpen(true); }
-    else void submitOrder();
+    if (busy) return;
+    if (user.tfaEnabled) {
+      setOtp("");
+      setOtpErr(false);
+      setTfaOpen(true);
+      return;
+    }
+    void submitOrder();
   };
 
   const onVerify = async () => {
-    if (otp.length !== 6) return;
+    if (otp.length !== 6 || busy) return;
     setBusy(true);
     const [res, err] = await verify2FAOTP(otp);
-    setBusy(false);
-    if (err || !res?.success) { setOtpErr(true); setOtp(""); return; }
-    void submitOrder();
+    if (err || !res?.success) {
+      setBusy(false);
+      setOtpErr(true);
+      setOtp("");
+      return;
+    }
+    await submitOrder();
   };
 
   const CoinDropdown = ({ side }: { side: "from" | "to" }) => {
@@ -281,14 +378,15 @@ const ExchangeNew = () => {
       <div className="exc-fld" style={{ position: "relative" }}>
         <label>{side === "from" ? "From" : "To"}</label>
         <div className="exc-select" onClick={(e) => { e.stopPropagation(); setMenu(menu === side ? "" : side); }}>
-          <span className="exc-coin">{coinForKrakenName(current).charAt(0)}</span>
+          <AssetIcon icon={curAsset?.icon} ticker={coinForKrakenName(current)} />
           <span>{curAsset?.name ?? coinForKrakenName(current)}</span>
           <svg className="chev" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
         </div>
         <div className={`exc-menu${menu === side ? " open" : ""}`}>
           {assets.filter((a) => a.assetId !== exclude).map((a) => (
             <div key={a.assetId} className={`opt${a.assetId === current ? " on" : ""}`} onClick={(e) => { e.stopPropagation(); selectSide(side, a.assetId); }}>
-              <span className="exc-coin">{coinForKrakenName(a.assetId).charAt(0)}</span>{a.name} ({coinForKrakenName(a.assetId)})
+              <AssetIcon icon={a.icon} ticker={coinForKrakenName(a.assetId)} />
+              {a.name} ({coinForKrakenName(a.assetId)})
             </div>
           ))}
         </div>
@@ -409,23 +507,52 @@ const ExchangeNew = () => {
                   </div>
                 ) : (
                   <div className="exc-benef">
-                    <div className="exc-benef-sec" style={{ paddingTop: 0, borderTop: "none" }}>Multiwyre banking details</div>
-                    <div className="exc-benef-row"><label>Beneficiary</label><span className="v mono">Multiwyre Ltd</span></div>
-                    <div className="exc-benef-row"><label>IBAN</label><span className="v mono">{trade.depositAddr}</span></div>
-                    <div className="exc-benef-row"><label>SWIFT / BIC</label><span className="v mono">Your assigned EUR account</span></div>
-                    <div className="exc-benef-row"><label>Bank name</label><span className="v mono">Use your assigned EUR settlement account</span></div>
-                    <div className="exc-benef-row"><label>Reference</label><span className="v mono">{trade.bankRef}</span></div>
+                    <div className="exc-benef-sec" style={{ paddingTop: 0, borderTop: "none" }}>Settlement banking details</div>
+                    {!companyConfigured ? (
+                      <p className="exc-note" style={{ margin: "8px 0 0" }}>
+                        EUR settlement details are not configured. Ask an admin to set Beneficiary Details, then refresh.
+                      </p>
+                    ) : (
+                      <>
+                        {([
+                          ["Beneficiary", companyBenef?.customerName],
+                          ["IBAN", companyBenef?.iban || trade.depositAddr],
+                          ["Address", companyBenef?.customerAddress],
+                          ["ZIP", companyBenef?.customerZip],
+                          ["Destination", companyBenef?.destinationAddress],
+                          ["SWIFT / BIC", companyBenef?.customerSwift],
+                          ["Bank name", companyBenef?.bankName],
+                          ["Bank address", companyBenef?.bankAddress],
+                          ["Bank location", companyBenef?.bankLocation],
+                          ["Bank country", companyBenef?.bankCountry],
+                        ] as const)
+                          .filter(([, v]) => Boolean((v ?? "").trim()))
+                          .map(([label, v]) => (
+                            <div className="exc-benef-row" key={label}>
+                              <label>{label}</label>
+                              <span className="v mono">{v}</span>
+                            </div>
+                          ))}
+                        <div className="exc-benef-row">
+                          <label>Reference</label>
+                          <span className="v mono">{trade.bankRef}</span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
 
                 <div className="exc-note">
                   <IcInfo width={16} height={16} />
-                  <p>Once confirmed, <b>{trade.receiveAmt} {coinForKrakenName(trade.to)}</b> will be sent to <span className="addr">{trade.dest}</span>.</p>
+                  <p>
+                    Confirming sends this trade to the <b>OTC desk</b> as a <b>Pending</b> order
+                    (no automatic exchange). Track it under History → Trading History.
+                  </p>
                 </div>
               </div>
               <div className="exc-foot" style={{ justifyContent: "space-between" }}>
-                <button className="btn btn-ghost" onClick={resetForm}>New Trade</button>
-                <button className="btn btn-primary" onClick={onConfirm} disabled={busy}>Confirmed</button>
+                <button className="btn btn-ghost" onClick={resetForm} disabled={busy}>New Trade</button>
+                <button className="btn btn-primary" onClick={onConfirm} disabled={busy}>{busy ? "Submitting…" : "Confirmed"}</button>
               </div>
             </div>
           </section>
