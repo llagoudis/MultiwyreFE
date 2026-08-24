@@ -17,8 +17,10 @@ import {
 } from "~/service/api/org";
 
 /**
- * Organisation Management (Roles & Users) — wired to /api/v1/org/*
- * Create user also provisions a real USER + COMPANIES_AND_USERS row so they can log in.
+ * Organisation Management (Roles & Users) — wired to `/api/v1/org/*`.
+ * QA #59 (client Aug 2026): create + login is enough; no Admin ACCESS_ROLES
+ * sync and no User-FE permission gating for now (deferred).
+ * Create user provisions USER + COMPANIES_AND_USERS + ORG_USERS so they can log in.
  */
 const FALLBACK_PERM_GROUPS: [string, string[]][] = [
   ["Accounts & Wallets", ["Add wallet", "Edit wallet"]],

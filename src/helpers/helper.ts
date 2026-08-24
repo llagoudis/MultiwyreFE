@@ -91,13 +91,16 @@ export function coinForKrakenName(value: any) {
       ? "USDT"
       : value;
   } else {
+    // Keep in sync with qa mappings so OTC icons/pairs resolve on local/dev too (QA #58).
     return value === "BTC"
       ? "BTC"
       : value === "TRX_USDT_S2UZ"
       ? "USDT"
-      : value === "USDC"
+      : value === "USDT_TRC20"
+      ? "USDT.t"
+      : value === "USDC" || value === "USDC_ERC20" || value === "USDC_POLYGON"
       ? "USDC"
-      : value === "USDT_ERC20"
+      : value === "USDT_ERC20" || value === "USDT_POLYGON"
       ? "USDT"
       : value === "ETH"
       ? "ETH"
