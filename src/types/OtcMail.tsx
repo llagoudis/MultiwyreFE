@@ -18,6 +18,22 @@ interface OTCMail {
   fxMarkUp?: number;
   type?: string;
   destinationAddress?: string;
+  /** Crypto → EUR: persist beneficiary bank details on EURO_TRANSACTIONS */
+  IBAN?: string;
+  customerName?: string;
+  customerAddress?: string;
+  customerZipcode?: string;
+  customerCity?: string;
+  customerCountry?: string;
+  swift?: string;
+  bankName?: string;
+  bankAddress?: string;
+  bankLocation?: string;
+  bankCountry?: string;
+  reference?: string;
+  paymentSystemType?: string;
+  transferFee?: string | number;
+  description?: string;
 }
 
 interface EuroMail {
