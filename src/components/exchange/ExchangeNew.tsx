@@ -6,11 +6,9 @@ import {
   fetchTransaferFeesApi,
   getFxMarkup,
   SendOTCTradeMail,
-  saveEuroTemplate,
 } from "~/service/ApiRequests";
 import { verify2FAOTP } from "~/service/api/auth";
-import { getCompanyBeneficiary, getEuroTemplates, getLimits, getOtcDepositAddresses, type CompanyBeneficiary, type OtcDepositAddress } from "~/service/api/transaction";
-import { getCountries } from "~/service/api/lib";
+import { getCompanyBeneficiary, getEuroTemplates, getLimits, type CompanyBeneficiary } from "~/service/api/transaction";
 import Modal from "~/components/mw/Modal";
 import Otp from "~/components/mw/Otp";
 import { IcShieldLock, IcInfo } from "~/components/mw/icons";
@@ -80,16 +78,17 @@ const pairs = [
 const availableCurrencies = ["BTC", "USDC", "EUR", "USDT", "ETH"];
 
 const BENEF_FIELDS = [
-  ["iban", "IBAN", true, "Enter IBAN"],
+  ["iban", "IBAN", true, "GB08 PYYP 0099 3912 0001 49"],
   ["name", "Customer name", true, "Full name"],
   ["addr", "Customer address", true, "Street address"],
   ["zip", "Customer ZIP code", true, "ZIP / postcode"],
-  ["country", "Country", true, "Select country"],
+  ["dest", "Destination address", false, "Same as IBAN"],
 ] as const;
 const BENEF_BANK = [
-  ["swift", "Customer swift", true, "Enter SWIFT"],
+  ["swift", "Customer swift", true, "PYYPGB21"],
   ["bank", "Bank name", true, "Bank name"],
   ["bankAddr", "Bank address", true, "Street, city"],
+  ["bankLoc", "Bank location", true, "Postcode"],
   ["bankCountry", "Bank country", true, "Country"],
   ["ref", "Bank reference", false, "e.g. Fx Conversion"],
 ] as const;
@@ -112,18 +111,8 @@ const ExchangeNew = () => {
   const [pairInfo, setPairInfo] = useState<{ pair: string; reversed: boolean; type: string }>({ pair: "", reversed: false, type: "sell" });
   const [menu, setMenu] = useState<"from" | "to" | "">("");
   const [destAddr, setDestAddr] = useState("");
-  const [benef, setBenef] = useState<Record<BenefKey, string>>({
-    iban: "",
-    name: "",
-    addr: "",
-    zip: "",
-    country: "",
-    swift: "",
-    bank: "",
-    bankAddr: "",
-    bankCountry: "",
-    ref: "",
-  });
+  const [benef, setBenef] = useState<Record<BenefKey, string>>({ iban: "", name: "", addr: "", zip: "", dest: "", swift: "", bank: "", bankAddr: "", bankLoc: "", bankCountry: "", ref: "" });
+
   const [view, setView] = useState<"form" | "order">("form");
   const [trade, setTrade] = useState<{
     vol: string;
@@ -146,13 +135,8 @@ const ExchangeNew = () => {
   const [limits, setLimits] = useState<Limits[]>([]);
   const [euroTemplates, setEuroTemplates] = useState<EuroMail[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState("");
-  const [saveAsTemplate, setSaveAsTemplate] = useState(false);
-  const [templateName, setTemplateName] = useState("");
   const [companyBenef, setCompanyBenef] = useState<CompanyBeneficiary | null>(null);
   const [companyBenefLoaded, setCompanyBenefLoaded] = useState(false);
-  const [otcDeposits, setOtcDeposits] = useState<OtcDepositAddress[]>([]);
-  const [otcDepositsLoaded, setOtcDepositsLoaded] = useState(false);
-  const [countries, setCountries] = useState<Country[]>([]);
 
   const fromTicker = coinForKrakenName(from);
   const toTicker = coinForKrakenName(to);
@@ -213,34 +197,18 @@ const ExchangeNew = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [from, to]);
 
-  const reloadEuroTemplates = () => {
-    void getEuroTemplates().then(([res]) => {
-      if (res?.success && res.body) setEuroTemplates(res.body);
-    });
-  };
-
   useEffect(() => {
     if (dashboard.limitList) {
       void getLimits(dashboard.limitList).then(([res]) => {
         if (res?.success && res.body) setLimits(res.body);
       });
     }
-    reloadEuroTemplates();
+    void getEuroTemplates().then(([res]) => {
+      if (res?.success && res.body) setEuroTemplates(res.body);
+    });
     void getCompanyBeneficiary().then(([res]) => {
       setCompanyBenefLoaded(true);
       if (res?.success && res.body) setCompanyBenef(res.body);
-    });
-    void getOtcDepositAddresses().then(([res]) => {
-      setOtcDepositsLoaded(true);
-      if (res?.success && Array.isArray(res.body)) setOtcDeposits(res.body);
-    });
-    void getCountries().then(([res]) => {
-      if (res?.success && Array.isArray(res.body)) {
-        const list = [...res.body].sort((a, b) =>
-          String(a.name || "").localeCompare(String(b.name || "")),
-        );
-        setCountries(list);
-      }
     });
   }, [dashboard.limitList]);
 
@@ -253,10 +221,10 @@ const ExchangeNew = () => {
       name: template.customerName ?? "",
       addr: template.customerAddress ?? "",
       zip: template.customerZipcode ?? "",
-      country: template.customerCountry ?? "",
       swift: template.swift ?? "",
       bank: template.bankName ?? "",
       bankAddr: template.bankAddress ?? "",
+      bankLoc: template.bankLocation ?? "",
       bankCountry: template.bankCountry ?? "",
       ref: template.reference ?? "",
     }));
@@ -280,23 +248,6 @@ const ExchangeNew = () => {
   const companyIban = (companyBenef?.iban ?? "").trim();
   const companyConfigured = Boolean(companyIban && (companyBenef?.customerName ?? "").trim());
 
-  const resolveOtcDepositAddress = (assetId: string) => {
-    const keys = Array.from(
-      new Set(
-        [assetId, coinName(assetId), coinForKrakenName(assetId)]
-          .map((k) => String(k || "").trim())
-          .filter(Boolean),
-      ),
-    );
-    for (const key of keys) {
-      const hit = otcDeposits.find(
-        (d) => d.assetId === key && String(d.address || "").trim(),
-      );
-      if (hit) return String(hit.address).trim();
-    }
-    return "";
-  };
-
   const execute = () => {
     if (vol <= 0) return mwToast("Enter an amount");
     if (isFromEur) {
@@ -304,32 +255,12 @@ const ExchangeNew = () => {
       if (!companyConfigured) {
         return mwToast("EUR settlement details are not configured yet. Contact support.");
       }
-    } else {
-      if (!otcDepositsLoaded) return mwToast("Loading deposit addresses…");
-      if (!resolveOtcDepositAddress(from)) {
-        return mwToast(
-          `OTC deposit address is not configured for ${fromTicker}. Contact support.`,
-        );
-      }
+    } else if (!fromAsset?.assetAddress) {
+      return mwToast("No wallet found for the spending asset");
     }
     let dest = "";
     if (isToEur) {
-      if (
-        !benef.iban ||
-        !benef.name ||
-        !benef.addr ||
-        !benef.zip ||
-        !benef.country ||
-        !benef.swift ||
-        !benef.bank ||
-        !benef.bankAddr ||
-        !benef.bankCountry
-      ) {
-        return mwToast("Fill in the required beneficiary details");
-      }
-      if (saveAsTemplate && !templateName.trim()) {
-        return mwToast("Enter a template name to save");
-      }
+      if (!benef.iban || !benef.name || !benef.swift || !benef.bank) return mwToast("Fill in the required beneficiary details");
       dest = benef.iban;
     } else {
       dest = destAddr.trim();
@@ -352,7 +283,7 @@ const ExchangeNew = () => {
       to,
       receiveAmt: receive.toFixed(6),
       dest,
-      depositAddr: isFromEur ? companyIban : resolveOtcDepositAddress(from),
+      depositAddr: isFromEur ? companyIban : fromAsset!.assetAddress,
       bankRef: `FX-${user.id}-${Date.now()}`,
       price: market,
       exchangeFee,
@@ -367,21 +298,7 @@ const ExchangeNew = () => {
     setView("form");
     setVolume("");
     setDestAddr("");
-    setBenef({
-      iban: "",
-      name: "",
-      addr: "",
-      zip: "",
-      country: "",
-      swift: "",
-      bank: "",
-      bankAddr: "",
-      bankCountry: "",
-      ref: "",
-    });
-    setSelectedTemplate("");
-    setSaveAsTemplate(false);
-    setTemplateName("");
+    setBenef({ iban: "", name: "", addr: "", zip: "", dest: "", swift: "", bank: "", bankAddr: "", bankLoc: "", bankCountry: "", ref: "" });
     setTrade(null);
   };
 
@@ -416,74 +333,11 @@ const ExchangeNew = () => {
         type: trade.pairType,
         destinationAddress: trade.dest,
       };
-
-      // Crypto → EUR: attach bank details so BE can persist EURO_TRANSACTIONS
-      if (coinForKrakenName(trade.to) === "EUR") {
-        otcPayload.IBAN = benef.iban;
-        otcPayload.customerName = benef.name;
-        otcPayload.customerAddress = benef.addr;
-        otcPayload.customerZipcode = benef.zip;
-        otcPayload.customerCity = benef.zip || "-";
-        otcPayload.customerCountry = benef.country;
-        otcPayload.swift = benef.swift;
-        otcPayload.bankName = benef.bank;
-        otcPayload.bankAddress = benef.bankAddr || "";
-        otcPayload.bankLocation = "";
-        otcPayload.bankCountry = benef.bankCountry;
-        otcPayload.reference = benef.ref || trade.bankRef || "";
-        otcPayload.paymentSystemType = "SEPA";
-        otcPayload.transferFee = trade.transactionFee ?? 0;
-        otcPayload.description = `OTC ${coinForKrakenName(trade.from)} → EUR`;
-      }
-
       const [res, err] = await ApiHandler(SendOTCTradeMail, otcPayload);
       if (err || !res?.success) {
         mwToast(err || "Could not submit OTC order to desk");
         return;
       }
-
-      // Persist beneficiary as EuroTemplate when user opted in
-      if (
-        coinForKrakenName(trade.to) === "EUR" &&
-        saveAsTemplate &&
-        templateName.trim()
-      ) {
-        const tplPayload = {
-          templateName: templateName.trim(),
-          IBAN: benef.iban,
-          customerName: benef.name,
-          customerAddress: benef.addr,
-          customerZipcode: benef.zip,
-          customerCity: benef.zip || "-",
-          customerCountry: benef.country,
-          swift: benef.swift,
-          bankName: benef.bank,
-          bankAddress: benef.bankAddr || "",
-          bankLocation: "",
-          bankCountry: benef.bankCountry,
-          reference: benef.ref || trade.bankRef || "",
-          description: `OTC template ${coinForKrakenName(trade.from)} → EUR`,
-          paymentSystemType: "SEPA",
-          isApproved: false,
-          amount: "",
-          userId: user?.id ?? "",
-          firstname: dashboard?.firstname ?? "",
-          lastname: dashboard?.lastname ?? "",
-          id: "",
-          currency: "EUR",
-          transferFee: "",
-        } as EuroMail;
-        const [tplRes, tplErr] = await ApiHandler(saveEuroTemplate, tplPayload);
-        if (tplErr || !tplRes?.success) {
-          mwToast(
-            tplErr ||
-              "OTC order submitted, but beneficiary template could not be saved",
-          );
-        } else {
-          reloadEuroTemplates();
-        }
-      }
-
       mwToast(res?.message || "OTC order submitted — view Pending in History → Trading History");
       setTfaOpen(false);
       resetForm();
@@ -591,32 +445,7 @@ const ExchangeNew = () => {
                     {BENEF_FIELDS.map(([key, label, req, ph]) => (
                       <div className="exc-benef-row" key={key}>
                         <label>{label}{req && <span className="req">*</span>}</label>
-                        {key === "country" ? (
-                          <select
-                            className="rn-inp"
-                            value={benef.country}
-                            onChange={(e) => setBenef((b) => ({ ...b, country: e.target.value }))}
-                          >
-                            <option value="">{ph}</option>
-                            {benef.country &&
-                              !countries.some((c) => c.name === benef.country) && (
-                                <option value={benef.country}>{benef.country}</option>
-                              )}
-                            {countries.map((c) => (
-                              <option key={c.id ?? c.name} value={c.name}>
-                                {c.name}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <input
-                            className="rn-inp"
-                            placeholder={ph}
-                            autoComplete="off"
-                            value={benef[key]}
-                            onChange={(e) => setBenef((b) => ({ ...b, [key]: e.target.value }))}
-                          />
-                        )}
+                        <input className="rn-inp" placeholder={ph} autoComplete="off" value={benef[key]} onChange={(e) => setBenef((b) => ({ ...b, [key]: e.target.value }))} />
                       </div>
                     ))}
                   </div>
@@ -628,31 +457,6 @@ const ExchangeNew = () => {
                         <input className="rn-inp" placeholder={ph} autoComplete="off" value={benef[key]} onChange={(e) => setBenef((b) => ({ ...b, [key]: e.target.value }))} />
                       </div>
                     ))}
-                  </div>
-                  <div className="exc-save-tpl">
-                    <label className="exc-check">
-                      <input
-                        type="checkbox"
-                        checked={saveAsTemplate}
-                        onChange={(e) => {
-                          setSaveAsTemplate(e.target.checked);
-                          if (!e.target.checked) setTemplateName("");
-                        }}
-                      />
-                      Save as Template
-                    </label>
-                    {saveAsTemplate && (
-                      <div className="exc-benef-row">
-                        <label>Template name<span className="req">*</span></label>
-                        <input
-                          className="rn-inp"
-                          placeholder="e.g. My EUR beneficiary"
-                          autoComplete="off"
-                          value={templateName}
-                          onChange={(e) => setTemplateName(e.target.value)}
-                        />
-                      </div>
-                    )}
                   </div>
                 </div>
               )}
@@ -715,9 +519,11 @@ const ExchangeNew = () => {
                           ["IBAN", companyBenef?.iban || trade.depositAddr],
                           ["Address", companyBenef?.customerAddress],
                           ["ZIP", companyBenef?.customerZip],
+                          ["Destination", companyBenef?.destinationAddress],
                           ["SWIFT / BIC", companyBenef?.customerSwift],
                           ["Bank name", companyBenef?.bankName],
                           ["Bank address", companyBenef?.bankAddress],
+                          ["Bank location", companyBenef?.bankLocation],
                           ["Bank country", companyBenef?.bankCountry],
                         ] as const)
                           .filter(([, v]) => Boolean((v ?? "").trim()))

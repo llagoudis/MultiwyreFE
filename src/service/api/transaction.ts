@@ -55,18 +55,6 @@ const getCompanyBeneficiary = async (): APIFunction<CompanyBeneficiary> =>
     ProtectedAxiosInstance.get("/exchange/company-beneficiary"),
   );
 
-export type OtcDepositAddress = {
-  id?: number | null;
-  assetId: string;
-  address: string;
-  label?: string;
-};
-
-const getOtcDepositAddresses = async (): APIFunction<OtcDepositAddress[]> =>
-  await ApiHandler(() =>
-    ProtectedAxiosInstance.get("/exchange/otc-deposit-addresses"),
-  );
-
 const getExchangeTxns = (params: FilterType) => {
   return ProtectedAxiosInstance.get(
     `transaction/reports?${convertUrlParams({
@@ -84,7 +72,6 @@ export {
   getEuroTemplates,
   getExchangeTxns,
   getLimits,
-  getOtcDepositAddresses,
   getTransactionFee,
   getTransactions,
 };
