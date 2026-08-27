@@ -8,6 +8,10 @@ import Link from "next/link";
 import { getLegalDocuments } from "~/service/ApiRequests";
 import { ApiHandler } from "~/service/UtilService";
 import { Dialog } from "@mui/material";
+import {
+  isTermsAndConditionsTitle,
+  TERMS_AND_CONDITIONS_URL,
+} from "~/common/legal";
 
 interface VerifyEmailProps {
   close: () => void;
@@ -188,7 +192,16 @@ const VerifyEmail: React.FC<VerifyEmailProps> = ({
                           })
                           .map((item, i) => (
                             <span key={i}>
-                              {item?.documentText === " " ? (
+                              {isTermsAndConditionsTitle(item?.title) ? (
+                                <Link
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  href={TERMS_AND_CONDITIONS_URL}
+                                  className=" text-xs font-semibold text-[#C1922E] md:text-sm"
+                                >
+                                  {item?.title}
+                                </Link>
+                              ) : item?.documentText === " " ? (
                                 <span
                                   onClick={() => {
                                     setSelectedLegalDocument(item);
