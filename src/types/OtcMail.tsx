@@ -18,6 +18,10 @@ interface OTCMail {
   fxMarkUp?: number;
   type?: string;
   destinationAddress?: string;
+  /** QA #69: ONETIME free-text vs WHITELIST approved address */
+  addressType?: "ONETIME" | "WHITELIST";
+  whitelistId?: number | string;
+  destinationOwnershipConfirmed?: boolean;
   /** Crypto → EUR: persist beneficiary bank details on EURO_TRANSACTIONS */
   IBAN?: string;
   customerName?: string;
