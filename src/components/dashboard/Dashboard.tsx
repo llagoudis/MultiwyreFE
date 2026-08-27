@@ -45,6 +45,30 @@ const Dashboard = () => {
   const accounts = whitelist ?? [];
   const companyName = user.companyProfileDetails?.companyName || user.fullname || "there";
 
+  // QA #63: Total Balance must match Accounts UX (no phantom / dust totals)
+  const displayTotalValue = useMemo(() => {
+    if (!accounts.length) return 0;
+
+    let sum = 0;
+    let anyPositiveBalance = false;
+    const countedAssets = new Set<string>();
+
+    for (const a of accounts) {
+      const bal = balanceByAsset.get(a.assetId);
+      if (!bal) continue;
+      const qty = Number(bal.balance) || 0;
+      if (qty <= 0) continue;
+      anyPositiveBalance = true;
+      // Multiple whitelist rows can share assetId — count fiat once per asset
+      if (countedAssets.has(a.assetId)) continue;
+      countedAssets.add(a.assetId);
+      sum += Number(bal.assetValue) || 0;
+    }
+
+    if (!anyPositiveBalance) return 0;
+    return Math.abs(sum) < 0.01 ? 0 : sum;
+  }, [accounts, balanceByAsset]);
+
   const copy = (v: string) => {
     if (navigator.clipboard) void navigator.clipboard.writeText(v);
     mwToast("Address copied");
@@ -75,7 +99,7 @@ const Dashboard = () => {
             <span className="chip"><IcCard width={16} height={16} /></span>
             Total Balance
           </div>
-          <div className="bal-amount"><span className="cur">{currencySym}</span>{fmtMoney(dashboard.totalValue)}</div>
+          <div className="bal-amount"><span className="cur">{currencySym}</span>{fmtMoney(displayTotalValue)}</div>
           <div className="bal-sub">
             {accounts.length ? `Across ${accounts.length} account${accounts.length === 1 ? "" : "s"} in ${dashboard.currency || "EUR"}` : "No accounts added yet"}
           </div>

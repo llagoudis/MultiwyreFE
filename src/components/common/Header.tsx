@@ -31,6 +31,19 @@ const CRUMB: Record<string, string> = {
 
 const DEFAULT_AVATAR = "/mw/images/defaultProfile.svg";
 
+/** Individuals store userType as null; never show String(undefined) → "UNDEFINED". */
+function formatAccountTypeLabel(userType?: string | null): string {
+  const raw = userType == null ? "" : String(userType).trim();
+  if (!raw || /^undefined$/i.test(raw) || /^null$/i.test(raw)) {
+    return "Individual";
+  }
+  const up = raw.toUpperCase();
+  if (up === "COMPANY") return "Company";
+  if (up === "PROJECT") return "Project";
+  if (up === "PERSON" || up === "INDIVIDUAL") return "Individual";
+  return raw;
+}
+
 const Topbar: React.FC<HeaderProps> = ({ title, crumb }) => {
   const { handleSidebar, setMobileOpen } = useContext(SidebarContext);
   const router = useRouter();
@@ -53,8 +66,15 @@ const Topbar: React.FC<HeaderProps> = ({ title, crumb }) => {
     );
 
     const authBody = localStorageService.decodeAuthBody();
-    setActiveName(currentAccount?.fullname ?? authBody?.fullname ?? "");
-    setActiveRole(currentAccount?.userType ?? authBody?.userType ?? authBody?.roles ?? "");
+    const fullName = currentAccount?.fullname ?? authBody?.fullname ?? "";
+    setActiveName(
+      !fullName || /^undefined(\s+undefined)?$/i.test(String(fullName).trim())
+        ? "Account"
+        : fullName,
+    );
+    setActiveRole(
+      formatAccountTypeLabel(currentAccount?.userType ?? authBody?.userType),
+    );
     if (currentAccount) setActiveAccount(currentAccount.token);
   }, []);
 
@@ -72,6 +92,8 @@ const Topbar: React.FC<HeaderProps> = ({ title, crumb }) => {
       token: data?.token,
       userType: data?.userType,
     });
+    // QA #68: never carry whitelist/dashboard across switched accounts
+    useGlobalStore.getState().clearUserScopedData();
     useGlobalStore.setState((prev) => ({
       ...prev,
       user: { ...prev.user, profileImgLink: data?.profileImgLink },

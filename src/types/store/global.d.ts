@@ -55,6 +55,8 @@ interface GlobalHelperFn {
   syncAdminProfile: () => void;
   completeSetup: () => Promise<boolean>;
   resetStore: () => void;
+  /** Drop whitelist/dashboard/setup so the next user cannot see prior session data. */
+  clearUserScopedData: () => void;
   syncWhitelistedAddress: () => Promise<void>;
   getUserPriceList: (id) => void;
 }

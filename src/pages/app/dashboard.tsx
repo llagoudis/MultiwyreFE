@@ -34,7 +34,6 @@ const UserDashboard = () => {
   useEffect(() => {
     setIsClient(true);
     _completeSetup();
-    useGlobalStore.getState().syncAdminProfile();
   }, []);
 
   return (

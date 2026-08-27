@@ -9,9 +9,8 @@ const useDashboard = () => {
   ]);
 
   useEffect(() => {
-    if (!state.updatedWithApi) {
-      sync();
-    }
+    // Always refetch for the current session (QA #68 — no stale dashboard gate)
+    void sync();
   }, [setupComplete]);
 
   return state;

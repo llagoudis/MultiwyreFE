@@ -60,7 +60,7 @@ const LoginForm: React.FC = () => {
             isEmailVerified: res.body?.isEmailVerified,
             priceList: res.body?.priceList,
             countryCode: res.body?.countryCode,
-            userType: res.body?.userType,
+            userType: res.body?.userType ?? "INDIVIDUAL",
             roles: res.body?.roles,
             invoiceImgLink: res.body?.invoiceImgLink,
           });
@@ -136,12 +136,17 @@ const LoginForm: React.FC = () => {
 
         localStorageService.encodeSwitchAccounts(switchAccounts);
 
-        localStorageService.encodeAuthBody(res.body);
+        // QA #67: individuals have null userType — persist a stable display value
+        localStorageService.encodeAuthBody({
+          ...res.body,
+          userType: res.body?.userType ?? "INDIVIDUAL",
+        });
         localStorageService.setLocalAccessToken(res.body?.token);
-        useGlobalStore.setState((prev) => ({
-          ...prev,
+        // QA #68: drop prior user's wallets/dashboard before binding new session
+        useGlobalStore.getState().clearUserScopedData();
+        useGlobalStore.setState({
           user: res.body,
-        }));
+        });
         setIsLoading(false);
         goToDashboard("LOGIN")
       }
