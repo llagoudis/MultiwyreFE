@@ -90,7 +90,8 @@ const useGlobalStore = create(
           set({ dashboard: { ...res.body, updatedWithApi: true } });
           return;
         }
-        set({ dashboard: { ...get().dashboard, updatedWithApi: true } });
+        // Never keep another user's dashboard as "loaded"
+        set({ dashboard: { ...initGlobal.dashboard, updatedWithApi: true } });
       },
 
       async syncAdminProfile() {
@@ -111,11 +112,6 @@ const useGlobalStore = create(
 
         if (res?.success) {
           set({ setupComplete: "COMPLETE" });
-
-          // const [res, error] = await getDashboard();
-          // if (res?.success) {
-          //   set({ dashboard: { ...res?.body, updatedWithApi: true } });
-          // }
           return true;
         }
         if (err) {
@@ -126,19 +122,32 @@ const useGlobalStore = create(
       },
 
       async syncWhitelistedAddress() {
-        const state = get().whiteListSynced;
-
-        if (!state) {
-          await getWhitelistedAddress().then(([res]) => {
-            if (res?.success) {
-              set({ whitelistedAddress: res.body, whiteListSynced: true });
-            }
+        const [res] = await getWhitelistedAddress();
+        if (res?.success) {
+          set({
+            whitelistedAddress: res.body ?? [],
+            whiteListSynced: true,
           });
+          return;
         }
+        // On failure, show empty — do not keep prior session wallets
+        set({ whitelistedAddress: [], whiteListSynced: true });
       },
+
+      clearUserScopedData: () => {
+        set({
+          whitelistedAddress: [],
+          whiteListSynced: false,
+          dashboard: { ...initGlobal.dashboard },
+          setupComplete: "PENDING",
+          priceList: { ...initGlobal.priceList },
+        });
+      },
+
       resetStore: () => {
         set(initGlobal);
       },
+
       async getUserPriceList(id: number) {
         const [res] = await getPriceList(id);
         if (res?.success) {
@@ -150,13 +159,12 @@ const useGlobalStore = create(
       name: "exchange-store",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => {
+        // Do not persist whitelist/dashboard — they are user-scoped and must
+        // be refetched after login / account switch (QA #68).
         return {
-          ...state,
           ...initGlobal,
           user: state.user,
           setupComplete: state.setupComplete,
-          whitelistedAddress: state.whitelistedAddress,
-          dashboard: state.dashboard,
           admin: state.admin,
         };
       },

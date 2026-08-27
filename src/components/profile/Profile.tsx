@@ -49,7 +49,6 @@ const Profile = () => {
   const [operationType, setOperationType] = useState<TransferFees[]>([]);
   const [ecommerceFees, setEcommerceFees] = useState<any[]>([]);
 
-  useEffect(() => { useGlobalStore.getState().syncAdminProfile(); }, [dashboard]);
   useEffect(() => { setUserDetails(localStorageService.decodeAuthBody() ?? {}); }, [dashboard]);
 
   useEffect(() => {
