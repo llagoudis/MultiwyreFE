@@ -16,6 +16,7 @@ import Otp from "~/components/mw/Otp";
 import { IcShieldLock, IcInfo } from "~/components/mw/icons";
 import mwToast from "~/components/mw/toast";
 import { networkOf, shortAddr } from "~/components/mw/assets";
+import { TERMS_AND_CONDITIONS_URL } from "~/common/legal";
 
 /** Option label for whitelist select — e.g. "USDT Polygon - Keshav Prod". */
 function whitelistOptionLabel(row: { label?: string; assetId?: string; assetAddress?: string }) {
@@ -787,7 +788,17 @@ const ExchangeNew = () => {
                       onChange={(e) => setDestOwnedConfirmed(e.target.checked)}
                     />
                     <span>
-                      I confirm that the Destination Wallet address I have provided is owned and controlled by me, and acknowledge and agree to be bound by all Terms and Conditions.
+                      I confirm that the Destination Wallet address I have
+                      provided is owned and controlled by me, and acknowledge
+                      and agree to be bound by all{" "}
+                      <a
+                        href={TERMS_AND_CONDITIONS_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Terms and Conditions
+                      </a>
+                      .
                     </span>
                   </label>
                 </div>

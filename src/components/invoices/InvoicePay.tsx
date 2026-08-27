@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import CloseBtn from "~/assets/general/close.svg";
 import { useRouter } from "next/router";
+import { TERMS_AND_CONDITIONS_URL } from "~/common/legal";
 import { formatDate } from "~/helpers/helper";
 import LoaderIcon from "../LoaderIcon";
 import Big from "big.js";
@@ -842,35 +843,14 @@ const InvoicePay = (props: propType) => {
                               label={
                                 <div className="flex flex-wrap items-center justify-center whitespace-nowrap">
                                   I agree to the{" "}
-                                  {legalDocuments
-                                    .filter(
-                                      (item) =>
-                                        item?.PolicyDocumentType?.id === 1,
-                                    )
-                                    .map((item, i) => (
-                                      <div key={i}>
-                                        <span className=" text-sm"> </span>
-                                        {item?.documentText !== "" ? (
-                                          <span
-                                            onClick={() => {
-                                              setSelectedLegalDocument(item);
-                                              setOpen("legalDocPopup");
-                                            }}
-                                            className=" mx-1 cursor-pointer text-sm font-semibold text-[#C1922E]"
-                                          >
-                                            Terms Of Use
-                                          </span>
-                                        ) : (
-                                          <Link
-                                            target="_blank"
-                                            href={item?.documentLink}
-                                            className="mx-1 text-sm font-semibold text-[#C1922E]"
-                                          >
-                                            Terms Of Use
-                                          </Link>
-                                        )}
-                                      </div>
-                                    ))}{" "}
+                                  <Link
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    href={TERMS_AND_CONDITIONS_URL}
+                                    className="mx-1 text-sm font-semibold text-[#C1922E]"
+                                  >
+                                    Terms Of Use
+                                  </Link>{" "}
                                   {legalDocuments
                                     .filter(
                                       (item) =>

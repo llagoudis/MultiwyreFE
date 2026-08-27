@@ -975,7 +975,7 @@ const googlePayForm = `
    
     <p style="font-size: 13px; color: #666; margin-top: 12px;">
       By paying, you accept example.com
-      <a href="https://example.com/terms" target="_blank" style="color: #007bff; text-decoration: underline;">
+      <a href="https://multiwyre.com/terms-and-conditions/" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: underline;">
          Terms of Use
       </a>
     </p>
@@ -1282,7 +1282,7 @@ const visacardForm = `
 
   <p style="font-size: 13px; color: #666; margin-top: 12px;">
     By paying, you accept example.com
-    <a href="https://example.com/terms" target="_blank" style="color: #007bff; text-decoration: underline;">
+    <a href="https://multiwyre.com/terms-and-conditions/" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: underline;">
       Terms of Use
     </a>
   </p>

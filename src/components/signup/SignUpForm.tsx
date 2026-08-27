@@ -8,6 +8,10 @@ import { Autocomplete, Dialog, TextField } from "@mui/material";
 import Image, { type StaticImageData } from "next/image";
 import ca from "~/assets/countryCodes/ca.svg";
 import Close from "~/assets/general/close.svg";
+import {
+  isTermsAndConditionsTitle,
+  TERMS_AND_CONDITIONS_URL,
+} from "~/common/legal";
 
 interface FormData {
   firstName: string;
@@ -354,7 +358,16 @@ const SignupForm: React.FC<SignupFormProps> = ({
                               })
                               .map((item, i) => (
                                 <span key={i}>
-                                  {item?.documentText === " " ? (
+                                  {isTermsAndConditionsTitle(item?.title) ? (
+                                    <Link
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      href={TERMS_AND_CONDITIONS_URL}
+                                      className=" text-xs font-semibold text-[#C1922E] md:text-sm"
+                                    >
+                                      {item?.title}
+                                    </Link>
+                                  ) : item?.documentText === " " ? (
                                     <span
                                       onClick={() => {
                                         setSelectedLegalDocument(item);
