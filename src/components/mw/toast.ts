@@ -1,24 +1,46 @@
 import toast from "react-hot-toast";
 
+type MwToastOpts = {
+  /** Default success (dark pill). Use `error` for validation / failures. */
+  type?: "success" | "error";
+  duration?: number;
+};
+
 /**
- * mwToast — thin wrapper over react-hot-toast (already mounted app-wide via
- * <Toaster/> in _app.tsx) styled to match the design's bottom-center dark pill.
- * Reuses the existing toast library rather than the prototype's bespoke one.
+ * mwToast — thin wrapper over react-hot-toast (mounted app-wide via
+ * <Toaster/> in _app.tsx). Errors are red bottom-center toasts so they
+ * never cover From/To dropdowns.
  */
-export function mwToast(message: string) {
-  return toast(message, {
+export function mwToast(message: string, opts: MwToastOpts = {}) {
+  const type = opts.type ?? "success";
+  const isError = type === "error";
+  const duration = opts.duration ?? (isError ? 4500 : 2600);
+  const style = {
+    background: isError ? "#991b1b" : "#0f172a",
+    color: "#fff",
+    fontSize: "14px",
+    fontWeight: 600,
+    padding: "14px 20px",
+    borderRadius: "12px",
+    boxShadow: "0 12px 30px rgba(16,24,40,.35)",
+    maxWidth: "440px",
+    pointerEvents: "auto" as const,
+  };
+
+  if (isError) {
+    return toast.error(message, {
+      id: "mw-otc-validation",
+      position: "bottom-center",
+      duration,
+      style,
+    });
+  }
+
+  return toast.success(message, {
+    id: "mw-otc-success",
     position: "bottom-center",
-    duration: 2600,
-    style: {
-      background: "#0f172a",
-      color: "#fff",
-      fontSize: "13.5px",
-      fontWeight: 500,
-      padding: "12px 18px",
-      borderRadius: "12px",
-      boxShadow: "0 12px 30px rgba(16,24,40,.28)",
-    },
-    icon: "✓",
+    duration,
+    style,
   });
 }
 

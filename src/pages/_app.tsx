@@ -178,8 +178,16 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       `}</style>
       <Home />
       <Component {...pageProps} />
-      <Toaster containerStyle={{ zIndex: 20000 }} />
-    </div>
+      <Toaster
+        position="bottom-center"
+        containerStyle={{ zIndex: 20000, pointerEvents: "none" }}
+        toastOptions={{
+          duration: 4000,
+          style: {
+            pointerEvents: "auto",
+          },
+        }}
+      />    </div>
   );
 };
 

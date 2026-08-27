@@ -15,6 +15,19 @@ import Modal from "~/components/mw/Modal";
 import Otp from "~/components/mw/Otp";
 import { IcShieldLock, IcInfo } from "~/components/mw/icons";
 import mwToast from "~/components/mw/toast";
+import { networkOf, shortAddr } from "~/components/mw/assets";
+
+/** Option label for whitelist select — e.g. "USDT Polygon - Keshav Prod". */
+function whitelistOptionLabel(row: { label?: string; assetId?: string; assetAddress?: string }) {
+  const ticker = coinForKrakenName(String(row.assetId || ""));
+  const net = networkOf(String(row.assetId || ""));
+  const assetPart = [ticker, net].filter(Boolean).join(" ");
+  const label = String(row.label || "Address").trim();
+  const addr = shortAddr(String(row.assetAddress || ""));
+  if (assetPart && label) return `${assetPart} - ${label}`;
+  if (label && addr) return `${label} (${addr})`;
+  return label || assetPart || addr || "Address";
+}
 
 /** Same visuals as Admin walleticons — used when Azure Assets.icon URL fails locally. */
 const LOCAL_COIN_ICON: Record<string, string> = {
@@ -98,6 +111,8 @@ type BenefKey = (typeof BENEF_FIELDS)[number][0] | (typeof BENEF_BANK)[number][0
 const ExchangeNew = () => {
   const dashboard = useGlobalStore((s) => s.dashboard);
   const user = useGlobalStore((s) => s.user);
+  const whitelistedAddress = useGlobalStore((s) => s.whitelistedAddress);
+  const syncWhitelistedAddress = useGlobalStore((s) => s.syncWhitelistedAddress);
 
   const assets = useMemo(
     () => dashboard?.assets?.filter((a) => availableCurrencies.includes(coinForKrakenName(a.assetId))) ?? [],
@@ -112,6 +127,9 @@ const ExchangeNew = () => {
   const [pairInfo, setPairInfo] = useState<{ pair: string; reversed: boolean; type: string }>({ pair: "", reversed: false, type: "sell" });
   const [menu, setMenu] = useState<"from" | "to" | "">("");
   const [destAddr, setDestAddr] = useState("");
+  const [destMode, setDestMode] = useState<"onetime" | "whitelist">("onetime");
+  const [whitelistId, setWhitelistId] = useState("");
+  const [destOwnedConfirmed, setDestOwnedConfirmed] = useState(false);
   const [benef, setBenef] = useState<Record<BenefKey, string>>({
     iban: "",
     name: "",
@@ -138,6 +156,9 @@ const ExchangeNew = () => {
     transactionFee: number;
     fxMarkUp: number;
     pairType: string;
+    addressType: "ONETIME" | "WHITELIST";
+    whitelistId?: string;
+    destOwnedConfirmed: boolean;
   } | null>(null);
   const [tfaOpen, setTfaOpen] = useState(false);
   const [otp, setOtp] = useState("");
@@ -242,7 +263,15 @@ const ExchangeNew = () => {
         setCountries(list);
       }
     });
-  }, [dashboard.limitList]);
+    void syncWhitelistedAddress();
+  }, [dashboard.limitList, syncWhitelistedAddress]);
+
+  // When From/To currency changes, clear dest + ownership acknowledgement
+  useEffect(() => {
+    setDestAddr("");
+    setWhitelistId("");
+    setDestOwnedConfirmed(false);
+  }, [from, to]);
 
   useEffect(() => {
     const template = euroTemplates.find((item) => item.templateName === selectedTemplate);
@@ -270,12 +299,29 @@ const ExchangeNew = () => {
   const transactionFee = grossAmount * (fees.transactionPercent / 100) + fees.transactionFixedFee;
   const receive = vol > 0 && price > 0 ? Math.max(grossAmount - Math.max(exchangeFee, 0) - Math.max(transactionFee, 0), 0) : 0;
 
+  const clearDestAcknowledgement = () => {
+    setDestAddr("");
+    setWhitelistId("");
+    setDestOwnedConfirmed(false);
+  };
+
   const selectSide = (side: "from" | "to", assetId: string) => {
-    if (side === "from") { if (assetId === to) setTo(from); setFrom(assetId); }
-    else { if (assetId === from) setFrom(to); setTo(assetId); }
+    if (side === "from") {
+      if (assetId === to) setTo(from);
+      setFrom(assetId);
+    } else {
+      if (assetId === from) setFrom(to);
+      setTo(assetId);
+    }
+    clearDestAcknowledgement();
     setMenu("");
   };
-  const swap = () => { const f = from; setFrom(to); setTo(f); };
+  const swap = () => {
+    const f = from;
+    setFrom(to);
+    setTo(f);
+    clearDestAcknowledgement();
+  };
 
   const companyIban = (companyBenef?.iban ?? "").trim();
   const companyConfigured = Boolean(companyIban && (companyBenef?.customerName ?? "").trim());
@@ -297,22 +343,38 @@ const ExchangeNew = () => {
     return "";
   };
 
+  const toAssetKeys = useMemo(() => {
+    return new Set(
+      [to, coinName(to), coinForKrakenName(to)]
+        .map((k) => String(k || "").trim())
+        .filter(Boolean),
+    );
+  }, [to]);
+
+  const approvedWhitelistForTo = useMemo(() => {
+    return (whitelistedAddress ?? []).filter((row) => {
+      const status = String(row.approvalStatus || "").toLowerCase();
+      if (status !== "approved") return false;
+      if (!String(row.assetAddress || "").trim()) return false;
+      return toAssetKeys.has(String(row.assetId || "").trim());
+    });
+  }, [whitelistedAddress, toAssetKeys]);
+
   const execute = () => {
-    if (vol <= 0) return mwToast("Enter an amount");
-    if (isFromEur) {
-      if (!companyBenefLoaded) return mwToast("Loading settlement details…");
-      if (!companyConfigured) {
-        return mwToast("EUR settlement details are not configured yet. Contact support.");
-      }
-    } else {
-      if (!otcDepositsLoaded) return mwToast("Loading deposit addresses…");
-      if (!resolveOtcDepositAddress(from)) {
-        return mwToast(
-          `OTC deposit address is not configured for ${fromTicker}. Contact support.`,
-        );
-      }
+    // Explicit validation order — always show a red error toast (never silent)
+    if (!(vol > 0) || !Number.isFinite(vol)) {
+      mwToast("Enter an amount", { type: "error" });
+      return;
     }
+    if (vol > balance) {
+      mwToast(`Insufficient ${fromTicker} balance`, { type: "error" });
+      return;
+    }
+
     let dest = "";
+    let addressType: "ONETIME" | "WHITELIST" = "ONETIME";
+    let selectedWhitelistId: string | undefined;
+
     if (isToEur) {
       if (
         !benef.iban ||
@@ -325,16 +387,76 @@ const ExchangeNew = () => {
         !benef.bankAddr ||
         !benef.bankCountry
       ) {
-        return mwToast("Fill in the required beneficiary details");
+        mwToast("Fill in the required beneficiary details", { type: "error" });
+        return;
       }
       if (saveAsTemplate && !templateName.trim()) {
-        return mwToast("Enter a template name to save");
+        mwToast("Enter a template name to save", { type: "error" });
+        return;
       }
       dest = benef.iban;
     } else {
-      dest = destAddr.trim();
-      if (!dest) return mwToast("Enter a destination wallet address");
+      if (destMode === "whitelist") {
+        if (approvedWhitelistForTo.length === 0) {
+          mwToast("No approved whitelist address found for this asset", {
+            type: "error",
+          });
+          return;
+        }
+        if (!whitelistId) {
+          mwToast("Please select a whitelisted address", { type: "error" });
+          return;
+        }
+        const row = approvedWhitelistForTo.find((r) => String(r.id) === String(whitelistId));
+        if (!row) {
+          mwToast("Selected whitelist address is not available for this asset", {
+            type: "error",
+          });
+          return;
+        }
+        dest = String(row.assetAddress).trim();
+        addressType = "WHITELIST";
+        selectedWhitelistId = String(row.id);
+      } else {
+        dest = destAddr.trim();
+        if (!dest) {
+          mwToast("Please enter destination wallet address", { type: "error" });
+          return;
+        }
+      }
+      if (!destOwnedConfirmed) {
+        mwToast("Please accept the ownership acknowledgement to proceed", {
+          type: "error",
+        });
+        return;
+      }
     }
+
+    if (isFromEur) {
+      if (!companyBenefLoaded) {
+        mwToast("Loading settlement details…", { type: "error" });
+        return;
+      }
+      if (!companyConfigured) {
+        mwToast("EUR settlement details are not configured yet. Contact support.", {
+          type: "error",
+        });
+        return;
+      }
+    } else {
+      if (!otcDepositsLoaded) {
+        mwToast("Loading deposit addresses…", { type: "error" });
+        return;
+      }
+      if (!resolveOtcDepositAddress(from)) {
+        mwToast(
+          `OTC deposit address is not configured for ${fromTicker}. Contact support.`,
+          { type: "error" },
+        );
+        return;
+      }
+    }
+
     // OTC Exchange page: always desk flow (Pending History). Limits are informational only.
     const limitValue = isToEur ? receive : receive * (parseFloat(market) || 0);
     const otcLimitHit = limits.some((item) => {
@@ -359,6 +481,9 @@ const ExchangeNew = () => {
       transactionFee,
       fxMarkUp: fees.fxMarkUp,
       pairType: pairInfo.type,
+      addressType,
+      whitelistId: selectedWhitelistId,
+      destOwnedConfirmed: isToEur ? true : destOwnedConfirmed,
     });
     setView("order");
   };
@@ -367,6 +492,9 @@ const ExchangeNew = () => {
     setView("form");
     setVolume("");
     setDestAddr("");
+    setDestMode("onetime");
+    setWhitelistId("");
+    setDestOwnedConfirmed(false);
     setBenef({
       iban: "",
       name: "",
@@ -388,10 +516,22 @@ const ExchangeNew = () => {
   /** OTC Exchange: create PENDING desk trade only — no Kraken, no balance debit. */
   const submitOrder = async () => {
     if (!trade) return;
+    if (coinForKrakenName(trade.to) !== "EUR") {
+      if (!trade.destOwnedConfirmed) {
+        mwToast("Please accept the ownership acknowledgement to proceed", {
+          type: "error",
+        });
+        return;
+      }
+      if (!String(trade.dest || "").trim()) {
+        mwToast("Please enter destination wallet address", { type: "error" });
+        return;
+      }
+    }
     const spendAmt = Number(trade.vol);
     const receiveAmt = Number(trade.receiveAmt);
     if (!(spendAmt > 0) || !Number.isFinite(spendAmt)) {
-      mwToast("Invalid spend amount");
+      mwToast("Invalid spend amount", { type: "error" });
       return;
     }
     setBusy(true);
@@ -415,6 +555,9 @@ const ExchangeNew = () => {
         fxMarkUp: trade.fxMarkUp,
         type: trade.pairType,
         destinationAddress: trade.dest,
+        addressType: trade.addressType,
+        whitelistId: trade.whitelistId,
+        destinationOwnershipConfirmed: trade.destOwnedConfirmed,
       };
 
       // Crypto → EUR: attach bank details so BE can persist EURO_TRANSACTIONS
@@ -438,7 +581,7 @@ const ExchangeNew = () => {
 
       const [res, err] = await ApiHandler(SendOTCTradeMail, otcPayload);
       if (err || !res?.success) {
-        mwToast(err || "Could not submit OTC order to desk");
+        mwToast(err || "Could not submit OTC order to desk", { type: "error" });
         return;
       }
 
@@ -572,7 +715,81 @@ const ExchangeNew = () => {
               {!isToEur ? (
                 <div className="exc-fld">
                   <label>Destination wallet address ({toTicker})<span className="req">*</span></label>
-                  <input className="rn-inp" placeholder="Enter the wallet address to receive funds" autoComplete="off" value={destAddr} onChange={(e) => setDestAddr(e.target.value)} />
+                  <div className="exc-dest-toggle" role="group" aria-label="Destination address type">
+                    <button
+                      type="button"
+                      className={destMode === "onetime" ? "on" : ""}
+                      onClick={() => {
+                        setDestMode("onetime");
+                        setWhitelistId("");
+                        setDestOwnedConfirmed(false);
+                      }}
+                    >
+                      One-time address
+                    </button>
+                    <button
+                      type="button"
+                      className={destMode === "whitelist" ? "on" : ""}
+                      onClick={() => {
+                        setDestMode("whitelist");
+                        setDestAddr("");
+                        setDestOwnedConfirmed(false);
+                      }}
+                    >
+                      Whitelist address
+                    </button>
+                  </div>
+                  {destMode === "onetime" ? (
+                    <input
+                      className="rn-inp"
+                      placeholder="Enter the wallet address to receive funds"
+                      autoComplete="off"
+                      value={destAddr}
+                      onChange={(e) => {
+                        setDestAddr(e.target.value);
+                        setDestOwnedConfirmed(false);
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <select
+                        className="rn-inp"
+                        value={whitelistId}
+                        disabled={approvedWhitelistForTo.length === 0}
+                        onChange={(e) => {
+                          setWhitelistId(e.target.value);
+                          setDestOwnedConfirmed(false);
+                        }}
+                        aria-label="Whitelisted destination address"
+                      >
+                        <option value="">
+                          {approvedWhitelistForTo.length === 0
+                            ? "No approved address found"
+                            : "Select whitelisted address"}
+                        </option>
+                        {approvedWhitelistForTo.map((row) => (
+                          <option key={String(row.id)} value={String(row.id)}>
+                            {whitelistOptionLabel(row)}
+                          </option>
+                        ))}
+                      </select>
+                      {approvedWhitelistForTo.length === 0 && (
+                        <p className="exc-dest-empty">
+                          No approved whitelist addresses for {toTicker}. Add and get an address approved from Dashboard → Wallets, then try again.
+                        </p>
+                      )}
+                    </>
+                  )}
+                  <label className="exc-dest-confirm">
+                    <input
+                      type="checkbox"
+                      checked={destOwnedConfirmed}
+                      onChange={(e) => setDestOwnedConfirmed(e.target.checked)}
+                    />
+                    <span>
+                      I confirm that the Destination Wallet address I have provided is owned and controlled by me, and acknowledge and agree to be bound by all Terms and Conditions.
+                    </span>
+                  </label>
                 </div>
               ) : (
                 <div className="exc-benef">
@@ -673,7 +890,14 @@ const ExchangeNew = () => {
               </div>
 
               <div className="exc-foot">
-                <button className="btn btn-primary" style={{ padding: "14px 40px", fontSize: 16 }} onClick={execute}>Execute Trade</button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  style={{ padding: "14px 40px", fontSize: 16 }}
+                  onClick={() => execute()}
+                >
+                  Execute Trade
+                </button>
               </div>
             </div>
           </section>
@@ -743,6 +967,16 @@ const ExchangeNew = () => {
                     (no automatic exchange). Track it under History → Trading History.
                   </p>
                 </div>
+                {coinForKrakenName(trade.to) !== "EUR" && (
+                  <div className="exc-addr-box" style={{ marginTop: 12 }}>
+                    <span className="exc-addr-lbl">
+                      Destination ({trade.addressType === "WHITELIST" ? "Whitelist" : "One-time"})
+                    </span>
+                    <div className="exc-addr-line">
+                      <span className="addr">{trade.dest}</span>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="exc-foot" style={{ justifyContent: "space-between" }}>
                 <button className="btn btn-ghost" onClick={resetForm} disabled={busy}>New Trade</button>
