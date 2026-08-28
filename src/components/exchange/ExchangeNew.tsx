@@ -187,6 +187,40 @@ const ExchangeNew = () => {
   const feesRef = useRef(fees);
   feesRef.current = fees;
 
+  const transferFeeMatchesCurrency = (
+    currencyId: string | undefined,
+    assetId: string,
+    ticker: string,
+  ) => {
+    if (!currencyId || currencyId === "ANY") return true;
+    if (currencyId === assetId || currencyId === ticker) return true;
+    if (assetId.startsWith(`${currencyId}_`)) return true;
+    return false;
+  };
+
+  const findTransferFee = (
+    rows: TransferFees[] | undefined,
+    operationType: number,
+    assetId: string,
+    ticker: string,
+  ) => {
+    const list = (rows ?? []).filter(
+      (i) =>
+        i?.priceListId === dashboard?.priceList &&
+        i?.operationType === operationType &&
+        dateValidation(i) &&
+        i.status,
+    );
+    const exact = list.find((i) =>
+      transferFeeMatchesCurrency(i?.currencyId, assetId, ticker),
+    );
+    if (exact) return exact;
+    if (operationType === 5) {
+      return list.find((i) => i?.currencyId === "EUR") ?? list.find((i) => i?.currencyId === "ANY");
+    }
+    return list.find((i) => i?.currencyId === "ANY");
+  };
+
   // ---- fee config ----
   const fetchFees = async (fromT: string, toT: string, toId: string) => {
     const [fxRes] = await getFxMarkup(dashboard.priceList);
@@ -198,8 +232,9 @@ const ExchangeNew = () => {
     const fxMarkUp = Number(fx[0]?.percent ?? 0);
 
     const [tfRes] = await ApiHandler<TransferFees[]>(fetchTransaferFeesApi);
-    const ex = tfRes?.body?.find((i) => i?.priceListId === dashboard?.priceList && i?.operationType === 5 && (i?.currencyId === "ANY" || i?.currencyId === toId) && dateValidation(i) && i.status);
-    const tx = tfRes?.body?.find((i) => i?.priceListId === dashboard?.priceList && i?.operationType === 7 && (i?.currencyId === "ANY" || i?.currencyId === toId) && dateValidation(i) && i.status);
+    const toTicker = coinForKrakenName(toId);
+    const ex = findTransferFee(tfRes?.body, 5, toId, toTicker);
+    const tx = findTransferFee(tfRes?.body, 7, toId, toTicker);
     setFees({
       fxMarkUp,
       exchangePercent: ex?.percent ?? 0,
@@ -365,10 +400,6 @@ const ExchangeNew = () => {
     // Explicit validation order — always show a red error toast (never silent)
     if (!(vol > 0) || !Number.isFinite(vol)) {
       mwToast("Enter an amount", { type: "error" });
-      return;
-    }
-    if (vol > balance) {
-      mwToast(`Insufficient ${fromTicker} balance`, { type: "error" });
       return;
     }
 

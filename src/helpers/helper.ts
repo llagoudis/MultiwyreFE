@@ -122,12 +122,20 @@ export function changeName(value: string) {
 
 function dateValidation(item: any) {
   const currentDate = new Date();
-  if (!item.validFrom || !item.validTo) {
+  if (!item.validFrom && !item.validTo) {
     return true;
   }
-  const validFromDate = new Date(item.validFrom);
-  const validToDate = new Date(item.validTo);
-  return currentDate >= validFromDate && currentDate <= validToDate;
+  if (item.validFrom) {
+    const validFromDate = new Date(item.validFrom);
+    validFromDate.setHours(0, 0, 0, 0);
+    if (currentDate < validFromDate) return false;
+  }
+  if (item.validTo) {
+    const validToDate = new Date(item.validTo);
+    validToDate.setHours(23, 59, 59, 999);
+    if (currentDate > validToDate) return false;
+  }
+  return true;
 }
 
 const formatDate = (date: string | undefined): string => {
