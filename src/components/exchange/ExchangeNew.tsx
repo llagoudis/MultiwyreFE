@@ -367,10 +367,6 @@ const ExchangeNew = () => {
       mwToast("Enter an amount", { type: "error" });
       return;
     }
-    if (vol > balance) {
-      mwToast(`Insufficient ${fromTicker} balance`, { type: "error" });
-      return;
-    }
 
     let dest = "";
     let addressType: "ONETIME" | "WHITELIST" = "ONETIME";
