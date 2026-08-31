@@ -1,5 +1,6 @@
 import { Fragment, useContext } from "react";
 import { useRouter } from "next/router";
+import { logout } from "~/helpers/helper";
 import { SidebarContext } from "../context/SidebarProvider";
 
 /**
@@ -48,7 +49,13 @@ const Sidebar = () => {
         ))}
       </nav>
       <div className="nav-foot">
-        <div className="nav-item" onClick={() => go("/auth/login")}>
+        <div
+          className="nav-item"
+          onClick={() => {
+            if (mobileOpen) setMobileOpen(false);
+            void logout();
+          }}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/mw/sidebaricons/logout.svg" alt="" />
           Logout

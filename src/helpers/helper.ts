@@ -177,14 +177,19 @@ const tableFormatDate = (date: string | undefined): string => {
   return formattedDate;
 };
 const logout = async () => {
-  localStorage.clear();
   useGlobalStore.getState().resetStore();
+  await useGlobalStore.persist.clearStorage();
+  localStorage.clear();
 
-  const ip = await fetch("https://api.ipify.org?format=json");
-  const res = await ip.json();
-
-  localStorageService.setIpAddress(res?.ip);
   void Router.replace("/auth/login");
+
+  try {
+    const ip = await fetch("https://api.ipify.org?format=json");
+    const res = await ip.json();
+    localStorageService.setIpAddress(res?.ip);
+  } catch {
+    // IP re-fetch is best-effort; login page will refresh it via _app
+  }
 };
 
 const findIp = async () => {
