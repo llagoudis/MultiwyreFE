@@ -190,9 +190,9 @@
 /* ---------- Modal ---------- */
 .overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, .5); backdrop-filter: blur(3px); display: grid; place-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity .2s; padding: 24px; }
 .overlay.open { opacity: 1; pointer-events: auto; }
-.sheet { width: 100%; max-width: 470px; background: #fff; border-radius: 20px; box-shadow: 0 24px 60px rgba(16, 24, 40, .24); transform: translateY(10px) scale(.985); transition: transform .2s; max-height: 100%; display: flex; flex-direction: column; }
+.sheet { width: 100%; max-width: 470px; background: #fff; border-radius: 20px; box-shadow: 0 24px 60px rgba(16, 24, 40, .24); transform: translateY(10px) scale(.985); transition: transform .2s; max-height: calc(100dvh - 48px); display: flex; flex-direction: column; overflow: hidden; }
 .overlay.open .sheet { transform: none; }
-.sheet-head { padding: 20px 22px 16px; border-bottom: 1px solid var(--line); display: flex; align-items: flex-start; gap: 14px; }
+.sheet-head { flex-shrink: 0; padding: 20px 22px 16px; border-bottom: 1px solid var(--line); display: flex; align-items: flex-start; gap: 14px; }
 .sheet-head h3 { margin: 0 0 3px; font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
 .sheet-head p { margin: 0; font-size: 12.5px; color: var(--ink-3); }
 .x { margin-left: auto; width: 32px; height: 32px; flex: none; border-radius: 9px; border: none; background: #f1f4f9; color: var(--ink-2); cursor: pointer; display: grid; place-items: center; transition: background .15s; }
@@ -200,9 +200,13 @@
 .steps { display: flex; align-items: center; gap: 7px; padding: 14px 22px 0; }
 .step-dot { height: 4px; flex: 1; border-radius: 999px; background: var(--line-2); transition: background .25s; }
 .step-dot.on { background: var(--grad); }
-.sheet-body { padding: 18px 22px 4px; overflow-y: auto; }
-.sheet-foot { padding: 16px 22px 20px; display: flex; gap: 10px; }
+.sheet-body { flex: 1; min-height: 0; padding: 14px 22px 4px; overflow-y: auto; }
+.sheet-foot { flex-shrink: 0; padding: 16px 22px 20px; border-top: 1px solid var(--line); display: flex; gap: 10px; }
 .sheet-foot .btn { flex: 1; justify-content: center; }
+
+.invoice-modal-form { display: flex; flex-direction: column; gap: 8px; }
+.invoice-modal-form .fld { margin-bottom: 0; }
+.invoice-modal-form .fld-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
 .fld { margin-bottom: 16px; }
 .fld > label { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 7px; }
