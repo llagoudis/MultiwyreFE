@@ -9,6 +9,7 @@ import useConfirm from "~/components/mw/useConfirm";
 import mwToast from "~/components/mw/toast";
 
 const PERIODS = ["Last 24 hours", "Last 7 Days", "Last 30 Days"] as const;
+const DASHBOARD_DUST_THRESHOLD = 0.01;
 
 const fmtMoney = (n: number) => Number(n || 0).toLocaleString("en-IE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -66,8 +67,19 @@ const Dashboard = () => {
     }
 
     if (!anyPositiveBalance) return 0;
-    return Math.abs(sum) < 0.01 ? 0 : sum;
+    return Math.abs(sum) < DASHBOARD_DUST_THRESHOLD ? 0 : sum;
   }, [accounts, balanceByAsset]);
+
+  // QA #6: no phantom payment activity when headline balance is zero
+  const displayPaymentActivity = useMemo(() => {
+    if (displayTotalValue !== 0) return pa;
+
+    const zeroed: Record<string, number | number[]> = {};
+    for (const [key, val] of Object.entries(pa)) {
+      zeroed[key] = Array.isArray(val) ? val.map(() => 0) : 0;
+    }
+    return zeroed;
+  }, [pa, displayTotalValue]);
 
   const copy = (v: string) => {
     if (navigator.clipboard) void navigator.clipboard.writeText(v);
@@ -182,9 +194,9 @@ const Dashboard = () => {
           {PERIODS.map((p, i) => {
             const win = ["24h", "7d", "30d"][i];
             const pre = paKind === "deposits" ? "deposit" : "withdraw";
-            const count = Number(pa[`${pre}${win}Count`] ?? 0);
-            const amount = Number(pa[`${pre}${win}Amount`] ?? 0);
-            const seriesRaw = pa[`${pre}${win}Series`];
+            const count = Number(displayPaymentActivity[`${pre}${win}Count`] ?? 0);
+            const amount = Number(displayPaymentActivity[`${pre}${win}Amount`] ?? 0);
+            const seriesRaw = displayPaymentActivity[`${pre}${win}Series`];
             const bars = Array.isArray(seriesRaw)
               ? seriesRaw.map((value) => Number(value) || 0)
               : [];
