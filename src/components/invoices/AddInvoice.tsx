@@ -162,7 +162,7 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
       onClose={() => onClose()}
       title={invoice ? "Edit invoice" : "New invoice"}
       subtitle={invoice ? "Update invoice details" : "Enter invoice details"}
-      maxWidth={640}
+      maxWidth={560}
       footer={
         <>
           <button type="button" className="btn btn-ghost" onClick={() => onClose()} disabled={loading}>
@@ -180,13 +180,13 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
       }
     >
       <form
+        className="invoice-modal-form"
         onSubmit={(e) => {
           e.preventDefault();
           void handleSubmit(onSubmit)();
         }}
-        style={{ display: "flex", flexDirection: "column", gap: 14 }}
       >
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="fld-grid">
           <div className="fld">
             <label htmlFor="invName">Bill to</label>
             <Controller
@@ -239,7 +239,7 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
               >
                 <option value="">Select project</option>
                 {merchants.map((m) => (
-                  <option key={m.projectId} value={m.projectId}>
+                  <option key={m.projectId} value={String(m.projectId)}>
                     {m.projectName}
                   </option>
                 ))}
@@ -328,7 +328,7 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
               </tbody>
             </table>
           </div>
-          <button type="button" className="btn-pink" style={{ marginTop: 10, alignSelf: "flex-start" }} onClick={addBillingItem}>
+          <button type="button" className="btn-pink" style={{ marginTop: 6, alignSelf: "flex-start" }} onClick={addBillingItem}>
             + Add item
           </button>
         </div>
