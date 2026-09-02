@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { Controller, useForm } from "react-hook-form";
 import Modal from "~/components/mw/Modal";
 import mwToast from "~/components/mw/toast";
@@ -60,7 +61,9 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [merchantsLoading, setMerchantsLoading] = useState(true);
   const [merchants, setMerchants] = useState<any[]>([]);
+  const router = useRouter();
   const [billingItems, setBillingItems] = useState<BillingItem[]>([
     { id: Date.now(), description: "", amount: "" },
   ]);
@@ -80,13 +83,17 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
 
   useEffect(() => {
     void (async () => {
+      setMerchantsLoading(true);
       const [response] = await getAllCustomerMerchants();
       if (response?.body) {
         setMerchants(response.body);
         if (response.body.length === 1) {
           setValue("projectId", response.body[0]?.projectId ?? "");
         }
+      } else {
+        setMerchants([]);
       }
+      setMerchantsLoading(false);
     })();
   }, [setValue]);
 
@@ -132,6 +139,9 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
     if (!values.name?.trim()) return mwToast("Bill to is required");
     if (!values.billingAddress?.trim()) return mwToast("Billing address is required");
     if (!values.projectId) return mwToast("Project is required");
+    if (!merchants.length && !invoice) {
+      return mwToast("Create a project in Profile → Projects first");
+    }
     if (!values.currency) return mwToast("Currency is required");
     if (totalAmount <= 0) return mwToast("Add at least one billing amount");
 
@@ -152,8 +162,14 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
       ? await ApiHandler(() => updateInvoices(invoice.id, payload as InvoiceForm))
       : await ApiHandler(createInvoices, payload);
     setLoading(false);
-    if (res?.success) onClose("success");
-    else mwToast(invoice ? "Failed to update invoice" : "Failed to create invoice");
+    if (res?.success && (invoice || res.body?.createdList)) {
+      onClose("success");
+    } else {
+      mwToast(
+        res?.message ??
+          (invoice ? "Failed to update invoice" : "Failed to create invoice"),
+      );
+    }
   };
 
   return (
@@ -171,7 +187,7 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
           <button
             type="button"
             className="btn btn-primary"
-            disabled={loading}
+            disabled={loading || merchantsLoading || (!invoice && !merchants.length)}
             onClick={() => void handleSubmit(onSubmit)()}
           >
             {loading ? (invoice ? "Saving…" : "Creating…") : invoice ? "Save" : "Create invoice"}
@@ -224,28 +240,57 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
 
         <div className="fld">
           <label htmlFor="invProject">Project</label>
-          <Controller
-            name="projectId"
-            control={control}
-            rules={{ required: true }}
-            render={({ field }) => (
-              <select
-                {...field}
-                id="invProject"
-                className="inp"
-                value={field.value || ""}
-                onChange={(e) => field.onChange(e.target.value)}
-                disabled={Boolean(invoice)}
+          {merchantsLoading ? (
+            <p className="ps">Loading projects…</p>
+          ) : !merchants.length && !invoice ? (
+            <div
+              className="inp"
+              style={{
+                background: "#fff7ed",
+                borderColor: "#fdba74",
+                color: "#9a3412",
+                fontSize: 14,
+                lineHeight: 1.5,
+              }}
+            >
+              No projects available.{" "}
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                style={{ padding: 0, color: "#c2410c", textDecoration: "underline" }}
+                onClick={() => {
+                  onClose();
+                  void router.push("/app/profile?tab=projects");
+                }}
               >
-                <option value="">Select project</option>
-                {merchants.map((m) => (
-                  <option key={m.projectId} value={String(m.projectId)}>
-                    {m.projectName}
-                  </option>
-                ))}
-              </select>
-            )}
-          />
+                Go to Profile → Projects
+              </button>{" "}
+              to create one, then return here to create your invoice.
+            </div>
+          ) : (
+            <Controller
+              name="projectId"
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <select
+                  {...field}
+                  id="invProject"
+                  className="inp"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  disabled={Boolean(invoice)}
+                >
+                  <option value="">Select project</option>
+                  {merchants.map((m) => (
+                    <option key={m.projectId} value={String(m.projectId)}>
+                      {m.projectName}
+                    </option>
+                  ))}
+                </select>
+              )}
+            />
+          )}
         </div>
 
         <div className="fld">
