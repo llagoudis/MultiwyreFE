@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
 import { Modal } from "@mui/material";
 import toast from "react-hot-toast";
 import { ApiHandler } from "../../service/UtilService";
@@ -13,12 +14,13 @@ import ChangePassword from "./ChangePassword";
 import TwoFactorAuthentication from "./TwoFactorAuthentication";
 import ChangeAuth from "./ChangeMobileEmail";
 import OrgManagement from "./OrgManagement";
+import ProfileProjects from "./ProfileProjects";
 import IdentityVerificationMainScreen from "../verification/identity-verification/MainScreen";
 import mwToast from "~/components/mw/toast";
 import { IcCamera } from "~/components/mw/icons";
 
 interface Form { currentPassword?: string; newPassword?: string; twoFactorCode?: string }
-type ProfileTab = "settings" | "fees" | "org";
+type ProfileTab = "settings" | "fees" | "org" | "projects";
 
 const DEFAULT_AVATAR = "/mw/images/defaultProfile.svg";
 
@@ -30,6 +32,7 @@ const humanize = (k: string) =>
   k.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase()).replace(/\s+/g, " ").trim();
 
 const Profile = () => {
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const profileImgLink = useGlobalStore((s) => s.user.profileImgLink);
   const dashboard = useGlobalStore((s) => s.dashboard);
@@ -50,6 +53,13 @@ const Profile = () => {
   const [ecommerceFees, setEcommerceFees] = useState<any[]>([]);
 
   useEffect(() => { setUserDetails(localStorageService.decodeAuthBody() ?? {}); }, [dashboard]);
+
+  useEffect(() => {
+    const tabParam = router.query.tab;
+    if (tabParam === "projects") {
+      setTab("projects");
+    }
+  }, [router.query.tab]);
 
   useEffect(() => {
     void (async () => {
@@ -163,6 +173,7 @@ const Profile = () => {
           <section className="card ptabs">
             <button className={`ptab${tab === "settings" ? " on" : ""}`} onClick={() => setTab("settings")}>Account Settings</button>
             <button className={`ptab${tab === "fees" ? " on" : ""}`} onClick={() => setTab("fees")}>Fees</button>
+            <button className={`ptab${tab === "projects" ? " on" : ""}`} onClick={() => setTab("projects")}>Projects</button>
             <button className={`ptab${tab === "org" ? " on" : ""}`} onClick={() => setTab("org")}>Organisation Management</button>
           </section>
 
@@ -289,6 +300,8 @@ const Profile = () => {
               </div>
             </div>
           )}
+
+          {tab === "projects" && <ProfileProjects />}
 
           {/* ---------- Organisation Management ---------- */}
           {tab === "org" && (

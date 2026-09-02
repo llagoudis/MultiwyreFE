@@ -27,6 +27,20 @@ const getAllCustomerMerchants = async (): Promise<any> =>
     async () => await ProtectedAxiosInstance.get("ecommerce/getmerchants"),
   );
 
+type CustomerMerchantPayload = {
+  projectName: string;
+  webURL?: string;
+  callbackURL?: string;
+};
+
+const createCustomerMerchant = async (
+  data: CustomerMerchantPayload,
+): Promise<any> =>
+  ApiHandler(
+    async () =>
+      await ProtectedAxiosInstance.post("ecommerce/customer/merchants", data),
+  );
+
 export const getAdminProfile = async (): APIFunction<AdminProfile[]> =>
   ApiHandler(
     async () => await ProtectedAxiosInstance.get("/admin/admin-profile"),
@@ -89,6 +103,7 @@ export {
   checkUserStatus,
   checkMerchants,
   getAllCustomerMerchants,
+  createCustomerMerchant,
   getPaymentActivity,
   getWithdrawActivity,
 };
