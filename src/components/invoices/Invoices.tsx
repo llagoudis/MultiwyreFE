@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type MouseEvent } from "react";
+import { useRouter } from "next/router";
 import { getInvoices } from "~/service/ApiRequests";
 import { ApiHandler } from "~/service/UtilService";
 import { formatDate, onCopy } from "~/helpers/helper";
@@ -6,6 +7,7 @@ import localStorageService from "~/service/LocalstorageService";
 import AddInvoice from "./AddInvoice";
 import InvoiceCreated from "./InvoiceCreated";
 import { downloadInvoicePdf } from "./downloadInvoicePdf";
+import { getAllCustomerMerchants } from "~/service/api/accounts";
 import { IcSearch, IcKebab } from "~/components/mw/icons";
 import mwToast from "~/components/mw/toast";
 
@@ -25,6 +27,7 @@ const statusLabel = (s = "") => {
 };
 
 const Invoices = () => {
+  const router = useRouter();
   const [rows, setRows] = useState<Invoices[]>([]);
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
@@ -108,11 +111,26 @@ const Invoices = () => {
     const wasEdit = Boolean(editInvoice);
     setEditInvoice(null);
     if (value === "success") {
+      setSearch("");
+      setDebouncedSearch("");
+      setPage(0);
       setRefreshFlag((f) => !f);
       setOpenAdd(wasEdit ? "" : "success");
     } else {
       setOpenAdd("");
     }
+  };
+
+  const handleNewInvoice = async () => {
+    setEditInvoice(null);
+    const [response] = await getAllCustomerMerchants();
+    const merchants = (response?.body as unknown[]) ?? [];
+    if (!merchants.length) {
+      mwToast("Create a project in Profile → Projects first");
+      void router.push("/app/profile?tab=projects");
+      return;
+    }
+    setOpenAdd("addNew");
   };
 
   const onEdit = (row: Invoices) => {
@@ -169,7 +187,7 @@ const Invoices = () => {
               <input placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
             {!viewer && (
-              <button className="btn btn-primary" onClick={() => { setEditInvoice(null); setOpenAdd("addNew"); }}>
+              <button className="btn btn-primary" onClick={() => void handleNewInvoice()}>
                 <span style={{ fontSize: 17, lineHeight: 1 }}>+</span> New Invoices
               </button>
             )}
