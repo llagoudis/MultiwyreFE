@@ -291,6 +291,7 @@ const EcomInvoiceScannerTwo = (props: propType) => {
       const provider = ethProvider;
       if (!provider) {
         toast.error("Please connect wallet first");
+        return;
       }
 
       const dbChainId = Number(selectedAsset?.chainId);

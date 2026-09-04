@@ -460,6 +460,7 @@ const EcomInvoicePayTwo = (props: propType) => {
   ];
 
   function USDC_USDT_icon(token: string, icon: string) {
+    if (!token) return icon || null;
     const USDC_ICON = assets?.find(
       (item) => item.network === "ETH" && item?.krakenAssetId === "USDC",
     );
@@ -467,11 +468,12 @@ const EcomInvoicePayTwo = (props: propType) => {
       (item) => item.network === "ETH" && item?.krakenAssetId === "USDT",
     );
 
-    return token.includes("USDC")
+    const resolved = token.includes("USDC")
       ? (USDC_ICON?.icon ?? icon)
       : token.includes("USDT")
         ? (USDT_ICON?.icon ?? icon)
         : icon;
+    return resolved || null;
   }
 
   const filteredAssets =
@@ -504,25 +506,34 @@ const EcomInvoicePayTwo = (props: propType) => {
 
             <Box className="relative flex w-1/2 flex-col">
               <span className="mb-1 text-sm">Token</span>
-              <div    className={`...
-        ${!selectedNetwork.name ? "opacity-50 cursor-not-allowed" : ""}
-    `}>
-                <Listbox value={selectedAsset}
-                         onChange={setSelectedAsset}
-                         disabled={!selectedNetwork.name}
-                      
+              <div
+                className={
+                  !selectedNetwork.name ? "opacity-50 cursor-not-allowed" : ""
+                }
+              >
+                <Listbox
+                  value={selectedAsset}
+                  onChange={setSelectedAsset}
+                  disabled={!selectedNetwork.name}
                 >
                   <ListboxButton
                     className="flex w-full items-center justify-between rounded-lg bg-[#eff3f4] p-3 pl-4 text-left">
                     <div className="flex items-center gap-2">
-                      {selectedAsset && (
-                        <Image
-                          src={USDC_USDT_icon(selectedAsset.name, selectedAsset.icon)}
-                          width={24}
-                          height={24}
-                          alt="token"
-                        />
-                      )}
+                      {selectedAsset &&
+                        USDC_USDT_icon(
+                          selectedAsset.name,
+                          selectedAsset.icon,
+                        ) && (
+                          <Image
+                            src={USDC_USDT_icon(
+                              selectedAsset.name,
+                              selectedAsset.icon,
+                            )}
+                            width={24}
+                            height={24}
+                            alt="token"
+                          />
+                        )}
                       <p>
                         {selectedAsset
                           ? selectedAsset?.krakenAssetId
@@ -534,26 +545,28 @@ const EcomInvoicePayTwo = (props: propType) => {
 
                   <ListboxOptions
                     className="absolute z-50 mt-2 max-h-[40vh] w-full overflow-y-auto rounded-md bg-white shadow-lg">
-                    {filteredAssets.map((asset, i) => (
-                      <ListboxOption
-                        key={i}
-                        value={asset}
-                        className="cursor-pointer px-4 py-2 hover:bg-[#F4F5FB]"
-                      >
-                        <div className="flex items-center gap-3">
-                          {asset?.icon && (
-
-                            <Image
-                              src={USDC_USDT_icon(asset.name, asset.icon)}
-                              width={24}
-                              height={24}
-                              alt="token"
-                            />
-                          )}
-                          {asset?.krakenAssetId}
-                        </div>
-                      </ListboxOption>
-                    ))}
+                    {filteredAssets.map((asset, i) => {
+                      const tokenIcon = USDC_USDT_icon(asset.name, asset.icon);
+                      return (
+                        <ListboxOption
+                          key={i}
+                          value={asset}
+                          className="cursor-pointer px-4 py-2 hover:bg-[#F4F5FB]"
+                        >
+                          <div className="flex items-center gap-3">
+                            {tokenIcon ? (
+                              <Image
+                                src={tokenIcon}
+                                width={24}
+                                height={24}
+                                alt="token"
+                              />
+                            ) : null}
+                            {asset?.krakenAssetId}
+                          </div>
+                        </ListboxOption>
+                      );
+                    })}
                   </ListboxOptions>
                 </Listbox>
               </div>
@@ -610,7 +623,7 @@ const EcomInvoicePayTwo = (props: propType) => {
                         />
                       )}
                       <p>
-                        {selectedNetwork
+                        {selectedNetwork.name
                           ? selectedNetwork.name
                           : "Select Network"}
                       </p>
@@ -620,19 +633,23 @@ const EcomInvoicePayTwo = (props: propType) => {
 
                   <ListboxOptions
                     className="absolute z-50 mt-2 max-h-[40vh] w-full overflow-y-auto rounded-md bg-white shadow-lg">
-                    {networks.map((network) => (
+                    {networks
+                      .filter((network) => network?.name)
+                      .map((network) => (
                       <ListboxOption
                         key={network.name}
                         value={network}
                         className="cursor-pointer px-4 py-2 hover:bg-[#F4F5FB]"
                       >
                         <div className="flex items-center gap-3">
-                          <Image
-                            src={network.icon}
-                            width={24}
-                            height={24}
-                            alt="network"
-                          />
+                          {network.icon ? (
+                            <Image
+                              src={network.icon}
+                              width={24}
+                              height={24}
+                              alt="network"
+                            />
+                          ) : null}
                           {network.name}
                         </div>
                       </ListboxOption>
