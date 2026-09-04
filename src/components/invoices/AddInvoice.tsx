@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import { Controller, useForm } from "react-hook-form";
 import Modal from "~/components/mw/Modal";
 import mwToast from "~/components/mw/toast";
@@ -63,7 +62,6 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
   const [loading, setLoading] = useState(false);
   const [merchantsLoading, setMerchantsLoading] = useState(true);
   const [merchants, setMerchants] = useState<any[]>([]);
-  const router = useRouter();
   const [billingItems, setBillingItems] = useState<BillingItem[]>([
     { id: Date.now(), description: "", amount: "" },
   ]);
@@ -85,11 +83,9 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
     void (async () => {
       setMerchantsLoading(true);
       const [response] = await getAllCustomerMerchants();
-      if (response?.body) {
+      if (response?.body?.length) {
         setMerchants(response.body);
-        if (response.body.length === 1) {
-          setValue("projectId", response.body[0]?.projectId ?? "");
-        }
+        setValue("projectId", String(response.body[0]?.projectId ?? ""));
       } else {
         setMerchants([]);
       }
@@ -138,9 +134,8 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
   const onSubmit = async (values: InvoiceForm) => {
     if (!values.name?.trim()) return mwToast("Bill to is required");
     if (!values.billingAddress?.trim()) return mwToast("Billing address is required");
-    if (!values.projectId) return mwToast("Project is required");
-    if (!merchants.length && !invoice) {
-      return mwToast("Create a project in Profile → Projects first");
+    if (!invoice && !values.projectId) {
+      return mwToast("Unable to create invoice. Please try again.");
     }
     if (!values.currency) return mwToast("Currency is required");
     if (totalAmount <= 0) return mwToast("Add at least one billing amount");
@@ -236,61 +231,6 @@ const AddInvoice = ({ onClose, invoice, openAdd }: propType) => {
               <input {...field} id="invEmail" className="inp" type="email" placeholder="customer@email.com" />
             )}
           />
-        </div>
-
-        <div className="fld">
-          <label htmlFor="invProject">Project</label>
-          {merchantsLoading ? (
-            <p className="ps">Loading projects…</p>
-          ) : !merchants.length && !invoice ? (
-            <div
-              className="inp"
-              style={{
-                background: "#fff7ed",
-                borderColor: "#fdba74",
-                color: "#9a3412",
-                fontSize: 14,
-                lineHeight: 1.5,
-              }}
-            >
-              No projects available.{" "}
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                style={{ padding: 0, color: "#c2410c", textDecoration: "underline" }}
-                onClick={() => {
-                  onClose();
-                  void router.push("/app/profile?tab=projects");
-                }}
-              >
-                Go to Profile → Projects
-              </button>{" "}
-              to create one, then return here to create your invoice.
-            </div>
-          ) : (
-            <Controller
-              name="projectId"
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <select
-                  {...field}
-                  id="invProject"
-                  className="inp"
-                  value={field.value || ""}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  disabled={Boolean(invoice)}
-                >
-                  <option value="">Select project</option>
-                  {merchants.map((m) => (
-                    <option key={m.projectId} value={String(m.projectId)}>
-                      {m.projectName}
-                    </option>
-                  ))}
-                </select>
-              )}
-            />
-          )}
         </div>
 
         <div className="fld">
