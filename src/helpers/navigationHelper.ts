@@ -7,8 +7,9 @@ export function goToDashboard(reason?: string) {
 
    const unprotectedRoutes = [
       "/",
-      "/buy/buycrypto",
-      "/buy/success",
+      // Point 3 — Stripe /buy dormant (not on near-term roadmap)
+      // "/buy/buycrypto",
+      // "/buy/success",
       "/auth/signup",
       "/auth/login",
       /^\/ecompayment\/[^/]+$/,

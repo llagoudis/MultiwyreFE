@@ -1,16 +1,13 @@
-"use client";
-
 import { useEffect } from "react";
+import { useRouter } from "next/router";
 
+/** Point 4 — Ivy / open-banking bank-transfer failed dormant (not on near-term roadmap). */
 export default function IvyFailedPage() {
-  useEffect(() => {
-    window.parent.postMessage({ ivyEvent: "payment_failed" }, "*");
-  }, []);
+  const router = useRouter();
 
-  return (
-    <div style={{ padding: 40, textAlign: "center" }}>
-      <h2>Payment failed</h2>
-      <p>Returning to app...</p>
-    </div>
-  );
+  useEffect(() => {
+    void router.replace("/auth/login");
+  }, [router]);
+
+  return null;
 }
