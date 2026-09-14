@@ -1,20 +1,13 @@
-"use client";
-
 import { useEffect } from "react";
+import { useRouter } from "next/router";
 
+/** Point 4 — Ivy / open-banking bank-transfer success dormant (not on near-term roadmap). */
 export default function IvySuccessPage() {
+  const router = useRouter();
+
   useEffect(() => {
-    // Send success message to the parent (iframe parent)
-    window.parent.postMessage({ ivyEvent: "payment_succeeded" }, "*");
+    void router.replace("/auth/login");
+  }, [router]);
 
-    // Optional: show a quick message
-    // DO NOT window.close() because iframe cannot close itself
-  }, []);
-
-  return (
-    <div style={{ padding: 40, textAlign: "center" }}>
-      <h2>Payment Successful</h2>
-      <p>Completing your transaction...</p>
-    </div>
-  );
+  return null;
 }
