@@ -5,7 +5,9 @@ import { useRouter } from "next/router";
 import { Modal } from "@mui/material";
 import toast from "react-hot-toast";
 import { ApiHandler } from "../../service/UtilService";
-import { fetchCheckoutFees, get2FAQRCode, submit2FAOtp, updatePassword, updateProfilePicture } from "../../service/ApiRequests";
+import { get2FAQRCode, submit2FAOtp, updatePassword, updateProfilePicture } from "../../service/ApiRequests";
+// Point 3 — fetchCheckoutFees unused while checkout-merchant is dormant
+// import { fetchCheckoutFees, get2FAQRCode, submit2FAOtp, updatePassword, updateProfilePicture } from "../../service/ApiRequests";
 import { getOperationTypeUserpanel, getTransferFeesByPricelistId } from "../../service/api/pricelists";
 import { getAllCustomerMerchants } from "../../service/api/accounts";
 import localStorageService from "../../service/LocalstorageService";
@@ -73,6 +75,7 @@ const Profile = () => {
   }, [dashboard.priceList]);
 
   useEffect(() => {
+    // Point 3 — Stripe / checkout-merchant fees endpoint dormant; skip ecommerce fee fetch
     void (async () => {
       const [merchantRes] = await getAllCustomerMerchants();
       const merchant = merchantRes?.body?.[0];
@@ -81,13 +84,14 @@ const Profile = () => {
         setEcommerceFees([]);
         return;
       }
-      const [feesRes, error] = await ApiHandler(fetchCheckoutFees, { id: merchantId });
-      if (error) return;
-      const feeRows =
-        feesRes?.body?.merchant?.User?.PriceList?.TransferFees ??
-        feesRes?.body?.merchant?.PriceList?.TransferFees ??
-        [];
-      setEcommerceFees(feeRows);
+      // const [feesRes, error] = await ApiHandler(fetchCheckoutFees, { id: merchantId });
+      // if (error) return;
+      // const feeRows =
+      //   feesRes?.body?.merchant?.User?.PriceList?.TransferFees ??
+      //   feesRes?.body?.merchant?.PriceList?.TransferFees ??
+      //   [];
+      // setEcommerceFees(feeRows);
+      setEcommerceFees([]);
     })();
   }, []);
 
