@@ -1,9 +1,15 @@
-"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
-import PaymentFailed from "~/components/buycrypto/PaymentFailed";
+/** Point 3 — Stripe buy-crypto failed dormant (not on near-term roadmap). */
+const Failed = () => {
+  const router = useRouter();
 
-const Success = () => {
-  return <PaymentFailed />;
+  useEffect(() => {
+    void router.replace("/auth/login");
+  }, [router]);
+
+  return null;
 };
 
-export default Success;
+export default Failed;

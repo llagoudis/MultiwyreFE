@@ -3,7 +3,7 @@ import Image, { StaticImageData } from "next/image";
 import React, { useEffect, useState } from "react";
 import { formatDate, tableFormatDate } from "~/helpers/helper";
 import useDashboard from "~/hooks/useDashboard";
-import Logo from "~/assets/images/xchange-360-logo.png";
+import Logo from "~/assets/images/multiwyre-logo.png";
 
 interface StatementReportProps {
   rows: any[];

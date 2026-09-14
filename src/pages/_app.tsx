@@ -6,8 +6,9 @@ import { useEffect, useState } from "react";
 import localStorageService from "~/service/LocalstorageService";
 import "~/styles/globals.css";
 import "~/styles/mw.css";
-import "@getivy/react-sdk/dist/index.css";
-import "../styles/ivy-checkout.module.css";
+// Point 4 — Ivy / open banking dormant (not on near-term roadmap)
+// import "@getivy/react-sdk/dist/index.css";
+// import "../styles/ivy-checkout.module.css";
 // your override CSS
 import hydrateStore from "~/helpers/hydrateStore";
 import { checkUserByIP } from "~/service/ApiRequests";
@@ -30,8 +31,9 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     const token = localStorageService.getLocalAccessToken();
     const unprotectedRoutes = [
       "/",
-      "/buy/buycrypto",
-      "/buy/success",
+      // Point 3 — Stripe /buy dormant (not on near-term roadmap)
+      // "/buy/buycrypto",
+      // "/buy/success",
       "/auth/signup",
       "/auth/login",
       /^\/ecompayment\/[^/]+$/,
