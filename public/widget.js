@@ -1300,6 +1300,12 @@ let markup = null;
 let price = null;
 
 async function main() {
+  // Point 3 — Stripe / checkout-merchant widget dormant (not on near-term roadmap)
+  console.warn(
+    "[Multiwyre] Checkout widget disabled (Stripe/checkout-merchant not on roadmap).",
+  );
+  return;
+
   const currentScript = widgetScriptEl;
 
   try {

@@ -297,6 +297,7 @@ export const getEconUrlTransaction = (data: any) =>
 export const updateEconUrlTransaction = (data: any) =>
   AxiosInstanceEncrypt.post(`/ecomtransaction/url/update`, data, {});
 
+// Point 3 — helpers retained for Profile fees UI; BE `/checkout-merchant` is unmounted
 export const verifyMerchantKeys = (data: any) =>
   AxiosInstance.post("/checkout-merchant/verify", data);
 
@@ -334,5 +335,6 @@ export const convertImageToBase64Api = (data: { imageUrl: string }) => {
   
   
 };
+// Point 4 — BE `/openBanking` unmounted; helper kept so dormant IvyPaymentScreen still typechecks
 export const createIvySession = (data: any) =>
   AxiosInstance.post(`/openBanking/createSession`,data);

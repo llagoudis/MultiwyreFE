@@ -2,7 +2,7 @@
 import Image, { StaticImageData } from "next/image";
 import React from "react";
 import { tableFormatDate } from "~/helpers/helper";
-import Logo from "~/assets/images/xchange-360-logo.png";
+import Logo from "~/assets/images/multiwyre-logo.png";
 interface ReconciliationReportProps {
   row: any;
 }
