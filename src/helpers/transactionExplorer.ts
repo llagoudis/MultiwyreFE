@@ -128,6 +128,10 @@ export const getTransactionExplorerUrl = (
       mainnet: `https://polygonscan.com/tx/${txHash}`,
       testnet: `https://polygonscan.com/tx/${txHash}`,
     },
+    [TEST_COINS.USDT_POLYGON]: {
+      mainnet: `https://polygonscan.com/tx/${txHash}`,
+      testnet: `https://polygonscan.com/tx/${txHash}`,
+    },
 
     // BSC
     [TEST_COINS.USDT_BSC_TEST]: {
