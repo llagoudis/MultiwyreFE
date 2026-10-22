@@ -134,6 +134,10 @@ export const getTransactionExplorerUrl = (
     },
 
     // BSC
+    [TEST_COINS.USDT_BSC]: {
+      mainnet: `https://bscscan.com/tx/${txHash}`,
+      testnet: `https://testnet.bscscan.com/tx/${txHash}`,
+    },
     [TEST_COINS.USDT_BSC_TEST]: {
       testnet: `https://testnet.bscscan.com/tx/${txHash}`,
       mainnet: `https://bscscan.com/tx/${txHash}`,
