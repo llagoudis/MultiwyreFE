@@ -85,9 +85,13 @@ export function coinForKrakenName(value: any) {
   if (process.env.NEXT_PUBLIC_DEPLOYMENT_TYPE === "qa") {
     return value === "USDC_TRC20" || value === "USDT_TRC20"
       ? "USDT"
-      : value === "USDC_ERC20" || value === "USDC_POLYGON"
+      : value === "USDC_ERC20" ||
+        value === "USDC_POLYGON" ||
+        value === "USDC_BSC"
       ? "USDC"
-      : value === "USDT_ERC20" || value === "USDT_POLYGON"
+      : value === "USDT_ERC20" ||
+        value === "USDT_POLYGON" ||
+        value === "USDT_BSC"
       ? "USDT"
       : value;
   } else {
@@ -98,9 +102,14 @@ export function coinForKrakenName(value: any) {
       ? "USDT"
       : value === "USDT_TRC20"
       ? "USDT.t"
-      : value === "USDC" || value === "USDC_ERC20" || value === "USDC_POLYGON"
+      : value === "USDC" ||
+        value === "USDC_ERC20" ||
+        value === "USDC_POLYGON" ||
+        value === "USDC_BSC"
       ? "USDC"
-      : value === "USDT_ERC20" || value === "USDT_POLYGON"
+      : value === "USDT_ERC20" ||
+        value === "USDT_POLYGON" ||
+        value === "USDT_BSC"
       ? "USDT"
       : value === "ETH"
       ? "ETH"

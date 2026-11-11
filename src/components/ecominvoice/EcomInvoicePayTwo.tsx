@@ -232,15 +232,35 @@ const EcomInvoicePayTwo = (props: propType) => {
 
     console.table(filtered);
 
-    const defaultAsset = filtered.find(
-      (item: Asset) =>
-        item.network === "ETH" &&
+    // Prefer CREATE2 stables in order: Polygon USDC → ETH USDC → BSC USDC → any USDC
+    const defaultAsset =
+      filtered.find(
+        (item: Asset) =>
+          item.network === "MATIC" &&
+          item.name?.toUpperCase().includes("USDC"),
+      ) ||
+      filtered.find(
+        (item: Asset) =>
+          item.network === "POLYGON" &&
+          item.name?.toUpperCase().includes("USDC"),
+      ) ||
+      filtered.find(
+        (item: Asset) =>
+          item.network === "ETH" &&
+          item.name?.toUpperCase().includes("USDC"),
+      ) ||
+      filtered.find(
+        (item: Asset) =>
+          item.network === "BSC" &&
+          item.name?.toUpperCase().includes("USDC"),
+      ) ||
+      filtered.find((item: Asset) =>
         item.name?.toUpperCase().includes("USDC"),
-    );
+      );
 
 
     if (!defaultAsset) {
-      console.warn("❌ No default ETH USDC asset found");
+      console.warn("❌ No default USDC asset found");
     }
 
     let defaultNetwork = null;
@@ -461,12 +481,19 @@ const EcomInvoicePayTwo = (props: propType) => {
 
   function USDC_USDT_icon(token: string, icon: string) {
     if (!token) return icon || null;
-    const USDC_ICON = assets?.find(
-      (item) => item.network === "ETH" && item?.krakenAssetId === "USDC",
-    );
-    const USDT_ICON = assets?.find(
-      (item) => item.network === "ETH" && item?.krakenAssetId === "USDT",
-    );
+    const matchByBase = (base: "USDC" | "USDT") =>
+      assets?.find(
+        (item) =>
+          item?.krakenAssetId === base &&
+          (item.network === selectedNetwork?.name ||
+            item.network === "ETH" ||
+            item.network === "BSC" ||
+            item.network === "MATIC" ||
+            item.network === "POLYGON"),
+      ) || assets?.find((item) => item?.krakenAssetId === base);
+
+    const USDC_ICON = matchByBase("USDC");
+    const USDT_ICON = matchByBase("USDT");
 
     const resolved = token.includes("USDC")
       ? (USDC_ICON?.icon ?? icon)
