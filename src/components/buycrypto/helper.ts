@@ -738,6 +738,8 @@ import USDC_ETH from "~/assets/currency/USDC-(ERC20).svg";
 import USDT_ETH from "~/assets/currency/USDT-(ERC20).svg";
 import USDT_TRON from "~/assets/currency/USDT-(TRON).svg";
 import USDC_POLYGON from "~/assets/currency/usdc(polygon).svg";
+import USDC_BSC from "~/assets/currency/usdc(bsc).svg";
+import USDT_BSC from "~/assets/currency/usdt(bsc).svg";
 import ETH from "~/assets/currency/Ethernum.svg";
 
 export const currencyFlagsOne = [
@@ -788,13 +790,27 @@ export const currencyFlags = [
   },
   {
     currencyCode: 5,
+    name: "USDC",
+    subname: "BSC",
+    flag: USDC_BSC as StaticImageData,
+    feeCurrencyName: "USDC_BSC",
+  },
+  {
+    currencyCode: 6,
+    name: "USDT",
+    subname: "BSC",
+    flag: USDT_BSC as StaticImageData,
+    feeCurrencyName: "USDT_BSC",
+  },
+  {
+    currencyCode: 7,
     name: "ETH",
     subname: "Eth",
     flag: ETH as StaticImageData,
     feeCurrencyName: "ETH",
   },
   {
-    currencyCode: 6,
+    currencyCode: 8,
     name: "USDT.t",
     subname: "Tron",
     flag: USDT_TRON as StaticImageData,
